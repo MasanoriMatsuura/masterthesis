@@ -2,7 +2,7 @@
 /*Author: Masanori Matsuura*/
 clear all
 set more off
-*create the pathes
+*set the pathes
 global climate = "C:\Users\mm_wi\Documents\Masterthesis\climatebang"
 global BIHS18Community = "C:\Users\mm_wi\Documents\Masterthesis\BIHS\BIHS2018\dataverse_files\BIHSRound3\Community"
 global BIHS18Female = "C:\Users\mm_wi\Documents\Masterthesis\BIHS\BIHS2018\dataverse_files\BIHSRound3\Female"
@@ -15,7 +15,7 @@ cd "C:\Users\mm_wi\Documents\Masterthesis\BIHS\Do"
 *install district data and cleaning 
 import delimited District_n Division_n District district latitude longitude  url using $climate\districts.txt, stringcols(1/7) clear
 save districts.dta
-drop district url
+drop district url //cleaning 
 destring District_n, gen(district_n)
 destring Division_n, gen(division_n)
 replace latitude="." if (latitude=="NULL") 
@@ -64,14 +64,14 @@ import delimited using $climate\temp.csv, clear
 save temp.dta
 use districts, clear
 ssc install geonear
-geonear district_n lat lon using rain.dta, neighbors(v1 lat lon)
+geonear district_n lat lon using rain.dta, neighbors(v1 lat lon) //match
 save climate.dta
 use climate, clear
-rename nid v1
+rename nid v1 //cleaning 
 drop km_to_nid
-merge m:m v1 using rain.dta, nogen
+merge m:m v1 using rain.dta, nogen //merge
 drop if district_n==.
-rename (mean1 mean2 mean3 sd1 sd2 sd3)(rinmn1 rinmn2 rinmn3 rinsd1 rinsd2 rinsd3)
+rename (mean1 mean2 mean3 sd1 sd2 sd3)(rinmn1 rinmn2 rinmn3 rinsd1 rinsd2 rinsd3) //cleaning
 replace rinmn1=". " if(rinmn1=="NA")
 replace rinmn2=". " if(rinmn2=="NA")
 replace rinmn3=". " if(rinmn3=="NA")
@@ -80,12 +80,10 @@ replace rinsd2=". " if(rinsd2=="NA")
 replace rinsd3=". " if(rinsd3=="NA")
 destring (rinmn1 rinmn2 rinmn3 rinsd1 rinsd2 rinsd3), replace
 save climate, replace
-geonear district_n lat lon using temp.dta, neighbors(v1 lat lon)
+geonear district_n lat lon using temp.dta, neighbors(v1 lat lon) //match
 drop km_to_nid
-merge m:m v1 using temp.dta, nogen
-rename (mean1 mean2 mean3 sd1 sd2 sd3)(tmpmn1 tmpmn2 tmpmn3 tmpsd1 tmpsd2 tmpsd3)
+merge m:m v1 using temp.dta, nogen //merge
+rename (mean1 mean2 mean3 sd1 sd2 sd3)(tmpmn1 tmpmn2 tmpmn3 tmpsd1 tmpsd2 tmpsd3) //cleaning
 drop if district_n==.
 drop v1 nid lat lon 
 save climate, replace
-
-*BIHS2015 data cleaning 
