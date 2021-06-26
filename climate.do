@@ -10,11 +10,12 @@ global BIHS18Male = "C:\Users\user\Documents\Masterthesis\BIHS\BIHS2018\datavers
 global BIHS15 = "C:\Users\user\Documents\Masterthesis\BIHS\BIHS2015"
 global BIHS12 = "C:\Users\user\Documents\Masterthesis\BIHS\BIHS2012"
 
-cd "C:\Users\mm_wi\Documents\Masterthesis\BIHS\Do"
+cd "C:\Users\user\Documents\Masterthesis\BIHS\Do"
+
 
 *install district data and cleaning 
 import delimited District_n Division_n District district latitude longitude  url using $climate\districts.txt, stringcols(1/7) clear
-save districts.dta
+save districts.dta, replace
 drop district url //cleaning 
 destring District_n, gen(district_n)
 destring Division_n, gen(division_n)
@@ -23,53 +24,54 @@ replace longitude="." if (longitude=="NULL")
 destring latitude, gen(lat)
 destring longitude, gen(lon)
 drop District_n Division_n latitude longitude
-replace lat=22.375999 if (district_n==4)
-replace lon=92.116000 if (district_n==4)
-replace lat=21.2910 if(district_n==9)
-replace lon=91.5470 if (district_n==9)
-replace lat=24.222640 if (district_n==15)
-replace lon=88.364010 if (district_n==15)
-replace lat=25.503012 if (district_n==17)
-replace lon=89.023012 if (district_n==17)
-replace lat=24.481505 if (district_n==19)
-replace lon=88.565550 if (district_n==19)
-replace lat=22.422941 if (district_n==21)
-replace lon=89.041866 if (district_n==21)
-replace lat=22.341948 if (district_n==30)
-replace lon=90.111307 if (district_n==30)
-replace lat=22.34467 if (district_n==32)
-replace lon=89.58308 if (district_n==32) 
-replace lat=22.421789 if (district_n==33)
-replace lon=90.221247 if (district_n==33)
-replace lat=22.421789 if (district_n==35)
-replace lon=90.221247 if (district_n==35)
-replace lat=23.1236 if (district_n==42)
-replace lon=90.2059 if (district_n==42)
-replace lat=24.145942 if (district_n==44)
-replace lon=89.545958 if (district_n==44)
-replace lat=23.330000 if (district_n==48)
-replace lon=90.220012 if (district_n==48)
-replace lat=23.520012 if (district_n==46)
-replace lon=89.570000 if (district_n==46)
-replace lat=26.000000 if (district_n==55)
-replace lon=89.150000 if (district_n==55)
+replace lat=22.6333308 if (district_n==4) //replace missing value with true
+replace lon=92.1999992 if (district_n==4)
+replace lat=21.583331 if(district_n==9)
+replace lon=92.0166666 if (district_n==9)
+replace lat=24.373309 if (district_n==15)
+replace lon=88.604872 if (district_n==15)
+replace lat=25.105101 if (district_n==17)
+replace lon=89.028877 if (district_n==17)
+replace lat=24.91316 if (district_n==19)
+replace lon=88.753095 if (district_n==19)
+replace lat=22.35 if (district_n==21)
+replace lon=89.15 if (district_n==21)
+replace lat=22.57208 if (district_n==30)
+replace lon=90.186964 if (district_n==30)
+replace lat=22.5367 if (district_n==32)
+replace lon=90.0003 if (district_n==32) 
+replace lat=22.7029212 if (district_n==33)
+replace lon=90.34659710000005 if (district_n==33)
+replace lat=22.095292 if (district_n==35)
+replace lon=90.11207 if (district_n==35)
+replace lat=23.242321 if (district_n==42)
+replace lon=90.434771 if (district_n==42)
+replace lat=24.2498400 if (district_n==44)
+replace lon= 89.9165500 if (district_n==44)
+replace lat=23.8667 if (district_n==46)
+replace lon=89.9500 if (district_n==46)
+replace lat=23.498093 if (district_n==48)
+replace lon=90.412662 if (district_n==48)
+replace lat=26.0000 if (district_n==55)
+replace lon=89.2500 if (district_n==55)
 save districts, replace
 
 * match climate data with district
 import delimited using $climate\rain.csv, clear
-save rain.dta
+save rain.dta, replace
 use rain, clear
 rename v1 nid
 import delimited using $climate\temp.csv, clear
-save temp.dta
+save temp.dta, replace
 use districts, clear
+** match using geonear
 ssc install geonear
 geonear district_n lat lon using rain.dta, neighbors(v1 lat lon) //match
-save climate.dta
+save climate.dta, replace
 use climate, clear
 rename nid v1 //cleaning 
 drop km_to_nid
-merge m:m v1 using rain.dta, nogen //merge
+merge m:m v1 using rain.dta, nogen //merge district data and  rain data
 drop if district_n==.
 rename (mean1 mean2 mean3 sd1 sd2 sd3)(rinmn1 rinmn2 rinmn3 rinsd1 rinsd2 rinsd3) //cleaning
 replace rinmn1=". " if(rinmn1=="NA")
@@ -80,7 +82,7 @@ replace rinsd2=". " if(rinsd2=="NA")
 replace rinsd3=". " if(rinsd3=="NA")
 destring (rinmn1 rinmn2 rinmn3 rinsd1 rinsd2 rinsd3), replace
 save climate, replace
-geonear district_n lat lon using temp.dta, neighbors(v1 lat lon) //match
+geonear district_n lat lon using temp.dta, neighbors(v1 lat lon) //merge district data and  rain data
 drop km_to_nid
 merge m:m v1 using temp.dta, nogen //merge
 rename (mean1 mean2 mean3 sd1 sd2 sd3)(tmpmn1 tmpmn2 tmpmn3 tmpsd1 tmpsd2 tmpsd3) //cleaning
