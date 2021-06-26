@@ -54,38 +54,58 @@ replace lat=23.498093 if (district_n==48)
 replace lon=90.412662 if (district_n==48)
 replace lat=26.0000 if (district_n==55)
 replace lon=89.2500 if (district_n==55)
-save districts, replace
+save districts, replace //replace missing value with latitude and longitudes
+rename District dcode
+save districts.dta, replace 
+import delimited using $climate\districts.csv,  clear //import new district data which are comparable with BIHS
+save district.dta, replace
+merge 1:1 dcode using districts, nogen
+replace lat=24.8500 if (district==10)
+replace lon=89.3667 if (district==10) //replace missing value with true
+replace lat=24.6000 if (district==70)
+replace lon=88.2667 if (district==70)
+replace lat=22.341900 if (district==15)
+replace lon=91.815536 if (district==15)
+replace lat=21.5833 if (district==22)
+replace lon=92.0167 if (district==22)
+replace lat=23.170664 if (district==41)
+replace lon=89.212418 if (district==41)
+replace lat=22.6000 if (district==42)
+replace lon=90.2000 if (district==42)
+replace lat=24.4778 if (district==58)
+replace lon=91.7667 if (district==58)
+replace lat=24.934725 if (district==72)
+replace lon=90.751511 if (district==72)
+keep district dcode lat lon
+drop if district==.
+save district.dta, replace //true district data and comparable with BIHS
 
-* match climate data with district
+** match climate data with district
 import delimited using $climate\rain.csv, clear
-save rain.dta, replace
-use rain, clear
 rename v1 nid
+save rain.dta, replace
 import delimited using $climate\temp.csv, clear
+rename v1 nid
 save temp.dta, replace
-use districts, clear
+
+
 ** match using geonear
+use district, clear
 ssc install geonear
-geonear district_n lat lon using rain.dta, neighbors(v1 lat lon) //match
+geonear district lat lon using rain.dta, neighbors(nid lat lon) //match with rain and district
 save climate.dta, replace
 use climate, clear
-rename nid v1 //cleaning 
 drop km_to_nid
-merge m:m v1 using rain.dta, nogen //merge district data and  rain data
-drop if district_n==.
+merge m:m nid using rain.dta, nogen //merge district data and  rain data
+
 rename (mean1 mean2 mean3 sd1 sd2 sd3)(rinmn1 rinmn2 rinmn3 rinsd1 rinsd2 rinsd3) //cleaning
-replace rinmn1=". " if(rinmn1=="NA")
-replace rinmn2=". " if(rinmn2=="NA")
-replace rinmn3=". " if(rinmn3=="NA")
-replace rinsd1=". " if(rinsd1=="NA")
-replace rinsd2=". " if(rinsd2=="NA")
-replace rinsd3=". " if(rinsd3=="NA")
+drop if district==.
 destring (rinmn1 rinmn2 rinmn3 rinsd1 rinsd2 rinsd3), replace
 save climate, replace
-geonear district_n lat lon using temp.dta, neighbors(v1 lat lon) //merge district data and  rain data
+geonear district lat lon using temp.dta, neighbors(nid lat lon) //merge district data and temperature data
 drop km_to_nid
-merge m:m v1 using temp.dta, nogen //merge
-rename (mean1 mean2 mean3 sd1 sd2 sd3)(tmpmn1 tmpmn2 tmpmn3 tmpsd1 tmpsd2 tmpsd3) //cleaning
-drop if district_n==.
-drop v1 nid lat lon 
+merge m:m nid using temp.dta, nogen //merge
+rename (mean1 mean2 mean3 sd1 sd2 sd3)(tmpmn1 tmpmn2 tmpmn3 tmpsd1 tmpsd2 tmpsd3) //renaming 
+drop if district==.
+drop nid nid lat lon 
 save climate, replace
