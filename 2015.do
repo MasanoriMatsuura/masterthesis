@@ -214,14 +214,20 @@ save offfrm15.dta, replace
 
 /*food consumption*/
 use $BIHS15\064_r2_mod_x1_1_female.dta //create Household dietary diversity score (HDDS)
-recode x1_05 (1/16 277/297 303/305 323 3031 3032=1 "Cereals")(61 82 302 306 621 622 =2 "White roots and tubers")(41/60 63/69 80 81 86/115 298 300 441 905 2921/2923=3 "Vegetables")(141/170 907 1421 1422 1461 1462=4 "Fruits")(121/129 322 906 =5 "Meat")(130/131 1301 1302 =6 "Eggs")(176/205 211/243 908 909 =7 "Fish and seafood")(21/28 31/32 70/79 299 301 317 320=8 "Leagumes, nuts and seeds")(132/135 1321/1323=9 "Milk and milk products")(33/36 312/313 902 903 =10 "Oils and fats")(307/11 321 "Sweets")(246/251 253/264 266/276 314/316 318 319=12"Spices, condiments, and beverages"), gen(hdds_i)
-
+recode x1_05 (1/16 277/297 303/305 323 2771/2776 2782 2781 2782 2791 2792 2801 2802 2811 2812  2813 2841/2843 2851/2852 2861/2863 2871/2876 2891/2896 2901/2907 2951/2952 2961 2971 2981 3031 3032=1 "Cereals")(61 82 302 306 621 622 3231 =2 "White roots and tubers")(41/60 63/69 80 81 86/115 298 300 441 905 2921/2923 2881/2886 2921/2923 2981 3001 =3 "Vegetables")(141/170 907 1421 1422 1461 1462=4 "Fruits")(121/129 322 906 =5 "Meat")(130/131 1301 1302 =6 "Eggs")(176/205 211/243 908 909 =7 "Fish and seafood")(21/28 31/32 70/79 299 301 317 320 2911/2913 2991=8 "Leagumes, nuts and seeds")(132/135 1321/1323 2941/2943=9 "Milk and milk products")(33/36 312/313 902 903 3121/3123 =10 "Oils and fats")(307/11 321=11 "Sweets")(246/251 253/264 266/276 314/316 318 319 2521 2522 2721/2724 3131 3132 = 12 "Spices, condiments, and beverages"), gen(hdds_i)
+keep a01 hdds_i
+duplicates drop a01 hdds_i, force
+bysort a01: egen hdds=count(a01)
+drop hdds_i
+label var hdds "Household Dietary Diversity"
+duplicates drop a01, force
+save fd15.dta, replace
 /*foreach var of varlist x1_07_01 x1_07_02 x1_07_03 x1_07_04 x1_07_05 x1_07_06 x1_07_07 x1_07_08 x1_07_09 x1_07_10 x1_07_11 x1_07_12 x1_07_13 x1_07_14 x1_07_15{
 recode `var' (1/16=1 "Cereals")(2 "White roots and tubers")(3 "Vitamin a rich vegetables and tubers")(4 "Dark grenn leafy vegetables")(5 "Other vegetables")(6 "Vitamin a rich fruits")(7"Other fruits")(8 "Organ meat")(9 "Fresh meat")(10 "Eggs")(11 "Fish and seafood")(21/28=12 "Leagumes, nuts and seeds")(31/32=12 "Leagumes, nuts and seeds")(13 "Milk and milk products")(14 "Oils and fats")(15 "Sweets")(16 "Spices, condiments, and beverages"), gen(hdds_`var')
 }*/
 
 
-use $BIHS15\065_r2_mod_x1_2_female.dta
+use $BIHS15\065_r2_mod_x1_2_female.dta //create Woman Dietary Diversity Score (WDDS)
 
 /*Idiosyncratic shocks*/
 use $BIHS15\050_r2_mod_t1_male.dta, clear
@@ -241,6 +247,7 @@ label var idi_crp_liv "Crop shock*Livestock shock "
 save idisyn15.dta, replace
 
 **agricultural extension
+
 
 **Farm diversification
 use crp15.dta, clear
@@ -329,6 +336,7 @@ merge 1:1 a01 using crp15,nogen
 merge 1:1 a01 using irri15, nogen
 merge 1:1 a01 using incdiv15, nogen
 merge 1:1 a01 using frmdiv15.dta, nogen
+merge 1:1 a01 using fd15.dta, nogen
 label var rinmn_1000 "Yearly mean rainfall(1,000mm)"
 label var farmsize "Farm Size(decimal)"
 label var ln_farm "Farm size(log)"
