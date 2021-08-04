@@ -17,6 +17,7 @@ use panel.dta, clear
 use 2015.dta, clear
 append using 2012.dta, force
 append using 2018.dta, force
+drop if dvcode==.
 save panel.dta, replace
 
 /*some cleaning*/
@@ -28,6 +29,11 @@ label var year2012 "Year 2012"
 label var year2015 "Year 2015"
 recode dvcode (55=1)(nonm=0), gen(Rangpur) //division dummy
 label var Rangpur "Rangpur division (dummy)"
+label var ttinc "Total yearly income (taka)"
+gen ttinc10000=ttinc/10000
+label var ttinc10000 "Total yearly income (10,000taka)"
+gen lninc=log(ttinc)
+label var lninc "Total yearly income (log)"
 
 gen rinmn2=rinmn_1000*rinmn_1000
 label var rinmn2 "Yearly mean rainfall^2"
@@ -35,7 +41,7 @@ gen lnrinmn2=log(rinmn2)
 gen tmpmn2=tmpmn*tmpmn
 label var tmpmn2 "Monthly mean temperature^2"
 gen lntmpmn2=log(tmpmn2)
-label var frmdiv "Farm diversification"
+label var frmdiv "Farm diversification (Num of species of crop, livestocks, and fish)"
 
 /*determinants of crop diversification*/
 bysort year: summarize crp_div frmdiv inc_div rinmn_1000 rinsd_1000 tmpmn tmpsd idcrp idliv Male age_hh hh_size schll_hh farmsize 
@@ -81,11 +87,22 @@ xtset a01 year
 xttobit crp_div ln_rinmn rinsd_1000 ln_tmpmn tmpsd  Male age_hh hh_size schll_hh  lnfrm year2012, ll(0) 
 xttobit frmdivnm ln_rinmn rinsd_1000 ln_tmpmn tmpsd  Male age_hh hh_size schll_hh  lnfrm year2012, ll(0) 
 
-**output
+**second stage analysis from adaptation to dietary diversity
+xtset a01 year
+xtivreg  hdds idcrp Male age_hh hh_size schll_hh lnfrm irrigation year2012 year2015 (crp_div = rinsd_1000 tmpsd rinmn_1000 rinmn2  tmpmn tmpmn2 ),vce(r) fe
+xtivreg hdds idcrp idliv idi_crp_liv Male age_hh hh_size schll_hh lnfrm irrigation year2012 year2015 (frmdiv = rinmn_1000 rinmn2 rinsd_1000 tmpmn tmpmn2 tmpsd ), vce(r) fe //better than cluster farm diversificatioin
+xtivreg hdds  idcrp idliv idi_crp_liv Male age_hh hh_size schll_hh lnfrm irrigation year2012 year2015 (inc_div = rinmn_1000 rinmn2 rinsd_1000 tmpmn tmpmn2 tmpsd), vce(robust) fe //better than cluster income diversificatioin
+
+
+xtivreg  hdds idcrp lninc Male age_hh hh_size schll_hh lnfrm irrigation year2012 year2015 (crp_div = rinsd_1000 tmpsd rinmn_1000 rinmn2  tmpmn tmpmn2 ),vce(r) fe
+xtivreg hdds idcrp idliv idi_crp_liv lninc Male age_hh hh_size schll_hh lnfrm irrigation year2012 year2015 (frmdiv = rinmn_1000 rinmn2 rinsd_1000 tmpmn tmpmn2 tmpsd ), vce(r) fe //better than cluster farm diversificatioin
+xtivreg hdds  idcrp idliv idi_crp_liv lninc Male age_hh hh_size schll_hh lnfrm irrigation year2012 year2015 (inc_div = rinmn_1000 rinmn2 rinsd_1000 tmpmn tmpmn2 tmpsd), vce(robust) fe //better than cluster income diversificatioin
+
+/*output*/
 **Descriptive statistics
 eststo clear
 sort year
-by year: eststo: quietly estpost summarize crp_div frmdiv inc_div rinmn_1000 rinsd_1000 tmpmn tmpsd idcrp idliv Male age_hh hh_size schll_hh farmsize Rangpur, listwise
+by year: eststo: quietly estpost summarize hdds crp_div frmdiv inc_div rinmn_1000 rinsd_1000 tmpmn tmpsd idcrp idliv ttinc10000 Male age_hh hh_size schll_hh farmsize Rangpur, listwise
 
 esttab using $table\dessta.tex, cells("mean(fmt(2)) sd(fmt(2))") label nodepvar replace
 **histgram of crop diversification index
@@ -96,6 +113,12 @@ graph export $figure\crpdiv.pdf, replace
 twoway (kdensity inc_div if year==2012, color("blue%50"))(kdensity inc_div if year==2015, color("purple%50"))(kdensity inc_div if year==2018, color("red%50")), title(Income diversificatioin index ) xtitle(Income diversification index) ytitle(Density)note(Source: "BIHS2011/12, 2015, and 2018/19 calculated by author") legend(ring(0) pos(2) col(1) order(2 "2012" 1 "2015" 3 "2018")) //hist of inc diversification index
 graph display, scheme(s1mono)
 graph export $figure\incdiv.pdf, replace
+
+**histgram of farm diversification index
+twoway (hist frmdiv if year==2012, color("blue%50"))(hist frmdiv if year==2015, color("purple%50"))(hist frmdiv if year==2018, color("red%50")), title(Farm diversificatioin) xtitle(Farm diversification index) ytitle(Density)note(Source: "BIHS2011/12, 2015, and 2018/19 calculated by author") legend(ring(0) pos(2) col(1) order(2 "2012" 1 "2015" 3 "2018")) //hist of inc diversification index
+graph display, scheme(s1mono)
+graph export $figure\frmdiv.pdf, replace
+
 **first stage estimation
 *tobit
 eststo clear
@@ -117,3 +140,11 @@ eststo: xtreg crp_div rinmn_1000 rinmn2 rinsd_1000 tmpmn tmpmn2 tmpsd  idcrp Mal
 eststo: xtreg frmdiv rinmn_1000 rinmn2 rinsd_1000 tmpmn tmpmn2 tmpsd  idcrp idliv idi_crp_liv Male age_hh hh_size schll_hh lnfrm year2012 year2015, vce(robust) fe
 eststo: xtreg inc_div rinmn_1000 rinmn2 rinsd_1000 tmpmn tmpmn2 tmpsd  idcrp idliv idi_crp_liv Male age_hh hh_size schll_hh lnfrm year2012 year2015, vce(robust) fe
 esttab using $table\ffe.tex,  b(%4.3f) se replace nogaps starlevels(* 0.1 ** 0.05 *** 0.01) label nocons  
+
+*second stage analysis*
+eststo clear
+xtset a01 year
+eststo: xtivreg  hdds idcrp lninc Male age_hh hh_size schll_hh lnfrm irrigation year2012 year2015 (crp_div = rinsd_1000 tmpsd rinmn_1000 rinmn2  tmpmn tmpmn2 ),vce(r) fe
+eststo: xtivreg hdds idcrp idliv idi_crp_liv lninc Male age_hh hh_size schll_hh lnfrm irrigation year2012 year2015 (frmdiv = rinmn_1000 rinmn2 rinsd_1000 tmpmn tmpmn2 tmpsd ), vce(r) fe //better than cluster farm diversificatioin
+eststo: xtivreg hdds  idcrp idliv idi_crp_liv  lninc Male age_hh hh_size schll_hh lnfrm irrigation year2012 year2015 (inc_div = rinmn_1000 rinmn2 rinsd_1000 tmpmn tmpmn2 tmpsd), vce(robust) fe //better than cluster income diversificatioin
+esttab using $table\scnd.tex,  b(%4.3f) se replace nogaps starlevels(* 0.1 ** 0.05 *** 0.01) label nocons keep(crp_div frmdiv inc_div idcrp idliv idi_crp_liv) o(crp_div frmdiv inc_div idcrp idliv idi_crp_liv)addnote("Instrumental variables are agroclimate variables (rainfall, temperatures)") mtitles("HDDS" "HDDS" "HDDS")
