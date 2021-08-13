@@ -18,7 +18,7 @@ use 2015.dta, clear
 append using 2012.dta, force
 append using 2018.dta, force
 drop if dvcode==.
-save panel.dta, replace
+
 
 /*some cleaning*/
 gen lnfrm=log(farmsize) // logarithem of farm size 100 decimal = 0.4 ha
@@ -36,15 +36,34 @@ gen lninc=log(ttinc)
 label var lninc "Total yearly income (log)"
 
 gen rinmn2=rinmn_1000*rinmn_1000
-label var rinmn2 "Yearly mean rainfall^2"
+label var rinmn2 "Squared yearly mean rainfall"
 gen lnrinmn2=log(rinmn2)
 gen tmpmn2=tmpmn*tmpmn
-label var tmpmn2 "Monthly mean temperature^2"
+label var tmpmn2 "Squared monthly mean temperature"
 gen lntmpmn2=log(tmpmn2)
 label var frmdiv "Farm diversification (Num of species of crop, livestocks, and fish)"
 
+sort uzcode year
+by uzcode year: egen adaptation_n=count(a01) if frmdiv>1
+by uzcode year: egen total_n=count(a01)
+gen preff_frmdiv=adaptation_n/total_n //creating peer effect
+sort uzcode year
+by uzcode year: egen adaptation_nc=count(a01) if crp_div>0
+by uzcode year: egen total_nc=count(a01)
+gen preff_crpdiv=adaptation_nc/total_nc //creating peer effect
+sort uzcode year
+by uzcode year: egen adaptation_ni=count(a01) if inc_div>0
+by uzcode year: egen total_ni=count(a01)
+gen preff_incdiv=adaptation_ni/total_ni //creating peer effect
+
+label var preff_crpdiv "\% of crop diversification within the upazila"
+label var preff_frmdiv "\% of farm diversification within the upazila"
+label var preff_incdiv "\% of income diversification within the upazila"
+
+save panel.dta, replace
+export delimited using panel.csv, replace
 /*determinants of crop diversification*/
-bysort year: summarize crp_div frmdiv inc_div rinmn_1000 rinsd_1000 tmpmn tmpsd idcrp idliv Male age_hh hh_size schll_hh farmsize 
+bysort year: summarize crp_div frmdiv inc_div preff_crpdiv preff_frmdiv rinmn_1000 rinsd_1000 tmpmn tmpsd idcrp idliv Male age_hh hh_size schll_hh farmsize 
 **pooled ols
 bysort year: reg crp_div ln_rinmn rinsd_1000 ln_tmpmn tmpsd idcrp idliv idi_crp_liv Male age_hh hh_size edu_hh  farmsize , vce(robust) //better than cluster
 
@@ -62,18 +81,19 @@ xtreg crp_div ln_rinmn  rinsd_1000 ln_tmpmn  tmpsd idcrp idliv idi_crp_liv Male 
 xtreg crp_div ln_rinmn rinsd_1000 ln_tmpmn tmpsd Male age_hh hh_size edu_hh  lnfrm , vce(robust) fe //better than cluster
 xtreg crp_div ln_rinmn rinsd_1000 ln_tmpmn tmpsd idcrp Male age_hh hh_size edu_hh  lnfrm , vce(robust) fe //better than cluster
 
-**mixed effect
-metobit
-meintreg
+**pooled ivtobit 
+ivtobit hdds lninc Male age_hh hh_size schll_hh lnfrm irrigation year2012 year2015 Rangpur (crp_div = rinsd_1000 tmpsd rinmn_1000 rinmn2  tmpmn tmpmn2 idcrp),vce(r) ll(1)
+ivtobit hdds lninc Male age_hh hh_size schll_hh lnfrm irrigation year2012 year2015 Rangpur (frmdiv = rinmn_1000 rinmn2 rinsd_1000 tmpmn tmpmn2 tmpsd idcrp idliv idi_crp_liv), ll(1) vce(r)
+ivtobit hdds lninc Male age_hh hh_size schll_hh lnfrm irrigation year2012 year2015 Rangpur (inc_div = rinmn_1000 rinmn2 rinsd_1000 tmpmn tmpmn2 tmpsd idcrp idliv idi_crp_liv), vce(robust) ll(1)
 **panel poisson
 xtset a01 year
 xtpoisson frmdivnm ln_rinmn  rinsd_1000 ln_tmpmn  tmpsd idcrp Male age_hh hh_size edu_hh lnfrm year2012, vce(robust) fe
 xtpoisson frmdivnm rinmn_1000 rinmn2 rinsd_1000 tmpmn tmpmn2 tmpsd  idcrp Male age_hh hh_size schll_hh  lnfrm year2012, vce(robust) fe
 
 **pooled tobit
-tobit crp_div rinmn_1000 rinmn2 rinsd_1000 tmpmn tmpmn2 tmpsd  idcrp Male age_hh hh_size schll_hh  lnfrm irrigation year2012 year2015 Rangpur, vce(robust) ll(0)   //better than cluster, most reliable crop index, square climate
-tobit frmdiv rinmn_1000 rinmn2 rinsd_1000 tmpmn tmpmn2 tmpsd  idcrp idliv idi_crp_liv Male age_hh hh_size schll_hh  lnfrm irrigation year2012 year2015 Rangpur, vce(robust) ll(0)   //better than cluster, most reliable  farm div number, square climate
-tobit inc_div rinmn_1000 rinmn2 rinsd_1000 tmpmn tmpmn2 tmpsd  idcrp idliv idi_crp_liv Male age_hh hh_size schll_hh  lnfrm  irrigation year2012 year2015 Rangpur, vce(robust) ll(0) // robust income div, square climate
+tobit crp_div preff_crpdiv rinmn_1000 rinmn2 rinsd_1000 tmpmn tmpmn2 tmpsd  idcrp Male age_hh hh_size schll_hh  lnfrm irrigation year2012 year2015 i.uzcode, vce(robust) ll(0)   //better than cluster, most reliable crop index, square climate
+tobit frmdiv preff_frmdiv rinmn_1000 rinmn2 rinsd_1000 tmpmn tmpmn2 tmpsd  idcrp idliv idi_crp_liv Male age_hh hh_size schll_hh  lnfrm irrigation year2012 year2015 i.uzcode, vce(robust) ll(1)   //better than cluster, most reliable  farm div number, square climate
+tobit inc_div preff_incdiv rinmn_1000 rinmn2 rinsd_1000 tmpmn tmpmn2 tmpsd  idcrp idliv idi_crp_liv Male age_hh hh_size schll_hh  lnfrm  irrigation year2012 year2015 i.uzcode, vce(robust) ll(0) // robust income div, square climate
 
 tobit crp_div ln_rinmn rinsd_1000 ln_tmpmn tmpsd  idcrp Male age_hh hh_size schll_hh  lnfrm year2012 year2015 Rangpur, vce(robust) ll(0)   //better than cluster, most reliable, crop index
 
@@ -87,28 +107,30 @@ xtset a01 year
 xttobit crp_div ln_rinmn rinsd_1000 ln_tmpmn tmpsd  Male age_hh hh_size schll_hh  lnfrm year2012, ll(0) 
 xttobit frmdivnm ln_rinmn rinsd_1000 ln_tmpmn tmpsd  Male age_hh hh_size schll_hh  lnfrm year2012, ll(0) 
 
-**second stage analysis from adaptation to dietary diversity
+**second stage analysis from adaptation to dietary diversity OLS FE
 xtset a01 year
 xtivreg  hdds idcrp Male age_hh hh_size schll_hh lnfrm irrigation year2012 year2015 (crp_div = rinsd_1000 tmpsd rinmn_1000 rinmn2  tmpmn tmpmn2 ),vce(r) fe
 xtivreg hdds idcrp idliv idi_crp_liv Male age_hh hh_size schll_hh lnfrm irrigation year2012 year2015 (frmdiv = rinmn_1000 rinmn2 rinsd_1000 tmpmn tmpmn2 tmpsd ), vce(r) fe //better than cluster farm diversificatioin
 xtivreg hdds  idcrp idliv idi_crp_liv Male age_hh hh_size schll_hh lnfrm irrigation year2012 year2015 (inc_div = rinmn_1000 rinmn2 rinsd_1000 tmpmn tmpmn2 tmpsd), vce(robust) fe //better than cluster income diversificatioin
 
 
-xtivreg  hdds idcrp lninc Male age_hh hh_size schll_hh lnfrm irrigation year2012 year2015 (crp_div = rinsd_1000 tmpsd rinmn_1000 rinmn2  tmpmn tmpmn2 ),vce(r) fe
-xtivreg hdds idcrp idliv idi_crp_liv lninc Male age_hh hh_size schll_hh lnfrm irrigation year2012 year2015 (frmdiv = rinmn_1000 rinmn2 rinsd_1000 tmpmn tmpmn2 tmpsd ), vce(r) fe //better than cluster farm diversificatioin
-xtivreg hdds  idcrp idliv idi_crp_liv lninc Male age_hh hh_size schll_hh lnfrm irrigation year2012 year2015 (inc_div = rinmn_1000 rinmn2 rinsd_1000 tmpmn tmpmn2 tmpsd), vce(robust) fe //better than cluster income diversificatioin
+xtivreg  hdds idcrp lninc Male age_hh hh_size schll_hh lnfrm irrigation year2012 year2015 (crp_div = preff_crpdiv rinsd_1000 tmpsd rinmn_1000 rinmn2  tmpmn tmpmn2 ),vce(r) fe
+xtivreg hdds idcrp idliv idi_crp_liv lninc Male age_hh hh_size schll_hh lnfrm irrigation year2012 year2015 (frmdiv = preff_frmdiv rinmn_1000 rinmn2 rinsd_1000 tmpmn tmpmn2 tmpsd ), vce(r) fe //better than cluster farm diversificatioin
+xtivreg hdds  idcrp idliv idi_crp_liv lninc Male age_hh hh_size schll_hh lnfrm irrigation year2012 year2015 (inc_div = preff_incdiv rinmn_1000 rinmn2 rinsd_1000 tmpmn tmpmn2 tmpsd), vce(robust) fe //better than cluster income diversificatioin
 
 /*output*/
 **Descriptive statistics
 eststo clear
 sort year
-by year: eststo: quietly estpost summarize hdds crp_div frmdiv inc_div rinmn_1000 rinsd_1000 tmpmn tmpsd idcrp idliv ttinc10000 Male age_hh hh_size schll_hh farmsize Rangpur, listwise
+by year: eststo: quietly estpost summarize hdds crp_div frmdiv inc_div preff_crpdiv preff_frmdiv preff_incdiv rinmn_1000 rinsd_1000 tmpmn tmpsd idcrp idliv ttinc10000 Male age_hh hh_size schll_hh farmsize Rangpur, listwise
 
 esttab using $table\dessta.tex, cells("mean(fmt(2)) sd(fmt(2))") label nodepvar replace
+
 **histgram of crop diversification index
 twoway (kdensity crp_div if year==2012, color("blue%50"))(kdensity crp_div if year==2015, color("purple%50"))(kdensity crp_div if year==2018, color("red%50")), title(Crop diversificatioin index ) xtitle(Crop diversification index) ytitle(Density)note(Source: "BIHS2011/12, 2015, and 2018/19 calculated by author") legend(ring(0) pos(2) col(1) order(2 "2012" 1 "2015" 3 "2018")) //hist of crop diversification index
 graph display, scheme(s1mono)
 graph export $figure\crpdiv.pdf, replace
+
 **histgram of income diversification index
 twoway (kdensity inc_div if year==2012, color("blue%50"))(kdensity inc_div if year==2015, color("purple%50"))(kdensity inc_div if year==2018, color("red%50")), title(Income diversificatioin index ) xtitle(Income diversification index) ytitle(Density)note(Source: "BIHS2011/12, 2015, and 2018/19 calculated by author") legend(ring(0) pos(2) col(1) order(2 "2012" 1 "2015" 3 "2018")) //hist of inc diversification index
 graph display, scheme(s1mono)
@@ -125,9 +147,9 @@ eststo clear
 eststo: tobit crp_div ln_rinmn rinsd_1000 ln_tmpmn tmpsd idcrp Male age_hh hh_size schll_hh  lnfrm year2012 year2015 Rangpur, vce(robust) ll(0)   //better than cluster, most reliable
 eststo: tobit frmdiv ln_rinmn rinsd_1000 ln_tmpmn tmpsd idcrp Male age_hh hh_size schll_hh  lnfrm year2012 year2015 Rangpur, vce(robust) ll(0)   //better than cluster, most reliable
 *climate square term
-eststo: tobit crp_div rinmn_1000 rinmn2 rinsd_1000 tmpmn tmpmn2 tmpsd  idcrp Male age_hh hh_size schll_hh  lnfrm year2012 year2015 Rangpur, vce(robust) ll(0)   //better than cluster, most reliable  crop index, square climate
-eststo: tobit frmdiv rinmn_1000 rinmn2 rinsd_1000 tmpmn tmpmn2 tmpsd  idcrp idliv idi_crp_liv Male age_hh hh_size schll_hh  lnfrm year2012 year2015 Rangpur, vce(robust) ll(0)   //better than cluster, most reliable  crop number, square climate
-eststo: tobit inc_div rinmn_1000 rinmn2 rinsd_1000 tmpmn tmpmn2 tmpsd  idcrp idliv idi_crp_liv Male age_hh hh_size schll_hh  lnfrm year2012 year2015 Rangpur, vce(robust) ll(0)   //better than cluster, most reliable  crop number, square climate
+eststo: tobit crp_div preff_crpdiv rinmn_1000 rinmn2 rinsd_1000 tmpmn tmpmn2 tmpsd  idcrp Male age_hh hh_size schll_hh  lnfrm year2012 year2015 Rangpur, vce(robust) ll(0)   //better than cluster, most reliable  crop index, square climate
+eststo: tobit frmdiv preff_frmdiv rinmn_1000 rinmn2 rinsd_1000 tmpmn tmpmn2 tmpsd  idcrp idliv idi_crp_liv Male age_hh hh_size schll_hh  lnfrm year2012 year2015 Rangpur, vce(robust) ll(0)   //better than cluster, most reliable  crop number, square climate
+eststo: tobit inc_div preff_incdiv rinmn_1000 rinmn2 rinsd_1000 tmpmn tmpmn2 tmpsd  idcrp idliv idi_crp_liv Male age_hh hh_size schll_hh  lnfrm year2012 year2015 Rangpur, vce(robust) ll(0)   //better than cluster, most reliable  crop number, square climate
 esttab using $table\tbt.tex, se replace nogaps starlevels(* 0.1 ** 0.05 *** 0.01) b(%4.3f) label nocons 
 
 *fixed effect 
