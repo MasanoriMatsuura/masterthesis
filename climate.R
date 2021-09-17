@@ -114,9 +114,34 @@ rin_data$a33 <- apply(rin_data[121:122],1,sum)
 
 rin_data_sta <- subset(rin_data,select=c(1,2,124:162))
 
-###extract temperature data set and convert into csv
+#wet season and dry season
+rin_data1 <- rin_df02[c(1,2,324:444)] #2007 Nov-2017 Oct monthly data 
+rin_data1$dry11 <- apply(rin_data1[3:6],1,sum) # first wave
+rin_data1$wet11 <- apply(rin_data1[7:14],1,sum) 
+rin_data1$dry12 <- apply(rin_data1[15:18],1,sum) 
+rin_data1$wet12 <- apply(rin_data1[19:26],1,sum)
+rin_data1$dry13 <- apply(rin_data1[27:30],1,sum)
+rin_data1$wet13 <- apply(rin_data1[31:38],1,sum) 
+rin_data1$dry21 <- apply(rin_data1[51:54],1,sum) #second wave
+rin_data1$wet21 <- apply(rin_data1[55:62],1,sum) 
+rin_data1$dry22 <- apply(rin_data1[63:66],1,sum) 
+rin_data1$wet22 <- apply(rin_data1[67:74],1,sum)
+rin_data1$dry23 <- apply(rin_data1[75:78],1,sum)
+rin_data1$wet23 <- apply(rin_data1[79:86],1,sum)
+rin_data1$dry31 <- apply(rin_data1[87:90],1,sum)
+rin_data1$wet31 <- apply(rin_data1[91:98],1,sum)
+rin_data1$dry32 <- apply(rin_data1[99:102],1,sum)
+rin_data1$wet32 <- apply(rin_data1[103:110],1,sum)
+rin_data1$dry33 <- apply(rin_data1[111:114],1,sum)
+rin_data1$wet33 <- apply(rin_data1[115:122],1,sum)
+rin_data_sta1 <- subset(rin_data1,select=c(1,2,124:141))
+
+###convert into csv
 head(rin_data_sta)
 write.csv(rin_data_sta, file.choose())
+
+head(rin_data_sta1)
+write.csv(rin_data_sta1, file.choose())
 
 #extract temperature data
 setwd("C:/Users/user/Documents/Masterthesis/climatebang/")
@@ -253,10 +278,34 @@ tmp_data$r33 <- apply(tmp_data[117:120],1,mean)
 tmp_data$a33 <- apply(tmp_data[121:122],1,mean)
 
 tmp_data_sta <- subset(tmp_data,select=c(1,2,124:162))
+
+#dry and wet
+tmp_data1 <- tmp_df02[c(1,2,324:444)] #2007 Nov-2017 Oct monthly data 
+tmp_data1$dry11 <- apply(tmp_data1[3:6],1,sum) # first wave
+tmp_data1$wet11 <- apply(tmp_data1[7:14],1,sum) 
+tmp_data1$dry12 <- apply(tmp_data1[15:18],1,sum) 
+tmp_data1$wet12 <- apply(tmp_data1[19:26],1,sum)
+tmp_data1$dry13 <- apply(tmp_data1[27:30],1,sum)
+tmp_data1$wet13 <- apply(tmp_data1[31:38],1,sum) 
+tmp_data1$dry21 <- apply(tmp_data1[51:54],1,sum) #second wave
+tmp_data1$wet21 <- apply(tmp_data1[55:62],1,sum) 
+tmp_data1$dry22 <- apply(tmp_data1[63:66],1,sum) 
+tmp_data1$wet22 <- apply(tmp_data1[67:74],1,sum)
+tmp_data1$dry23 <- apply(tmp_data1[75:78],1,sum)
+tmp_data1$wet23 <- apply(tmp_data1[79:86],1,sum)
+tmp_data1$dry31 <- apply(tmp_data1[87:90],1,sum)
+tmp_data1$wet31 <- apply(tmp_data1[91:98],1,sum)
+tmp_data1$dry32 <- apply(tmp_data1[99:102],1,sum)
+tmp_data1$wet32 <- apply(tmp_data1[103:110],1,sum)
+tmp_data1$dry33 <- apply(tmp_data1[111:114],1,sum)
+tmp_data1$wet33 <- apply(tmp_data1[115:122],1,sum)
+tmp_data_sta1 <- subset(tmp_data1,select=c(1,2,124:141))
+
 ###extract temperature data set and convert into csv
 head(tmp_data_sta)
 write.csv(tmp_data_sta, file.choose())
-
+head(tmp_data_sta1)
+write.csv(tmp_data_sta1, file.choose())
 
 
 

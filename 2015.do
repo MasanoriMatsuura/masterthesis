@@ -116,6 +116,27 @@ bysort a01: egen es1=sum(es)
 drop if m1_10==.
 hist es1 */
 
+**market access 
+use $BIHS15\039_r2_mod_m1_male, clear //Marketing of Paddy, Rice, Banana, Mango, and Potato
+keep a01 m1_16 m1_18
+recode m1_16 (2/6=1 "yes")(nonm=0 "no"), gen(market)
+bysort a01: egen market_participation=sum(market) 
+recode market_participation (1/max=1 "Yes")(nonm=0 "No"), gen(marketp1)
+duplicates drop a01, force 
+keep a01 marketp1
+save marketstaple15.dta, replace
+use $BIHS15\040_r2_mod_m2_male, clear //Marketing of Livestock, Jute, Wheat, Pulses, Fish, Fruits, Vegetable
+keep a01 m2_16 m2_18
+recode m2_16 (2/6=1 "yes")(nonm=0 "no"), gen(market)
+bysort a01: egen market_participation=sum(market) 
+recode market_participation (1/max=1 "Yes")(nonm=0 "No"), gen(marketp2)
+duplicates drop a01, force 
+keep a01 marketp2
+merge 1:1 a01 using marketstaple15, nogen
+gen mrkt=marketp1+marketp2
+recode mrkt (1/max=1 "yes")(nonm=0 "no"), gen(marketp)
+keep a01 marketp
+save mrkt15, replace
 
 
 **keep livestock variables
@@ -131,15 +152,17 @@ save lvstckown15.dta, replace //ownership
 
 /*Livestock product*/
 use $BIHS15\035_r2_mod_k2_male.dta, clear //milk and egg
-keep a01 k2_12
+keep a01 k2_12 bprod
 label var k2_12 "Total value of livestock product"
 save lvstckpr15.dta, replace //livestock product
 
 /*create livestock income*/
 use lvstck15, clear 
 rename k1_18 k2_12 //rename livestock income
-keep a01 k2_12
+keep a01 k2_12 livestock
 append using lvstckpr15.dta
+save eli15, replace //save a file for farm diversification index
+
 bysort a01: egen ttllvstck=sum(k2_12) // livestock product income
 label var ttllvstck "Livestock income"
 drop k2_12
@@ -229,6 +252,12 @@ recode `var' (1/16=1 "Cereals")(2 "White roots and tubers")(3 "Vitamin a rich ve
 
 use $BIHS15\065_r2_mod_x1_2_female.dta //create Woman Dietary Diversity Score (WDDS)
 
+**Consumption expenditure
+use BIHS_hh_variables_r123, clear
+keep if round==2
+keep a01 pc_expm_d pc_foodxm_d pc_nonfxm_d
+save expend15.dta, replace
+
 /*Idiosyncratic shocks*/
 use $BIHS15\050_r2_mod_t1_male.dta, clear
 recode t1_02 (9 10= 1 "Yes") (nonm=0 "No"), gen(c)
@@ -246,8 +275,33 @@ gen idi_crp_liv=idcrp*idliv
 label var idi_crp_liv "Crop shock*Livestock shock "
 save idisyn15.dta, replace
 
-**agricultural extension
-
+**farm diversification index
+use $BIHS12\028_mod_m1_male, clear //crop income
+keep a01 m1_02 m1_10 m1_18 m1_20
+bysort a01 m1_02: egen eis=sum(m1_10)
+keep a01 m1_02 eis
+duplicates drop a01 m1_02, force
+save eci15, replace
+use $BIHS12\027_mod_l2_male.dta, clear // fishery income
+keep a01 l2_12 l2_01
+bysort a01 l2_01: egen eis=sum(l2_12)
+keep a01 eis l2_01
+duplicates drop a01 l2_01, force
+tempfile efi15
+save efi15, replace
+use eli15, clear //livestock income
+bysort a01 livestock: egen eis=sum(k2_12)
+keep a01 eis livestock 
+duplicates drop a01 livestock, force
+append using efi15
+append using eci15
+bysort a01: egen frminc=sum(eis) //total farm income
+gen seir=(eis/frminc)^2 //squared each farm income ratio 
+bysort a01: egen frm_div1=sum(seir)
+bysort a01: gen frm_div=1-frm_div1
+duplicates drop a01, force
+keep a01 frm_div
+save frm_div15, replace
 
 **Farm diversification
 use crp15.dta, clear
@@ -284,7 +338,7 @@ gen i7=(nnagent/ttinc)^2
 gen es=i1+i2+i3+i4+i5+i6+i7
 gen inc_div=1-es
 label var inc_div "Income diversification index"
-keep a01 inc_div
+keep a01 inc_div ttinc
 save incdiv15.dta, replace
 /*gen es=(typ_plntd/ttl_frm)^2
 label var es "enterprise share (planted area)"
@@ -301,22 +355,32 @@ save crp_div15.dta, replace*/
 **climate variables 
 use climate, clear
 rename (district dcode) (dcode District_Name) //renaming
-drop rinmn1 rinmn3 rinsd1 rinsd3 tmpmn1 tmpmn3 tmpsd1 tmpsd3
-rename (rinmn2 rinsd2 tmpmn2 tmpsd2)(rinmn rinsd tmpmn tmpsd)
-gen rinmn_1000=rinmn/1000
+drop rw1 rs1 rr1 ra1 rw3 rs3 rr3 ra3 tw1 ts1 tr1 ta1 tw3 ts3 tr3 ta3 tmpsd1 tmpsd3 rinsd1 rinsd3
+rename (rw2 rs2 rr2 ra2 rinsd2 tw2 ts2 tr2 ta2 tmpsd2)(rw rs rr ra rinsd tw ts tr ta tmpsd)
 gen rinsd_1000=rinsd/1000
-gen ln_rinmn=log(rinmn)
+gen ln_rw=log(rw)
+gen ln_rs=log(rs)
+gen ln_rr=log(rr)
+gen ln_ra=log(ra)
 gen ln_rinsd=log(rinsd)
-gen ln_tmpmn=log(tmpmn)
+gen ln_tw=log(tw)
+gen ln_ts=log(ts)
+gen ln_tr=log(tr)
+gen ln_ta=log(ta)
 gen ln_tmpsd=log(tmpsd)
-label var rinmn "Yearly mean rainfall"
-label var rinsd "Yearly st.dev. rainfall"
-label var tmpmn "Monthly mean temperature"
-label var tmpsd "Monthly st.dev. temperature"
-label var rinmn_1000 "Yearly mean rainfall(1,000mm)"
+label var rinsd "Yearly st.dev rainfall"
+label var tmpsd "Monthly st.dev temperature"
+label var ln_tmpsd "Monthly st.dev temperature (log)"
 label var rinsd_1000 "Yearly st.dev rainfall (1,000mm)"
-label var ln_rinmn "Yearly mean rainfall (log)"
-label var ln_tmpmn "Monthly mean temperature (log)"
+label var ln_rinsd  "Yearly st.dev rainfall (log) "
+label var ln_rw "Winter rainfall (log)"
+label var ln_rs "Summer rainfall (log)"
+label var ln_rr "Rainy season rainfall (log)"
+label var ln_ra "Autumn rainfall (log)"
+label var ln_tw "Winter mean temperature (log)"
+label var ln_ts "Summar mean temperature (log)"
+label var ln_tr "Rainy season mean temperature (log)"
+label var ln_ta "Autumn mean temperature (log)"
 save climate15, replace
 
 **merge all 2015 dataset
@@ -337,7 +401,9 @@ merge 1:1 a01 using irri15, nogen
 merge 1:1 a01 using incdiv15, nogen
 merge 1:1 a01 using frmdiv15.dta, nogen
 merge 1:1 a01 using fd15.dta, nogen
-label var rinmn_1000 "Yearly mean rainfall(1,000mm)"
+merge 1:1 a01 using expend15, nogen
+merge 1:1 a01 using frm_div15, nogen
+merge 1:1 a01 using mrkt15, nogen
 label var farmsize "Farm Size(decimal)"
 label var ln_farm "Farm size(log)"
 gen lnoff=log(offrmagr)
@@ -357,6 +423,9 @@ esttab using table.tex, cells("count mean sd min max") l replace
 hist crp_div , percent title(Crop diversificatioin index distribution) note(Source: BIHS2015 calculated by author) //hist of crop diversification index
 graph display, scheme(s1mono)
 graph export crpdiv.pdf, replace
+
+
+graph plot ln_tmpmn hdds 
 **estimation
 reg crp_div rinmn rinsd tmpmn tmpsd edu_hh age_hh hh_size
 estat hettest
@@ -372,9 +441,11 @@ estat hettest
 
 reg crp_div ln_rinmn rinsd_1000 ln_tmpmn tmpsd idcrp idliv idi_crp_liv Male age_hh hh_size edu_hh  farmsize, vce(cluster Village) 
 
-tobit crp_div ln_rinmn ln_rinsd ln_tmpmn ln_tmpsd edu_hh age_hh hh_size , vce(cluster Village)
-tobit frmdiv ln_rinmn rinsd_1000 ln_tmpmn tmpsd  Male age_hh hh_size schll_hh  ln_farm , vce(robust)
-tobit inc_div ln_rinmn rinsd_1000 ln_tmpmn tmpsd  Male age_hh hh_size schll_hh  ln_farm , vce(robust) //better than cluster //better than cluster, most reliable
+reg crp_div ln_rw ln_rs ln_rr ln_ra ln_rinsd ln_tw ln_ts ln_tr ln_ta ln_tmpsd edu_hh age_hh hh_size i.dcode, vce(r)
+
+tobit frmdiv ln_rw ln_rs ln_rr ln_ra ln_rinsd ln_tw ln_ts ln_tr ln_ta ln_tmpsd  Male age_hh hh_size schll_hh  ln_farm , vce(robust) ll(1)
+
+reg inc_div ln_rw ln_rs ln_rr ln_ra ln_rinsd ln_tw ln_ts ln_tr ln_ta ln_tmpsd Male age_hh hh_size schll_hh  ln_farm i.uzcode , vce(robust)  //better than cluster //better than cluster, most reliable
 **output
 eststo clear
 eststo: quietly tobit crp_div ln_rinmn rinsd_1000 ln_tmpmn tmpsd  Male age_hh hh_size schll_hh  ln_farm, vce(robust) //better than cluster

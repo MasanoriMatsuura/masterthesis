@@ -11,8 +11,7 @@ global BIHS15 = "C:\Users\user\Documents\Masterthesis\BIHS\BIHS2015"
 global BIHS12 = "C:\Users\user\Documents\Masterthesis\BIHS\BIHS2012"
 cd "C:\Users\user\Documents\Masterthesis\BIHS\Do"
 
-ssc install outreg2, replace
-*BIHS2015 data cleaning 
+*BIHS2018 data cleaning 
 **keep geographical code
 use $BIHS18Male\009_bihs_r3_male_mod_a, clear
 keep a01 dvcode district upazila union mouza village
@@ -32,7 +31,6 @@ label var age_hh "Age of HH"
 label var schll_hh "Schooling year of HH"
 recode gender_hh (1=1 "Man")(2=0 "Woman"), gen(Male)
 label var Male "Male(=1)"
-duplicates drop a01, force
 save sciec18.dta, replace
 
 **keep agronomic variables
@@ -42,6 +40,16 @@ label var farmsize "Farm Size(decimal)"
 gen ln_farm=log(farmsize)
 label var ln_farm "Farm size(log)"
 save agrnmic18.dta, replace
+
+/*irrigation*/
+use $BIHS18Male\022_bihs_r3_male_mod_h2.dta, clear
+recode h2_02 (.=0 "No")(1=0 "No") (nonm=1 "Yes"), gen(irri)
+label var irri "Irrigation(=1)"
+collapse (sum) i1=irri, by(a01)
+recode i1 (0=0 "No")(nonm=1 "Yes"), gen(irrigation)
+label var irrigation "Irrigation(=1)"
+keep a01 irrigation
+save irri18.dta, replace
 
 **non-earned income
 use $BIHS18Male\076_bihs_r3_male_mod_v4, clear
@@ -61,12 +69,15 @@ save ssnp18.dta, replace
 
 **crop type, farm income and diversification
 
-/*use $BIHS18Male\015_r2_mod_h1_male, clear // crop type
-keep a01 crop_a crop_b h1_02 h1_03
-rename (h1_02 h1_03)(crp_typ plntd)
-bysort a01 crop_a: egen typ_plntd=sum(plntd)
-duplicates drop a01 crop_a, force
-save crp15.dta, replace*/
+use $BIHS18Male\021_bihs_r3_male_mod_h1, clear // crop type
+keep a01 crop_a_h1 h1_03
+bysort a01 crop_a_h1: egen typ_plntd=sum(h1_03)
+duplicates drop a01 crop_a_h1, force
+bysort a01: egen crpdivnm=count(crop_a_h1) //crop diversification (Number of crop species including vegetables and fruits produced by the household in the last year (number))
+label var crpdivnm "Crop diversity"
+keep a01 crpdivnm
+duplicates drop a01, force
+save crp18.dta, replace
 
 use $BIHS18Male\021_bihs_r3_male_mod_h1, clear //crop diversification 
 keep a01 crop_a_h1 h1_03
@@ -107,6 +118,28 @@ bysort a01: egen es1=sum(es)
 drop if m1_10==.
 hist es1 */
 
+**market access 
+use $BIHS18Male\058_bihs_r3_male_mod_m1, clear //Marketing of Paddy, Rice, Banana, Mango, and Potato
+keep a01 m1_16 m1_18
+recode m1_16 (2/5=1 "yes")(nonm=0 "no"), gen(market)
+bysort a01: egen market_participation=sum(market) 
+recode market_participation (1/max=1 "Yes")(nonm=0 "No"), gen(marketp1)
+duplicates drop a01, force 
+keep a01 marketp1
+save marketstaple18.dta, replace
+use $BIHS18Male\059_bihs_r3_male_mod_m2, clear //Marketing of Livestock, Jute, Wheat, Pulses, Fish, Fruits, Vegetable
+keep a01 m2_16 m2_18
+recode m2_16 (2/5=1 "yes")(nonm=0 "no"), gen(market)
+bysort a01: egen market_participation=sum(market) 
+recode market_participation (1/max=1 "Yes")(nonm=0 "No"), gen(marketp2)
+duplicates drop a01, force 
+keep a01 marketp2
+merge 1:1 a01 using marketstaple15, nogen
+gen mrkt=marketp1+marketp2
+recode mrkt (1/max=1 "yes")(nonm=0 "no"), gen(marketp)
+keep a01 marketp
+save mrkt18, replace
+
 **keep livestock variables
 use $BIHS18Male\043_bihs_r3_male_mod_k1, clear //animal
 bysort a01: gen livstck=sum(k1_04)
@@ -120,15 +153,17 @@ save lvstckown18.dta, replace //ownership
 
 /*Livestock product*/
 use $BIHS18Male\049_bihs_r3_male_mod_k2, clear //milk and egg
-keep a01 k2_12
-label var k2_12 "Total value of livestock product"
+keep a01 k2_12 bprod
+rename bprod livestock
 save lvstckpr18.dta, replace //livestock product
 
 /*create livestock income*/
 use lvstck18, clear 
 rename k1_18 k2_12 //rename livestock income
-keep a01 k2_12
+keep a01 k2_12 livestock
 append using lvstckpr18.dta
+save eli18, replace //save a file for farm diversification index
+
 bysort a01: egen ttllvstck=sum(k2_12) // livestock product income
 label var ttllvstck "Livestock income"
 drop k2_12
@@ -137,6 +172,24 @@ save lvinc18.dta, replace
 use lvstckown18.dta, clear //merge currently ownership and livestock income
 merge 1:1 a01 using lvinc18, nogen
 save lvstckinc18.dta, replace
+
+**livestock diversification
+use $BIHS18Male\043_bihs_r3_male_mod_k1, clear 
+drop if k1_04==0
+bysort a01: egen livdiv=count(livestock)
+keep a01 livdiv
+duplicates drop a01, force
+save livdiv18.dta, replace
+
+/*fishery income*/
+use $BIHS18Male\052_bihs_r3_male_mod_l2.dta, clear
+bysort a01:egen fshinc=sum(l2_12)
+bysort a01:egen fshdiv=count(l2_01)
+keep a01 fshdiv fshinc
+label var fshdiv "fish diversification"
+label var fshinc "fishery income"
+duplicates drop a01, force
+save fsh18.dta, replace
 
 **keep non-farm income
 use $BIHS18Male\012_bihs_r3_male_mod_c.dta, clear
@@ -149,7 +202,12 @@ duplicates drop a01, force
 save nnfrminc18.dta, replace
 
 /*Non-agricultural enterprise*/
-use $BIHS18Male\041_r2_mod_n_male.dta, clear
+use $BIHS18Male\060_bihs_r3_male_mod_n.dta, clear
+bysort a01: egen nnagent=sum(n05)
+label var nnagent "non-agricultural enterprise"
+keep a01 nnagent
+duplicates drop a01, force
+save nnagent18.dta, replace
 
 **off-farm but related to agriculture
 use $BIHS18Male\013_bihs_r3_male_mod_c1, clear
@@ -164,17 +222,46 @@ keep a01 offrmagr
 duplicates drop a01, force
 save offfrmagr18.dta, replace
 
+**off-farm income*
+use $BIHS18Male\012_bihs_r3_male_mod_c.dta, clear
+keep a01 c14
+gen yc14=12*c14
+bysort a01: egen offrm=sum(yc14)
+label var offrm "Off-farm income "
+keep a01 offrm
+duplicates drop a01, force
+save offfrm18.dta, replace
+merge 1:1 a01 using offfrmagr18, nogen
+gen offrminc=offrm+offrmagr
+label var offrminc "Off-farm income"
+keep a01 offrminc
+save offfrm18.dta, replace
+
 /*Non-agricultural enterprise*/
 use $BIHS18Male\042_r2_mod_o1_female.dta, clear
 
-/*food consumption*/
-use $BIHS18Male\064_r2_mod_x1_1_female.dta
-use $BIHS18Male\065_r2_mod_x1_2_female.dta
+*food consumption
+use $BIHS18Female\105_bihs_r3_female_mod_x1.dta
+recode x1_05 (1/16 277/297 303/305 323 2771/2776 2782 2781 2782 2791 2792 2801 2802 2811 2812  2813 2841/2843 2851/2852 2861/2863 2871/2876 2891/2896 2901/2907 2951/2952 2961 2971 2981 3031 3032=1 "Cereals")(61 82 302 306 621 622 3231 =2 "White roots and tubers")(41/60 63/69 80 81 86/115 298 300 441 905 2921/2923 2881/2886 2921/2923 2981 3001 =3 "Vegetables")(141/170 907 1421 1422 1461 1462=4 "Fruits")(121/129 322 906 =5 "Meat")(130/131 1301 1302 =6 "Eggs")(176/205 211/243 908 909 =7 "Fish and seafood")(21/28 31/32 70/79 299 301 317 320 2911/2913 2991=8 "Leagumes, nuts and seeds")(132/135 1321/1323 2941/2943=9 "Milk and milk products")(33/36 312/313 902 903 3121/3123 =10 "Oils and fats")(307/11 321=11 "Sweets")(246/251 253/264 266/276 314/316 318 319 2521 2522 2721/2724 3131 3132 = 12 "Spices, condiments, and beverages"), gen(hdds_i)
+keep a01 hdds_i
+duplicates drop a01 hdds_i, force
+bysort a01: egen hdds=count(a01)
+drop hdds_i
+label var hdds "Household Dietary Diversity"
+duplicates drop a01, force
+save fd18.dta, replace
+/*use $BIHS18Male\065_r2_mod_x1_2_female.dta */
+
+**Consumption expenditure
+use BIHS_hh_variables_r123, clear
+keep if round==3
+keep a01 pc_expm_d pc_foodxm_d pc_nonfxm_d
+save expend18.dta, replace
 
 /*Idiosyncratic shocks*/
 use $BIHS18Male\067_bihs_r3_male_mod_t1b.dta, clear
-recode t1b_02 (9 = 1 "Yes") (nonm=0 "No"), gen(c)
-recode t1b_02 (11 12 13=1 "Yes")(nonm=0 "No"), gen(l)
+recode t1b_01 (9= 1 "Yes") (nonm=0 "No"), gen(c)
+recode t1b_01 (11 12 13=1 "Yes")(nonm=0 "No"), gen(l)
 bysort a01: egen idi_crp=sum(c) 
 bysort a01: egen idi_lvstck=sum(l)
 keep a01 idi_crp idi_lvstck
@@ -188,32 +275,108 @@ gen idi_crp_liv=idcrp*idliv
 label var idi_crp_liv "Crop shock*Livestock shock "
 save idisyn18.dta, replace
 
-**agricultural extension
+**Farm diversification index
+use $BIHS18Male\058_bihs_r3_male_mod_m1, clear //crop income
+keep a01 m1_02 m1_10 m1_18 m1_20
+bysort a01 m1_02: egen eis=sum(m1_10)
+keep a01 m1_02 eis
+duplicates drop a01 m1_02, force
+save eci18, replace
+use $BIHS18Male\052_bihs_r3_male_mod_l2.dta, clear
+keep a01 l2_12 l2_01
+bysort a01 l2_01: egen eis=sum(l2_12)
+keep a01 eis l2_01
+duplicates drop a01 l2_01, force
+tempfile efi12
+save efi18, replace
+use eli18, clear //livestock income
+bysort a01 livestock: egen eis=sum(k2_12)
+keep a01 eis livestock 
+duplicates drop a01 livestock, force
+append using efi18
+append using eci18
+bysort a01: egen frminc=sum(eis) //total farm income
+gen seir=(eis/frminc)^2 //squared each farm income ratio 
+bysort a01: egen frm_div1=sum(seir)
+bysort a01: gen frm_div=1-frm_div1
+duplicates drop a01, force
+keep a01 frm_div
+save frm_div18, replace
+
+**Farm diversification
+use crp18.dta, clear
+merge 1:1 a01 using livdiv18, nogen
+merge 1:1 a01 using fsh18, nogen
+replace livdiv=0 if livdiv==.
+replace crpdivnm=0 if crpdivnm==.
+replace fshdiv=0 if fshdiv==.
+gen frmdiv=crpdivnm+livdiv+fshdiv
+save frmdiv18.dta, replace
+
+**Income diversification
+use crpincm18.dta, clear
+merge 1:1 a01 using nnrn18.dta, nogen
+merge 1:1 a01 using ssnp18.dta, nogen
+merge 1:1 a01 using lvstckinc18.dta, nogen
+merge 1:1 a01 using offfrm18.dta, nogen
+merge 1:1 a01 using fsh18.dta, nogen
+merge 1:1 a01 using nnagent18.dta, nogen
+drop dstnc_sll_ trnsctn lvstck fshdiv
+replace crp_vl=0 if crp_vl==.
+replace offrminc=0 if offrminc==.
+replace nnearn=0 if nnearn==.
+replace fshinc=0 if fshinc==.
+replace ttllvstck=0 if ttllvstck==.
+gen ttinc= crp_vl+nnearn+trsfr+ttllvstck+offrminc+fshinc+nnagent //total income
+gen i1=(crp_vl/ttinc)^2
+gen i2=(nnearn/ttinc)^2
+gen i3=(trsfr/ttinc)^2
+gen i4=(ttllvstck/ttinc)^2
+gen i5=(offrminc/ttinc)^2
+gen i6=(fshinc/ttinc)^2
+gen i7=(nnagent/ttinc)^2
+gen es=i1+i2+i3+i4+i5+i6+i7
+gen inc_div=1-es
+
+label var inc_div "Income diversification index"
+keep a01 inc_div ttinc
+save incdiv18.dta, replace
 
 **climate variables 
 use climate, clear
 rename (district dcode) (dcode District_Name) //renaming
-drop rinmn1 rinmn2 rinsd1 rinsd2 tmpmn1 tmpmn2 tmpsd1 tmpsd2
-rename (rinmn3 rinsd3 tmpmn3 tmpsd3)(rinmn rinsd tmpmn tmpsd)
-gen rinmn_1000=rinmn/1000
+drop rw1 rs1 rr1 ra1 rw2 rs2 rr2 ra2 tw1 ts1 tr1 ta1 tw2 ts2 tr2 ta2 tmpsd1 tmpsd2 rinsd1 rinsd2
+rename (rw3 rs3 rr3 ra3 rinsd3 tw3 ts3 tr3 ta3 tmpsd3)(rw rs rr ra rinsd tw ts tr ta tmpsd)
 gen rinsd_1000=rinsd/1000
-gen ln_rinmn=log(rinmn)
+gen ln_rw=log(rw)
+gen ln_rs=log(rs)
+gen ln_rr=log(rr)
+gen ln_ra=log(ra)
 gen ln_rinsd=log(rinsd)
-gen ln_tmpmn=log(tmpmn)
+gen ln_tw=log(tw)
+gen ln_ts=log(ts)
+gen ln_tr=log(tr)
+gen ln_ta=log(ta)
 gen ln_tmpsd=log(tmpsd)
-label var rinmn "Yearly mean rainfall"
-label var rinsd "Yearly st.dev. rainfall"
-label var tmpmn "Monthly mean temperature"
-label var tmpsd "Monthly st.dev. temperature"
-label var rinmn_1000 "Yearly mean rainfall(1,000mm)"
+label var rinsd "Yearly st.dev rainfall"
+label var tmpsd "Monthly st.dev temperature"
+label var ln_tmpsd "Monthly st.dev temperature (log)"
 label var rinsd_1000 "Yearly st.dev rainfall (1,000mm)"
-label var ln_rinmn "Yearly mean rainfall (log)"
-label var ln_tmpmn "Monthly mean temperature (log)"
+label var ln_rinsd  "Yearly st.dev rainfall (log) "
+label var ln_rw "Winter rainfall (log)"
+label var ln_rs "Summer rainfall (log)"
+label var ln_rr "Rainy season rainfall (log)"
+label var ln_ra "Autumn rainfall (log)"
+label var ln_tw "Winter mean temperature (log)"
+label var ln_ts "Summar mean temperature (log)"
+label var ln_tr "Rainy season mean temperature (log)"
+label var ln_ta "Autumn mean temperature (log)"
 save climate18, replace
 
 **merge all 2018 dataset
 use 2018.dta,clear
 merge m:1 dcode using climate18, nogen
+duplicates drop a01, force
 merge 1:1 a01 using sciec18, nogen
 merge 1:1 a01 using agrnmic18, nogen
 merge 1:1 a01 using nnrn18, nogen
@@ -221,13 +384,22 @@ merge 1:1 a01 using crp_div18, nogen
 merge 1:1 a01 using idisyn18.dta, nogen
 merge 1:1 a01 using lvstckinc18.dta,nogen
 merge 1:1 a01 using crpincm18,nogen
-merge 1:1 a01 using offfrmagr18.dta,nogen
+merge 1:1 a01 using offfrm18.dta,nogen
 merge 1:1 a01 using ssnp18,nogen
 merge 1:1 a01 using nnfrminc18,nogen
-label var rinmn_1000 "Yearly mean rainfall(1,000mm)"
+merge 1:1 a01 using ssnp18,nogen
+merge 1:1 a01 using nnfrminc18,nogen
+merge 1:1 a01 using crp18,nogen
+merge 1:1 a01 using irri18, nogen
+merge 1:1 a01 using incdiv18, nogen
+merge 1:1 a01 using frmdiv18.dta, nogen
+merge 1:1 a01 using fd18.dta, nogen
+merge 1:1 a01 using expend18, nogen
+merge 1:1 a01 using frm_div18, nogen
+merge 1:1 a01 using mrkt18, nogen
 label var farmsize "Farm Size(decimal)"
 label var ln_farm "Farm size(log)"
-gen lnoff=log(offrmagr)
+//gen lnoff=log(offrmagr)
 gen year=2018
 save 2018.dta, replace
 
