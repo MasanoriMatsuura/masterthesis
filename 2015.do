@@ -138,7 +138,23 @@ recode mrkt (1/max=1 "yes")(nonm=0 "no"), gen(marketp)
 keep a01 marketp
 save mrkt15, replace
 
-
+**access to facility
+use $BIHS15\049_r2_mod_s_male.dta, clear
+keep a01 s_01 s_06
+keep if s_01==3 
+drop s_01
+rename s_06 road
+label var road "Road access (minute)"
+tempfile cal
+save `cal'
+use $BIHS15\049_r2_mod_s_male.dta, clear
+keep a01 s_01 s_06
+keep if s_01==6 
+drop s_01
+rename s_06 market
+label var market "Market access (minute)"
+merge 1:1 a01 using `cal', nogen
+save facility15, replace
 **keep livestock variables
 use $BIHS15\034_r2_mod_k1_male.dta, clear //animal
 bysort a01: gen livstck=sum(k1_04)
@@ -252,6 +268,7 @@ recode `var' (1/16=1 "Cereals")(2 "White roots and tubers")(3 "Vitamin a rich ve
 
 use $BIHS15\065_r2_mod_x1_2_female.dta //create Woman Dietary Diversity Score (WDDS)
 
+
 **Consumption expenditure
 use BIHS_hh_variables_r123, clear
 keep if round==2
@@ -355,8 +372,8 @@ save crp_div15.dta, replace*/
 **climate variables 
 use climate, clear
 rename (district dcode) (dcode District_Name) //renaming
-drop rw1 rs1 rr1 ra1 rw3 rs3 rr3 ra3 tw1 ts1 tr1 ta1 tw3 ts3 tr3 ta3 tmpsd1 tmpsd3 rinsd1 rinsd3
-rename (rw2 rs2 rr2 ra2 rinsd2 tw2 ts2 tr2 ta2 tmpsd2)(rw rs rr ra rinsd tw ts tr ta tmpsd)
+drop rw1 rs1 rr1 ra1 rw3 rs3 rr3 ra3 tw1 ts1 tr1 ta1 tw3 ts3 tr3 ta3 tmpsd1 tmpsd3 rinsd1 rinsd3 rwet1 rdry1 rwet3 rdry3 twet1 tdry1 twet3 tdry3 
+rename (rw2 rs2 rr2 ra2 rinsd2 tw2 ts2 tr2 ta2 tmpsd2 rwet2 rdry2 twet2 tdry2)(rw rs rr ra rinsd tw ts tr ta tmpsd rwet rdry twet tdry)
 gen rinsd_1000=rinsd/1000
 gen ln_rw=log(rw)
 gen ln_rs=log(rs)
@@ -368,6 +385,10 @@ gen ln_ts=log(ts)
 gen ln_tr=log(tr)
 gen ln_ta=log(ta)
 gen ln_tmpsd=log(tmpsd)
+gen ln_rwet=log(rwet)
+gen ln_rdry=log(rdry)
+gen ln_tdry=log(tdry)
+gen ln_twet=log(twet)
 label var rinsd "Yearly st.dev rainfall"
 label var tmpsd "Monthly st.dev temperature"
 label var ln_tmpsd "Monthly st.dev temperature (log)"
@@ -381,6 +402,10 @@ label var ln_tw "Winter mean temperature (log)"
 label var ln_ts "Summar mean temperature (log)"
 label var ln_tr "Rainy season mean temperature (log)"
 label var ln_ta "Autumn mean temperature (log)"
+label var ln_rwet "Wet season rainfall (log)"
+label var ln_rdry "Dry season rainfall (log)"
+label var ln_twet "Wet season temperature (log)"
+label var ln_tdry "Dry season temperature (log)"
 save climate15, replace
 
 **merge all 2015 dataset
