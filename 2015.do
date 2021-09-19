@@ -149,12 +149,35 @@ tempfile cal
 save `cal'
 use $BIHS15\049_r2_mod_s_male.dta, clear
 keep a01 s_01 s_06
+keep if s_01==9 
+drop s_01
+rename s_06 agri
+label var agri "Agricultural office (minute)"
+tempfile aes
+save `aes'
+use $BIHS15\049_r2_mod_s_male.dta, clear
+keep a01 s_01 s_06
 keep if s_01==6 
 drop s_01
 rename s_06 market
 label var market "Market access (minute)"
 merge 1:1 a01 using `cal', nogen
+merge 1:1 a01 using `aes', nogen
 save facility15, replace
+
+
+
+**Agricultural extension
+use $BIHS15\031_r2_mod_j1_male, clear 
+keep a01 j1_01 j1_04
+recode j1_01 (1=1 "yes")(nonm=0 "no"), gen(agent)
+recode j1_04 (1=1 "yes")(nonm=0 "no"), gen(phone)
+gen aes=agent+phone
+recode aes (1/max=1 "yes")(nonm=0 "no"), gen(extension)
+label var extension "Access to agricultural extension service (=1 if yes)"
+keep a01 extension
+save extension15, replace
+
 **keep livestock variables
 use $BIHS15\034_r2_mod_k1_male.dta, clear //animal
 bysort a01: gen livstck=sum(k1_04)
@@ -429,49 +452,10 @@ merge 1:1 a01 using fd15.dta, nogen
 merge 1:1 a01 using expend15, nogen
 merge 1:1 a01 using frm_div15, nogen
 merge 1:1 a01 using mrkt15, nogen
+merge 1:1 a01 using facility15, nogen
+merge 1:1 a01 using extension15, nogen
 label var farmsize "Farm Size(decimal)"
 label var ln_farm "Farm size(log)"
 gen lnoff=log(offrmagr)
 gen year=2015
 save 2015.dta, replace
-
-/*preliminary analysis*/
-use 2015.dta, clear
-
-**descriptive statistics
-eststo clear
-
-estpost summarize crp_div rinmn_1000 rinsd_1000 tmpmn tmpsd Male age_hh hh_size schll_hh farmsize 
-
-esttab using table.tex, cells("count mean sd min max") l replace
-
-hist crp_div , percent title(Crop diversificatioin index distribution) note(Source: BIHS2015 calculated by author) //hist of crop diversification index
-graph display, scheme(s1mono)
-graph export crpdiv.pdf, replace
-
-
-graph plot ln_tmpmn hdds 
-**estimation
-reg crp_div rinmn rinsd tmpmn tmpsd edu_hh age_hh hh_size
-estat hettest
-reg crp_div ln_rinmn rinsd_1000 ln_tmpmn tmpsd idcrp idliv idi_crp_liv Male age_hh hh_size edu_hh  farmsize , vce(robust) //better than cluster
-
-qreg crp_div ln_rinmn rinsd_1000 ln_tmpmn tmpsd idcrp idliv idi_crp_liv Male age_hh hh_size schll_hh  ln_farm , quantile(0.25) //better than cluster
-qreg crp_div ln_rinmn rinsd_1000 ln_tmpmn tmpsd idcrp idliv idi_crp_liv Male age_hh hh_size schll_hh  ln_farm, quantile(0.50)  //better than cluster
-qreg crp_div ln_rinmn rinsd_1000 ln_tmpmn tmpsd idcrp idliv idi_crp_liv Male age_hh hh_size schll_hh  ln_farm, quantile(0.75) //better than cluster
-qreg crp_div ln_rinmn rinsd_1000 ln_tmpmn tmpsd idcrp idliv idi_crp_liv Male age_hh hh_size schll_hh  ln_farm , quantile(0.90)  //better than cluster 
-
-quietly reg crp_div ln_rinmn rinsd_1000 ln_tmpmn tmpsd idcrp idliv idi_crp_liv Male age_hh hh_size edu_hh  farmsize //test for heteroskedasticity
-estat hettest
-
-reg crp_div ln_rinmn rinsd_1000 ln_tmpmn tmpsd idcrp idliv idi_crp_liv Male age_hh hh_size edu_hh  farmsize, vce(cluster Village) 
-
-reg crp_div ln_rw ln_rs ln_rr ln_ra ln_rinsd ln_tw ln_ts ln_tr ln_ta ln_tmpsd edu_hh age_hh hh_size i.dcode, vce(r)
-
-tobit frmdiv ln_rw ln_rs ln_rr ln_ra ln_rinsd ln_tw ln_ts ln_tr ln_ta ln_tmpsd  Male age_hh hh_size schll_hh  ln_farm , vce(robust) ll(1)
-
-reg inc_div ln_rw ln_rs ln_rr ln_ra ln_rinsd ln_tw ln_ts ln_tr ln_ta ln_tmpsd Male age_hh hh_size schll_hh  ln_farm i.uzcode , vce(robust)  //better than cluster //better than cluster, most reliable
-**output
-eststo clear
-eststo: quietly tobit crp_div ln_rinmn rinsd_1000 ln_tmpmn tmpsd  Male age_hh hh_size schll_hh  ln_farm, vce(robust) //better than cluster
-esttab using frst_stg.tex, l replace

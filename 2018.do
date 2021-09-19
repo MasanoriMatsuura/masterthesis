@@ -127,6 +127,7 @@ recode market_participation (1/max=1 "Yes")(nonm=0 "No"), gen(marketp1)
 duplicates drop a01, force 
 keep a01 marketp1
 save marketstaple18.dta, replace
+
 use $BIHS18Male\059_bihs_r3_male_mod_m2, clear //Marketing of Livestock, Jute, Wheat, Pulses, Fish, Fruits, Vegetable
 keep a01 m2_16 m2_18
 recode m2_16 (2/5=1 "yes")(nonm=0 "no"), gen(market)
@@ -139,6 +140,46 @@ gen mrkt=marketp1+marketp2
 recode mrkt (1/max=1 "yes")(nonm=0 "no"), gen(marketp)
 keep a01 marketp
 save mrkt18, replace
+
+**access to facility
+use $BIHS18Male\066_bihs_r3_male_mod_s, clear
+keep a01 s_01 s_06
+keep if s_01==3 
+drop s_01
+rename s_06 road
+label var road "Road access (minute)"
+tempfile cal
+save `cal'
+use $BIHS18Male\066_bihs_r3_male_mod_s, clear
+keep a01 s_01 s_06
+keep if s_01==6
+drop s_01
+rename s_06 market
+label var market "Market access (minute)"
+merge 1:1 a01 using `cal', nogen
+save facility18, replace
+
+use $BIHS18Male\066_bihs_r3_male_mod_s, clear
+keep a01 s_01 s_06
+keep if s_01==9 
+drop s_01
+rename s_06 agri
+label var agri "Agricultural office (minute)"
+merge 1:1 a01 using facility18, nogen
+save facility18, replace
+
+**Agricultural extension
+use $BIHS18Male\038_bihs_r3_male_mod_j1, clear 
+keep a01 j1_01 j1_04
+recode j1_01 (1=1 "yes")(nonm=0 "no"), gen(agent)
+recode j1_04 (1=1 "yes")(nonm=0 "no"), gen(phone)
+gen aes=agent+phone
+recode aes (1/max=1 "yes")(nonm=0 "no"), gen(extension)
+label var extension "Access to agricultural extension service (=1 if yes)"
+keep a01 extension
+save extension18, replace
+
+
 
 **keep livestock variables
 use $BIHS18Male\043_bihs_r3_male_mod_k1, clear //animal
@@ -345,8 +386,8 @@ save incdiv18.dta, replace
 **climate variables 
 use climate, clear
 rename (district dcode) (dcode District_Name) //renaming
-drop rw1 rs1 rr1 ra1 rw2 rs2 rr2 ra2 tw1 ts1 tr1 ta1 tw2 ts2 tr2 ta2 tmpsd1 tmpsd2 rinsd1 rinsd2
-rename (rw3 rs3 rr3 ra3 rinsd3 tw3 ts3 tr3 ta3 tmpsd3)(rw rs rr ra rinsd tw ts tr ta tmpsd)
+drop rw1 rs1 rr1 ra1 rw2 rs2 rr2 ra2 tw1 ts1 tr1 ta1 tw2 ts2 tr2 ta2 tmpsd1 tmpsd2 rinsd1 rinsd2 rwet1 rdry1 rwet2 rdry2 twet1 tdry1 twet2 tdry2 
+rename (rw3 rs3 rr3 ra3 rinsd3 tw3 ts3 tr3 ta3 tmpsd3 rwet3 rdry3 twet3 tdry3)(rw rs rr ra rinsd tw ts tr ta tmpsd rwet rdry twet tdry)
 gen rinsd_1000=rinsd/1000
 gen ln_rw=log(rw)
 gen ln_rs=log(rs)
@@ -358,6 +399,10 @@ gen ln_ts=log(ts)
 gen ln_tr=log(tr)
 gen ln_ta=log(ta)
 gen ln_tmpsd=log(tmpsd)
+gen ln_rwet=log(rwet)
+gen ln_rdry=log(rdry)
+gen ln_tdry=log(tdry)
+gen ln_twet=log(twet)
 label var rinsd "Yearly st.dev rainfall"
 label var tmpsd "Monthly st.dev temperature"
 label var ln_tmpsd "Monthly st.dev temperature (log)"
@@ -371,6 +416,10 @@ label var ln_tw "Winter mean temperature (log)"
 label var ln_ts "Summar mean temperature (log)"
 label var ln_tr "Rainy season mean temperature (log)"
 label var ln_ta "Autumn mean temperature (log)"
+label var ln_rwet "Wet season rainfall (log)"
+label var ln_rdry "Dry season rainfall (log)"
+label var ln_twet "Wet season temperature (log)"
+label var ln_tdry "Dry season temperature (log)"
 save climate18, replace
 
 **merge all 2018 dataset
@@ -397,44 +446,11 @@ merge 1:1 a01 using fd18.dta, nogen
 merge 1:1 a01 using expend18, nogen
 merge 1:1 a01 using frm_div18, nogen
 merge 1:1 a01 using mrkt18, nogen
+merge 1:1 a01 using facility18, nogen
+merge 1:1 a01 using extension18, nogen
 label var farmsize "Farm Size(decimal)"
 label var ln_farm "Farm size(log)"
 //gen lnoff=log(offrmagr)
 gen year=2018
 save 2018.dta, replace
 
-/*preliminary analysis*/
-use 2018.dta, clear
-
-**descriptive statistics
-eststo clear
-
-estpost summarize crp_div rinmn_1000 rinsd_1000 tmpmn tmpsd Male age_hh hh_size schll_hh farmsize 
-
-esttab using table.tex, cells("count mean sd min max") l replace
-
-hist crp_div , percent title(Crop diversificatioin index distribution) note(Source: BIHS2018 calculated by author) //hist of crop diversification index
-graph display, scheme(s1mono)
-graph export crpdiv.pdf, replace
-**estimation
-reg crp_div rinmn rinsd tmpmn tmpsd edu_hh age_hh hh_size
-estat hettest
-reg crp_div ln_rinmn rinsd_1000 ln_tmpmn tmpsd idcrp idliv idi_crp_liv Male age_hh hh_size edu_hh  farmsize , vce(robust) //better than cluster
-
-qreg crp_div ln_rinmn rinsd_1000 ln_tmpmn tmpsd idcrp idliv idi_crp_liv Male age_hh hh_size schll_hh  ln_farm , quantile(0.25) //better than cluster
-qreg crp_div ln_rinmn rinsd_1000 ln_tmpmn tmpsd idcrp idliv idi_crp_liv Male age_hh hh_size schll_hh  ln_farm, quantile(0.50)  //better than cluster
-qreg crp_div ln_rinmn rinsd_1000 ln_tmpmn tmpsd idcrp idliv idi_crp_liv Male age_hh hh_size schll_hh  ln_farm, quantile(0.75) //better than cluster
-qreg crp_div ln_rinmn rinsd_1000 ln_tmpmn tmpsd idcrp idliv idi_crp_liv Male age_hh hh_size schll_hh  ln_farm , quantile(0.90)  //better than cluster 
-
-quietly reg crp_div ln_rinmn rinsd_1000 ln_tmpmn tmpsd idcrp idliv idi_crp_liv Male age_hh hh_size edu_hh  farmsize //test for heteroskedasticity
-estat hettest
-
-reg crp_div ln_rinmn rinsd_1000 ln_tmpmn tmpsd idcrp idliv idi_crp_liv Male age_hh hh_size edu_hh  farmsize, vce(cluster Village) 
-
-tobit crp_div ln_rinmn ln_rinsd ln_tmpmn ln_tmpsd edu_hh age_hh hh_size , vce(cluster Village)
-
-tobit crp_div ln_rinmn rinsd_1000 ln_tmpmn tmpsd  Male age_hh hh_size schll_hh  ln_farm , vce(robust) //better than cluster //better than cluster, most reliable
-**output
-eststo clear
-eststo: quietly tobit crp_div ln_rinmn rinsd_1000 ln_tmpmn tmpsd  Male age_hh hh_size schll_hh  ln_farm, vce(robust) //better than cluster
-esttab using frst_stg.tex, l replace
