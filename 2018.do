@@ -243,7 +243,7 @@ duplicates drop a01, force
 save nnfrminc18.dta, replace
 
 /*Non-agricultural enterprise*/
-use $BIHS18Male\060_bihs_r3_male_mod_n.dta, clear
+use $BIHS18Male\060_bihs_r3_male_mod_n, clear
 bysort a01: egen nnagent=sum(n05)
 label var nnagent "non-agricultural enterprise"
 keep a01 nnagent
@@ -278,8 +278,8 @@ label var offrminc "Off-farm income"
 keep a01 offrminc
 save offfrm18.dta, replace
 
-/*Non-agricultural enterprise*/
-use $BIHS18Male\042_r2_mod_o1_female.dta, clear
+/*Non-agricultural enterprise
+use $BIHS18Male\042_r2_mod_o1_female.dta, clear*/
 
 *food consumption
 use $BIHS18Female\105_bihs_r3_female_mod_x1.dta

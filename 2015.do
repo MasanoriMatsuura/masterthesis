@@ -456,6 +456,7 @@ merge 1:1 a01 using facility15, nogen
 merge 1:1 a01 using extension15, nogen
 label var farmsize "Farm Size(decimal)"
 label var ln_farm "Farm size(log)"
-gen lnoff=log(offrmagr)
 gen year=2015
 save 2015.dta, replace
+
+//gen lnoff=log(offrmagr)
