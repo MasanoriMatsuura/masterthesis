@@ -32,6 +32,7 @@ recode gender_hh (1=1 "Man")(2=0 "Woman"), gen(Male)
 label var Male "Male(=1)"
 save sciec12.dta, replace
 
+
 **keep agronomic variables
 use $BIHS12\010_mod_g_male, clear
 collapse (sum) farmsize=g02 ,by(a01)
@@ -256,12 +257,143 @@ duplicates drop a01, force
 save offfrm12.dta, replace
 
 /*food consumption*/
-use $BIHS12/049_mod_x1_female.dta
-recode menu (1/16 277/297 303/305 323 2771/2776 2782 2781 2782 2791 2792 2801 2802 2811 2812  2813 2841/2843 2851/2852 2861/2863 2871/2876 2891/2896 2901/2907 2951/2952 2961 2971 2981 3031 3032=1 "Cereals")(61 82 302 306 621 622 3231 =2 "White roots and tubers")(41/60 63/69 80 81 86/115 298 300 441 905 2921/2923 2881/2886 2921/2923 2981 3001 =3 "Vegetables")(141/170 907 1421 1422 1461 1462=4 "Fruits")(121/129 322 906 =5 "Meat")(130/131 1301 1302 =6 "Eggs")(176/205 211/243 908 909 =7 "Fish and seafood")(21/28 31/32 70/79 299 301 317 320 2911/2913 2991=8 "Leagumes, nuts and seeds")(132/135 1321/1323 2941/2943=9 "Milk and milk products")(33/36 312/313 902 903 3121/3123 =10 "Oils and fats")(307/11 321=11 "Sweets")(246/251 253/264 266/276 314/316 318 319 2521 2522 2721/2724 3131 3132 = 12 "Spices, condiments, and beverages"), gen(hdds_i)
-keep a01 hdds_i
-duplicates drop a01 hdds_i, force
+use $BIHS12/049_mod_x1_female.dta, clear
+recode x1_07_01 (1/16 277/297 303/305 323 901 2771/2779 2781/2789 2791/2799 2801/2809 2811/2819 2841/2843 2851/2859 2861/2863 2871/2879 2891/2896 2901/2909 2951/2952 2961 2971 2981/2899 3031 3032=1 "Cereals")(41/61 302 621 622 3231 =2 "White roots and tubers")( 63/82 86/115 298 300 441 904 905 2921/2923 2881/2889 2921/2923 2981 3001 =3 "Vegetables")(141/170 907 1421 1422 1461 1462=4 "Fruits")(121/129 322 906 =5 "Meat")(130/131 1301 1302 =6 "Eggs")(176/205 211/243 908 909 =7 "Fish and seafood")(21/28 31/32 299 317/320 2911/2919 2991=8 "Leagumes, nuts and seeds")(132/135 1321/1323 2941/2943=9 "Milk and milk products")(33/36 312/313 902 903 3121/3129 =10 "Oils and fats")(303/11 321=11 "Sweets")(246/251 253/264 266/276 300 301 314/316 318 319 910 2521 2522 2721/2724 3131 3132 = 12 "Spices, condiments, and beverages"), gen(fx1_07_01) // categorize ingredients
+keep a01 fx1_07_01 
+duplicates drop a01 fx1_07_01, force
+rename fx1_07_01 item
+save fd12.dta, replace
+
+use $BIHS12/049_mod_x1_female.dta, clear
+recode x1_07_02 (1/16 277/297 303/305 323 901 2771/2779 2781/2789 2791/2799 2801/2809 2811/2819 2841/2843 2851/2859 2861/2863 2871/2879 2891/2896 2901/2909 2951/2952 2961 2971 2981/2899 3031 3032=1 "Cereals")(41/61 302 621 622 3231 =2 "White roots and tubers")( 63/82 86/115 298 300 441 904 905 2921/2923 2881/2889 2921/2923 2981 3001 =3 "Vegetables")(141/170 907 1421 1422 1461 1462=4 "Fruits")(121/129 322 906 =5 "Meat")(130/131 1301 1302 =6 "Eggs")(176/205 211/243 908 909 =7 "Fish and seafood")(21/28 31/32 299 317/320 2911/2919 2991=8 "Leagumes, nuts and seeds")(132/135 1321/1323 2941/2943=9 "Milk and milk products")(33/36 312/313 902 903 3121/3129 =10 "Oils and fats")(303/11 321=11 "Sweets")(246/251 253/264 266/276 300 301 314/316 318 319 910 2521 2522 2721/2724 3131 3132 = 12 "Spices, condiments, and beverages"), gen(fx1_07_02) // categorize ingredients
+keep a01 fx1_07_02 
+duplicates drop a01 fx1_07_02, force
+rename fx1_07_02 item
+tempfile hdds212
+save hdd212, replace
+
+use $BIHS12/049_mod_x1_female.dta, clear
+recode x1_07_03 (1/16 277/297 303/305 323 901 2771/2779 2781/2789 2791/2799 2801/2809 2811/2819 2841/2843 2851/2859 2861/2863 2871/2879 2891/2896 2901/2909 2951/2952 2961 2971 2981/2899 3031 3032=1 "Cereals")(41/61 302 621 622 3231 =2 "White roots and tubers")( 63/82 86/115 298 300 441 904 905 2921/2923 2881/2889 2921/2923 2981 3001 =3 "Vegetables")(141/170 907 1421 1422 1461 1462=4 "Fruits")(121/129 322 906 =5 "Meat")(130/131 1301 1302 =6 "Eggs")(176/205 211/243 908 909 =7 "Fish and seafood")(21/28 31/32 299 317/320 2911/2919 2991=8 "Leagumes, nuts and seeds")(132/135 1321/1323 2941/2943=9 "Milk and milk products")(33/36 312/313 902 903 3121/3129 =10 "Oils and fats")(303/11 321=11 "Sweets")(246/251 253/264 266/276 300 301 314/316 318 319 910 2521 2522 2721/2724 3131 3132 = 12 "Spices, condiments, and beverages"), gen(fx1_07_03) // categorize ingredients
+keep a01 fx1_07_03 
+duplicates drop a01 fx1_07_03, force
+rename fx1_07_03 item
+tempfile hdds312
+save hdd312, replace
+
+use $BIHS12/049_mod_x1_female.dta, clear
+recode x1_07_04 (1/16 277/297 303/305 323 901 2771/2779 2781/2789 2791/2799 2801/2809 2811/2819 2841/2843 2851/2859 2861/2863 2871/2879 2891/2896 2901/2909 2951/2952 2961 2971 2981/2899 3031 3032=1 "Cereals")(41/61 302 621 622 3231 =2 "White roots and tubers")( 63/82 86/115 298 300 441 904 905 2921/2923 2881/2889 2921/2923 2981 3001 =3 "Vegetables")(141/170 907 1421 1422 1461 1462=4 "Fruits")(121/129 322 906 =5 "Meat")(130/131 1301 1302 =6 "Eggs")(176/205 211/243 908 909 =7 "Fish and seafood")(21/28 31/32 299 317/320 2911/2919 2991=8 "Leagumes, nuts and seeds")(132/135 1321/1323 2941/2943=9 "Milk and milk products")(33/36 312/313 902 903 3121/3129 =10 "Oils and fats")(303/11 321=11 "Sweets")(246/251 253/264 266/276 300 301 314/316 318 319 910 2521 2522 2721/2724 3131 3132 = 12 "Spices, condiments, and beverages"), gen(fx1_07_04) // categorize ingredients
+keep a01 fx1_07_04 
+duplicates drop a01 fx1_07_04, force
+rename fx1_07_04 item
+tempfile hdds412
+save hdd412, replace
+
+use $BIHS12/049_mod_x1_female.dta, clear
+recode x1_07_05(1/16 277/297 303/305 323 901 2771/2779 2781/2789 2791/2799 2801/2809 2811/2819 2841/2843 2851/2859 2861/2863 2871/2879 2891/2896 2901/2909 2951/2952 2961 2971 2981/2899 3031 3032=1 "Cereals")(41/61 302 621 622 3231 =2 "White roots and tubers")( 63/82 86/115 298 300 441 904 905 2921/2923 2881/2889 2921/2923 2981 3001 =3 "Vegetables")(141/170 907 1421 1422 1461 1462=4 "Fruits")(121/129 322 906 =5 "Meat")(130/131 1301 1302 =6 "Eggs")(176/205 211/243 908 909 =7 "Fish and seafood")(21/28 31/32 299 317/320 2911/2919 2991=8 "Leagumes, nuts and seeds")(132/135 1321/1323 2941/2943=9 "Milk and milk products")(33/36 312/313 902 903 3121/3129 =10 "Oils and fats")(303/11 321=11 "Sweets")(246/251 253/264 266/276 300 301 314/316 318 319 910 2521 2522 2721/2724 3131 3132 = 12 "Spices, condiments, and beverages"), gen(fx1_07_05) // categorize ingredients
+keep a01 fx1_07_05 
+duplicates drop a01 fx1_07_05, force
+rename fx1_07_05 item
+tempfile hdds212
+save hdd512, replace
+
+use $BIHS12/049_mod_x1_female.dta, clear
+recode x1_07_06 (1/16 277/297 303/305 323 901 2771/2779 2781/2789 2791/2799 2801/2809 2811/2819 2841/2843 2851/2859 2861/2863 2871/2879 2891/2896 2901/2909 2951/2952 2961 2971 2981/2899 3031 3032=1 "Cereals")(41/61 302 621 622 3231 =2 "White roots and tubers")( 63/82 86/115 298 300 441 904 905 2921/2923 2881/2889 2921/2923 2981 3001 =3 "Vegetables")(141/170 907 1421 1422 1461 1462=4 "Fruits")(121/129 322 906 =5 "Meat")(130/131 1301 1302 =6 "Eggs")(176/205 211/243 908 909 =7 "Fish and seafood")(21/28 31/32 299 317/320 2911/2919 2991=8 "Leagumes, nuts and seeds")(132/135 1321/1323 2941/2943=9 "Milk and milk products")(33/36 312/313 902 903 3121/3129 =10 "Oils and fats")(303/11 321=11 "Sweets")(246/251 253/264 266/276 300 301 314/316 318 319 910 2521 2522 2721/2724 3131 3132 = 12 "Spices, condiments, and beverages"), gen(fx1_07_06) // categorize ingredients
+keep a01 fx1_07_06
+duplicates drop a01 fx1_07_06, force
+rename fx1_07_06 item
+tempfile hdds612
+save hdd612, replace
+
+use $BIHS12/049_mod_x1_female.dta, clear
+recode x1_07_07 (1/16 277/297 303/305 323 901 2771/2779 2781/2789 2791/2799 2801/2809 2811/2819 2841/2843 2851/2859 2861/2863 2871/2879 2891/2896 2901/2909 2951/2952 2961 2971 2981/2899 3031 3032=1 "Cereals")(41/61 302 621 622 3231 =2 "White roots and tubers")( 63/82 86/115 298 300 441 904 905 2921/2923 2881/2889 2921/2923 2981 3001 =3 "Vegetables")(141/170 907 1421 1422 1461 1462=4 "Fruits")(121/129 322 906 =5 "Meat")(130/131 1301 1302 =6 "Eggs")(176/205 211/243 908 909 =7 "Fish and seafood")(21/28 31/32 299 317/320 2911/2919 2991=8 "Leagumes, nuts and seeds")(132/135 1321/1323 2941/2943=9 "Milk and milk products")(33/36 312/313 902 903 3121/3129 =10 "Oils and fats")(303/11 321=11 "Sweets")(246/251 253/264 266/276 300 301 314/316 318 319 910 2521 2522 2721/2724 3131 3132 = 12 "Spices, condiments, and beverages"), gen(fx1_07_07) // categorize ingredients
+keep a01 fx1_07_07
+duplicates drop a01 fx1_07_07, force
+rename fx1_07_07 item
+tempfile hdds712
+save hdd712, replace
+
+use $BIHS12/049_mod_x1_female.dta, clear
+recode x1_07_08 (1/16 277/297 303/305 323 901 2771/2779 2781/2789 2791/2799 2801/2809 2811/2819 2841/2843 2851/2859 2861/2863 2871/2879 2891/2896 2901/2909 2951/2952 2961 2971 2981/2899 3031 3032=1 "Cereals")(41/61 302 621 622 3231 =2 "White roots and tubers")( 63/82 86/115 298 300 441 904 905 2921/2923 2881/2889 2921/2923 2981 3001 =3 "Vegetables")(141/170 907 1421 1422 1461 1462=4 "Fruits")(121/129 322 906 =5 "Meat")(130/131 1301 1302 =6 "Eggs")(176/205 211/243 908 909 =7 "Fish and seafood")(21/28 31/32 299 317/320 2911/2919 2991=8 "Leagumes, nuts and seeds")(132/135 1321/1323 2941/2943=9 "Milk and milk products")(33/36 312/313 902 903 3121/3129 =10 "Oils and fats")(303/11 321=11 "Sweets")(246/251 253/264 266/276 300 301 314/316 318 319 910 2521 2522 2721/2724 3131 3132 = 12 "Spices, condiments, and beverages"), gen(fx1_07_08) // categorize ingredients
+keep a01 fx1_07_08
+duplicates drop a01 fx1_07_08, force
+rename fx1_07_08 item
+tempfile hdds812
+save hdd812, replace
+
+use $BIHS12/049_mod_x1_female.dta, clear
+recode x1_07_09 (1/16 277/297 303/305 323 901 2771/2779 2781/2789 2791/2799 2801/2809 2811/2819 2841/2843 2851/2859 2861/2863 2871/2879 2891/2896 2901/2909 2951/2952 2961 2971 2981/2899 3031 3032=1 "Cereals")(41/61 302 621 622 3231 =2 "White roots and tubers")( 63/82 86/115 298 300 441 904 905 2921/2923 2881/2889 2921/2923 2981 3001 =3 "Vegetables")(141/170 907 1421 1422 1461 1462=4 "Fruits")(121/129 322 906 =5 "Meat")(130/131 1301 1302 =6 "Eggs")(176/205 211/243 908 909 =7 "Fish and seafood")(21/28 31/32 299 317/320 2911/2919 2991=8 "Leagumes, nuts and seeds")(132/135 1321/1323 2941/2943=9 "Milk and milk products")(33/36 312/313 902 903 3121/3129 =10 "Oils and fats")(303/11 321=11 "Sweets")(246/251 253/264 266/276 300 301 314/316 318 319 910 2521 2522 2721/2724 3131 3132 = 12 "Spices, condiments, and beverages"), gen(fx1_07_09) // categorize ingredients
+keep a01 fx1_07_09 
+duplicates drop a01 fx1_07_09, force
+rename fx1_07_09 item
+tempfile hdds912
+save hdd912, replace
+
+use $BIHS12/049_mod_x1_female.dta, clear
+recode x1_07_10(1/16 277/297 303/305 323 901 2771/2779 2781/2789 2791/2799 2801/2809 2811/2819 2841/2843 2851/2859 2861/2863 2871/2879 2891/2896 2901/2909 2951/2952 2961 2971 2981/2899 3031 3032=1 "Cereals")(41/61 302 621 622 3231 =2 "White roots and tubers")( 63/82 86/115 298 300 441 904 905 2921/2923 2881/2889 2921/2923 2981 3001 =3 "Vegetables")(141/170 907 1421 1422 1461 1462=4 "Fruits")(121/129 322 906 =5 "Meat")(130/131 1301 1302 =6 "Eggs")(176/205 211/243 908 909 =7 "Fish and seafood")(21/28 31/32 299 317/320 2911/2919 2991=8 "Leagumes, nuts and seeds")(132/135 1321/1323 2941/2943=9 "Milk and milk products")(33/36 312/313 902 903 3121/3129 =10 "Oils and fats")(303/11 321=11 "Sweets")(246/251 253/264 266/276 300 301 314/316 318 319 910 2521 2522 2721/2724 3131 3132 = 12 "Spices, condiments, and beverages"), gen(fx1_07_10) // categorize ingredients
+keep a01 fx1_07_10
+duplicates drop a01 fx1_07_10, force
+rename fx1_07_10 item
+tempfile hdds1012
+save hdd1012, replace
+
+use $BIHS12/049_mod_x1_female.dta, clear
+recode x1_07_11 (1/16 277/297 303/305 323 901 2771/2779 2781/2789 2791/2799 2801/2809 2811/2819 2841/2843 2851/2859 2861/2863 2871/2879 2891/2896 2901/2909 2951/2952 2961 2971 2981/2899 3031 3032=1 "Cereals")(41/61 302 621 622 3231 =2 "White roots and tubers")( 63/82 86/115 298 300 441 904 905 2921/2923 2881/2889 2921/2923 2981 3001 =3 "Vegetables")(141/170 907 1421 1422 1461 1462=4 "Fruits")(121/129 322 906 =5 "Meat")(130/131 1301 1302 =6 "Eggs")(176/205 211/243 908 909 =7 "Fish and seafood")(21/28 31/32 299 317/320 2911/2919 2991=8 "Leagumes, nuts and seeds")(132/135 1321/1323 2941/2943=9 "Milk and milk products")(33/36 312/313 902 903 3121/3129 =10 "Oils and fats")(303/11 321=11 "Sweets")(246/251 253/264 266/276 300 301 314/316 318 319 910 2521 2522 2721/2724 3131 3132 = 12 "Spices, condiments, and beverages"), gen(fx1_07_11) // categorize ingredients
+keep a01 fx1_07_11
+duplicates drop a01 fx1_07_11, force
+rename fx1_07_11 item
+tempfile hdds1112
+save hdd1112, replace
+
+use $BIHS12/049_mod_x1_female.dta, clear
+recode x1_07_12 (1/16 277/297 303/305 323 901 2771/2779 2781/2789 2791/2799 2801/2809 2811/2819 2841/2843 2851/2859 2861/2863 2871/2879 2891/2896 2901/2909 2951/2952 2961 2971 2981/2899 3031 3032=1 "Cereals")(41/61 302 621 622 3231 =2 "White roots and tubers")( 63/82 86/115 298 300 441 904 905 2921/2923 2881/2889 2921/2923 2981 3001 =3 "Vegetables")(141/170 907 1421 1422 1461 1462=4 "Fruits")(121/129 322 906 =5 "Meat")(130/131 1301 1302 =6 "Eggs")(176/205 211/243 908 909 =7 "Fish and seafood")(21/28 31/32 299 317/320 2911/2919 2991=8 "Leagumes, nuts and seeds")(132/135 1321/1323 2941/2943=9 "Milk and milk products")(33/36 312/313 902 903 3121/3129 =10 "Oils and fats")(303/11 321=11 "Sweets")(246/251 253/264 266/276 300 301 314/316 318 319 910 2521 2522 2721/2724 3131 3132 = 12 "Spices, condiments, and beverages"), gen(fx1_07_12) // categorize ingredients
+keep a01 fx1_07_12
+duplicates drop a01 fx1_07_12, force
+rename fx1_07_12 item
+tempfile hdds1212
+save hdd1212, replace
+
+use $BIHS12/049_mod_x1_female.dta, clear
+recode x1_07_13 (1/16 277/297 303/305 323 901 2771/2779 2781/2789 2791/2799 2801/2809 2811/2819 2841/2843 2851/2859 2861/2863 2871/2879 2891/2896 2901/2909 2951/2952 2961 2971 2981/2899 3031 3032=1 "Cereals")(41/61 302 621 622 3231 =2 "White roots and tubers")( 63/82 86/115 298 300 441 904 905 2921/2923 2881/2889 2921/2923 2981 3001 =3 "Vegetables")(141/170 907 1421 1422 1461 1462=4 "Fruits")(121/129 322 906 =5 "Meat")(130/131 1301 1302 =6 "Eggs")(176/205 211/243 908 909 =7 "Fish and seafood")(21/28 31/32 299 317/320 2911/2919 2991=8 "Leagumes, nuts and seeds")(132/135 1321/1323 2941/2943=9 "Milk and milk products")(33/36 312/313 902 903 3121/3129 =10 "Oils and fats")(303/11 321=11 "Sweets")(246/251 253/264 266/276 300 301 314/316 318 319 910 2521 2522 2721/2724 3131 3132 = 12 "Spices, condiments, and beverages"), gen(fx1_07_13) // categorize ingredients
+keep a01 fx1_07_13
+duplicates drop a01 fx1_07_13, force
+rename fx1_07_13 item
+tempfile hdds1312
+save hdd1312, replace
+
+use $BIHS12/049_mod_x1_female.dta, clear
+recode x1_07_14(1/16 277/297 303/305 323 901 2771/2779 2781/2789 2791/2799 2801/2809 2811/2819 2841/2843 2851/2859 2861/2863 2871/2879 2891/2896 2901/2909 2951/2952 2961 2971 2981/2899 3031 3032=1 "Cereals")(41/61 302 621 622 3231 =2 "White roots and tubers")( 63/82 86/115 298 300 441 904 905 2921/2923 2881/2889 2921/2923 2981 3001 =3 "Vegetables")(141/170 907 1421 1422 1461 1462=4 "Fruits")(121/129 322 906 =5 "Meat")(130/131 1301 1302 =6 "Eggs")(176/205 211/243 908 909 =7 "Fish and seafood")(21/28 31/32 299 317/320 2911/2919 2991=8 "Leagumes, nuts and seeds")(132/135 1321/1323 2941/2943=9 "Milk and milk products")(33/36 312/313 902 903 3121/3129 =10 "Oils and fats")(303/11 321=11 "Sweets")(246/251 253/264 266/276 300 301 314/316 318 319 910 2521 2522 2721/2724 3131 3132 = 12 "Spices, condiments, and beverages"), gen(fx1_07_14) // categorize ingredients
+keep a01 fx1_07_14
+duplicates drop a01 fx1_07_14, force
+rename fx1_07_14 item
+tempfile hdds1412
+save hdd1412, replace
+
+use $BIHS12/049_mod_x1_female.dta, clear
+recode x1_07_15 (1/16 277/297 303/305 323 901 2771/2779 2781/2789 2791/2799 2801/2809 2811/2819 2841/2843 2851/2859 2861/2863 2871/2879 2891/2896 2901/2909 2951/2952 2961 2971 2981/2899 3031 3032=1 "Cereals")(41/61 302 621 622 3231 =2 "White roots and tubers")( 63/82 86/115 298 300 441 904 905 2921/2923 2881/2889 2921/2923 2981 3001 =3 "Vegetables")(141/170 907 1421 1422 1461 1462=4 "Fruits")(121/129 322 906 =5 "Meat")(130/131 1301 1302 =6 "Eggs")(176/205 211/243 908 909 =7 "Fish and seafood")(21/28 31/32 299 317/320 2911/2919 2991=8 "Leagumes, nuts and seeds")(132/135 1321/1323 2941/2943=9 "Milk and milk products")(33/36 312/313 902 903 3121/3129 =10 "Oils and fats")(303/11 321=11 "Sweets")(246/251 253/264 266/276 300 301 314/316 318 319 910 2521 2522 2721/2724 3131 3132 = 12 "Spices, condiments, and beverages"), gen(fx1_07_15) // categorize ingredients
+keep a01 fx1_07_15
+duplicates drop a01 fx1_07_15, force
+rename fx1_07_15 item
+tempfile hdds1512
+save hdd1512, replace
+
+use fd12.dta, clear
+append using hdd212
+append using hdd312
+append using hdd412
+append using hdd512
+append using hdd612
+append using hdd712
+append using hdd812
+append using hdd912
+append using hdd1012
+append using hdd1112
+append using hdd1212
+append using hdd1312
+append using hdd1412
+append using hdd1512
+duplicates drop a01 item, force
 bysort a01: egen hdds=count(a01)
-drop hdds_i
+drop item
 label var hdds "Household Dietary Diversity"
 duplicates drop a01, force
 save fd12.dta, replace
@@ -313,8 +445,13 @@ bysort a01: egen frminc=sum(eis) //total farm income
 gen seir=(eis/frminc)^2 //squared each farm income ratio 
 bysort a01: egen frm_div1=sum(seir)
 bysort a01: gen frm_div=1-frm_div1
+gen p=eis/frminc 
+gen lnp=log(p)
+gen shnn1=p*lnp
+bysort a01: egen shn1=sum(shnn1)
+gen shnf=-1*(shn1)
 duplicates drop a01, force
-keep a01 frm_div
+keep a01 frm_div shnf
 save frm_div12, replace
 
 **Farm diversification
@@ -352,29 +489,33 @@ gen i7=(nnagent/ttinc)^2
 gen es=i1+i2+i3+i4+i5+i6+i7
 gen inc_div=1-es
 label var inc_div "Income diversification index"
-keep a01 inc_div ttinc
+keep a01 inc_div ttinc crp_vl nnearn trsfr ttllvstck offrminc fshinc nnagent
 save incdiv12.dta, replace
 
 **climate variables 
 use climate, clear
 rename (district dcode) (dcode District_Name) //renaming
-drop rw2 rs2 rr2 ra2 rw3 rs3 rr3 ra3 tw2 ts2 tr2 ta2 tw3 ts3 tr3 ta3 tmpsd2 tmpsd3 rinsd2 rinsd3 rwet2 rdry2 rwet3 rdry3 twet2 tdry2 twet3 tdry3 
-rename (rw1 rs1 rr1 ra1 rinsd1 tw1 ts1 tr1 ta1 tmpsd1 rwet1 rdry1 twet1 tdry1)(rw rs rr ra rinsd tw ts tr ta tmpsd rwet rdry twet tdry)
-gen rinsd_1000=rinsd/1000
+drop rw3 rs3 rr3 ra3 rw2 rs2 rr2 ra2 tw3 ts3 tr3 ta3 tw2 ts2 tr2 ta2 rsd3 rsd2 tsd3 tsd2 //tmpsd1 tmpsd2 rinsd1 rinsd2 rwet1 rdry1 rwet2 rdry2 twet1 tdry1 twet2 tdry2 
+/*rename (rw3 rs3 rr3 ra3 rinsd3 tw3 ts3 tr3 ta3 tmpsd3 rwet3 rdry3 twet3 tdry3)(rw rs rr ra rinsd tw ts tr ta tmpsd rwet rdry twet tdry)*/
+rename (rw1 rs1 rr1 ra1 rsd1 tw1 ts1 tr1 ta1 tsd1 )(rw rs rr ra rsd tw ts tr ta tsd )
+//gen rinsd_1000=rinsd/1000
 gen ln_rw=log(rw)
 gen ln_rs=log(rs)
 gen ln_rr=log(rr)
 gen ln_ra=log(ra)
-gen ln_rinsd=log(rinsd)
+//gen ln_rinsd=log(rinsd)
+gen ln_rinsd=log(rsd)
 gen ln_tw=log(tw)
 gen ln_ts=log(ts)
 gen ln_tr=log(tr)
 gen ln_ta=log(ta)
-gen ln_tmpsd=log(tmpsd)
-gen ln_rwet=log(rwet)
+//gen ln_tmpsd=log(tmpsd)
+gen ln_tmpsd=log(tsd)
+
+/*gen ln_rwet=log(rwet)
 gen ln_rdry=log(rdry)
 gen ln_tdry=log(tdry)
-gen ln_twet=log(twet)
+gen ln_twet=log(twet)*/
 label var rinsd "Yearly st.dev rainfall"
 label var tmpsd "Monthly st.dev temperature"
 label var ln_tmpsd "Monthly st.dev temperature (log)"
