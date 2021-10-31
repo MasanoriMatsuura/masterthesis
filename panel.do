@@ -28,7 +28,7 @@ global BIHS12 = "C:\Users\user\Documents\Masterthesis\BIHS\BIHS2012"
 global table = "C:\Users\user\Documents\Masterthesis\NTUtemplate\table"
 global figure = "C:\Users\user\Documents\Masterthesis\NTUtemplate\figures"
 cd "C:\Users\user\Documents\Masterthesis\BIHS\Do"
-use panel.dta, clear 
+//use panel.dta, clear 
 /*creating a panel dataset*/
 use 2015.dta, clear
 append using 2012.dta, force
@@ -98,19 +98,21 @@ gen lnhdds=log(hdds)
 gen lnexp=log(pc_expm_d)
 gen lnfexp=log(pc_foodxm_d)
 
-*smallholder
-recode farmsize (min/180=1 "Yes")(180/max=0 "No"), gen("small")
-label var poor "small (=1 if yes)"
 
-*label market participation variable
-label var marketp "Market participation (=1 if yes)"
+
+/*label market participation variable
+label var marketp "Market participation (=1 if yes)"*/
 save panel.dta, replace
 
 export delimited using panel.csv, replace //output as csv
 
 **Visualization
+gen lnincdiv=log(inc_div)
 
-graph twoway scatter frm_div preff_frm_div
+twoway(scatter lnfexp  lnincdiv if year==2012 & small==1)(scatter lnfexp lnincdiv if year==2012 & small==0)(lfit lnfexp lnincdiv if year==2012 & small==1)(lfit lnfexp  lnincdiv if year==2012 & small==0) ,legend(order(1 "small" 2 "others" 3 "small" 4 "others")) 
+
+twoway(scatter lnhdds frm_div if year==2012 & small==1)(scatter lnhdds frm_div if year==2012 & small==0)(lfit lnhdds frm_div if year==2012 & small==1)(lfit lnhdds frm_div if year==2012 & small==0) ,legend(order(1 "small" 2 "others" 3 "small" 4 "others")) 
+
 graph twoway scatter  preff_incdiv inc_div, by(year)
 
 kdensity lnfexp 
@@ -199,8 +201,14 @@ reghdfe inc_div preff_incdiv ln_ra ln_rr ln_rs ln_rw ln_ta ln_tr ln_ts ln_tw  Ma
 
 **heterogeneous analysis
 xtset a01 year
-xtile quanths = farmsize, nq(3)
-tab quanths, gen(q)
+
+*smallholder
+sum farmsize, d
+recode farmsize (min/47=1 "Yes")(47/max=0 "No"), gen("small")
+label var small "Smallholder (=1 if yes)"
+/*recode farmsize (min/50=1)(50/125=2)(125/222=3)(222/max=4), gen(q)
+tab q, gen(q)
+
 gen incq1=inc_div*q1
 gen incq2=inc_div*q2
 gen incq3=inc_div*q3
@@ -215,54 +223,69 @@ gen pincq3=preff_incdiv*q3
 
 gen pfrmq1=preff_frm_div*q1
 gen pfrmq2=preff_frm_div*q2
-gen pfrmq3=preff_frm_div*q3
+gen pfrmq3=preff_frm_div*q3*/
 
+gen frms=frm_div*small
+gen incs=inc_div*small
 
-gen sinc=inc_div*small
-gen sfrm=frm_div*small
-gen psinc=preff_incdiv*small
-gen psfrm=preff_frm_div*small
-
-
+gen pincs=preff_incdiv*small
+gen pfrms=preff_frm_div*small
 *1st stage frm q
-reghdfe frm_div preff_frm_div ln_ra ln_rr ln_rs ln_rw ln_rinsd ln_tmpsd ln_ta ln_tr ln_ts ln_tw Male age_hh hh_size schll_hh lnfrm  market road extension irrigation year2012 year2015  if frm_div<1,  res vce(r) absorb(a01) //first stage
+reghdfe frm_div preff_frm_div ln_ra ln_rr ln_rs ln_rw ln_rinsd ln_tmpsd ln_ta ln_tr ln_ts ln_tw Male age_hh hh_size schll_hh lnfrm market road extension irrigation year2012 year2015  if frm_div<1,  res vce(r) absorb(a01) //first stage
 predict double res, r
+
+/*reghdfe frmq1 pfrmq1 ln_ra ln_rr ln_rs ln_rw ln_rinsd ln_tmpsd ln_ta ln_tr ln_ts ln_tw  Male age_hh hh_size schll_hh lnfrm  market road extension irrigation year2012 year2015 if frm_div<1, res vce(r) absorb(a01) //first stage
+predict double v2h_fef1, r
 
 reghdfe frmq2 pfrmq2 ln_ra ln_rr ln_rs ln_rw ln_rinsd ln_tmpsd ln_ta ln_tr ln_ts ln_tw  Male age_hh hh_size schll_hh lnfrm  market road extension irrigation year2012 year2015 if frm_div<1, res vce(r) absorb(a01) //first stage
 predict double v2h_fef2, r
 
 reghdfe frmq3 pfrmq3 ln_ra ln_rr ln_rs ln_rw ln_rinsd ln_tmpsd ln_ta ln_tr ln_ts ln_tw  Male age_hh hh_size schll_hh lnfrm  market road extension irrigation year2012 year2015 if frm_div<1, res vce(r) absorb(a01) //first stage
-predict double v2h_fef3, r
+predict double v2h_fef3, r*/
 
-reghdfe sfrm psfrm ln_ra ln_rr ln_rs ln_rw ln_rinsd ln_tmpsd ln_ta ln_tr ln_ts ln_tw  Male age_hh hh_size schll_hh lnfrm  market road extension irrigation year2012 year2015 if frm_div<1, res vce(r) absorb(a01) //first stage
-predict double v2h_fefs, r
+reghdfe frms pfrms ln_ra ln_rr ln_rs ln_rw ln_rinsd ln_tmpsd ln_ta ln_tr ln_ts ln_tw  Male age_hh hh_size schll_hh lnfrm market road extension irrigation year2012 year2015 if frm_div<1, res vce(r) absorb(a01) //first stage
+predict double sres, r
 
 **hdds frm q
-xtpoisson hdds frm_div sfrm res v2h_fefs small ln_ra ln_rr ln_rs ln_rw ln_rinsd ln_tmpsd ln_ta ln_tr ln_ts ln_tw Male age_hh hh_size schll_hh lnfrm market road extension irrigation year2012 year2015 if frm_div<1, fe vce(r) //frmq2 frmq3 v2h_fef2 v2h_fef3 q2 q3
+xtpoisson hdds frm_div frms small res sres ln_ra ln_rr ln_rs ln_rw  ln_rinsd ln_tmpsd ln_ta ln_tr ln_ts ln_tw Male age_hh hh_size schll_hh market road extension irrigation year2012 year2015 if frm_div<1, fe vce(r) //with interaction term
  
-**lnfexp frm q
-reghdfe lnfexp frm_div sfrm res v2h_fefs small ln_ra ln_rr ln_rs ln_rw  ln_rinsd ln_tmpsd ln_ta ln_tr ln_ts ln_tw Male age_hh hh_size schll_hh lnfrm market road extension irrigation year2012 year2015 if frm_div<1, absorb(a01) vce(r) //
-drop res  //res2 res3 res4 resf  v2h_fef4
-drop v2h_fef2 v2h_fef3 
-drop v2h_fefs
+xtpoisson hdds frm_div small res ln_ra ln_rr ln_rs ln_rw ln_rinsd ln_tmpsd ln_ta ln_tr ln_ts ln_tw Male age_hh hh_size schll_hh market road extension irrigation year2012 year2015 if frm_div<1, fe vce(r) //without interaction term
 
+**lnfexp frm q
+reghdfe lnfexp frm_div frms small res sres ln_ra ln_rr ln_rs ln_rw  ln_rinsd ln_tmpsd ln_ta ln_tr ln_ts ln_tw Male age_hh hh_size schll_hh market road extension irrigation year2012 year2015 if frm_div<1, absorb(a01) vce(r) // with interaction term
+
+reghdfe lnfexp frm_div small res ln_ra ln_rr ln_rs ln_rw ln_rinsd ln_tmpsd ln_ta ln_tr ln_ts ln_tw Male age_hh hh_size schll_hh market road extension irrigation year2012 year2015 if frm_div<1, absorb(a01) vce(r) // without interaction term
+
+drop res sres //res2 res3 res4 resf  v2h_fef4 frmq1 frmq2 frmq3
+drop v2h_fef2 v2h_fef3 
+drop v2h_fef1
 
 *1st stage inc
-reghdfe inc_div preff_incdiv ln_ra ln_rr ln_rs ln_rw ln_rinsd ln_tmpsd ln_ta ln_tr ln_ts ln_tw  Male age_hh hh_size schll_hh lnfr market road irrigation year2012 year2015 if inc_div<1, vce(r) absorb(a01) res //first stage
+reghdfe inc_div preff_incdiv ln_ra ln_rr ln_rs ln_rw ln_rinsd ln_tmpsd ln_ta ln_tr ln_ts ln_tw  Male age_hh hh_size schll_hh lnfrm market road irrigation year2012 year2015 if inc_div<1, vce(r) absorb(a01) res //first stage
 predict double res, r
+
+/*reghdfe incq2 pincq2  ln_ra ln_rr ln_rs ln_rw ln_rinsd ln_tmpsd ln_ta ln_tr ln_ts ln_tw  Male age_hh hh_size schll_hh lnfrm market road irrigation year2012 year2015 if inc_div<1, vce(r) absorb(a01) res //first stage
+predict double res1, r
+ 
 reghdfe incq2 pincq2  ln_ra ln_rr ln_rs ln_rw ln_rinsd ln_tmpsd ln_ta ln_tr ln_ts ln_tw  Male age_hh hh_size schll_hh lnfrm market road irrigation year2012 year2015 if inc_div<1, vce(r) absorb(a01) res //first stage
 predict double res2, r
 reghdfe incq3 pincq3 ln_ra ln_rr ln_rs ln_rw ln_rinsd ln_tmpsd ln_ta ln_tr ln_ts ln_tw  Male age_hh hh_size schll_hh lnfrm  market road irrigation year2012 year2015 if inc_div<1, vce(r) absorb(a01) res //first stage
-predict double res3, r
+predict double res3, r*/
 
-reghdfe sinc psinc ln_ra ln_rr ln_rs ln_rw ln_rinsd ln_tmpsd ln_ta ln_tr ln_ts ln_tw  Male age_hh hh_size schll_hh lnfrm  market road extension irrigation year2012 year2015 if frm_div<1, res vce(r) absorb(a01) //first stage
-predict double ress, r
+reghdfe incs pincs ln_ra ln_rr ln_rs ln_rw ln_rinsd ln_tmpsd ln_ta ln_tr ln_ts ln_tw  Male age_hh hh_size schll_hh lnfrm market road extension irrigation year2012 year2015 , res vce(r) absorb(a01) //first stage
+predict double sres, r
 
 **hdds inc q
-xtpoisson hdds inc_div sinc res ress small ln_ra ln_rr ln_rs ln_rw ln_rinsd ln_tmpsd ln_ta ln_tr ln_ts ln_tw Male age_hh hh_size schll_hh lnfrm market road irrigation year2012 year2015 , fe vce(r) //incq2 incq3 res res2 res3 q2 q3
+xtpoisson hdds inc_div incs res sres small ln_ra ln_rr ln_rs ln_rw ln_rinsd ln_tmpsd ln_ta ln_tr ln_ts ln_tw Male age_hh hh_size schll_hh market road irrigation year2012 year2015 , fe vce(r) //with interaction
+
+xtpoisson hdds inc_div res small ln_ra ln_rr ln_rs ln_rw ln_rinsd ln_tmpsd ln_ta ln_tr ln_ts ln_tw Male age_hh hh_size schll_hh market road irrigation year2012 year2015 , fe vce(r) //without interaction
+
 **lnfexp inc q
-reghdfe lnfexp inc_div sinc res ress small ln_ra ln_rr ln_rs ln_rw ln_rinsd ln_tmpsd ln_ta ln_tr ln_ts ln_tw Male age_hh hh_size schll_hh lnfrm market road irrigation year2012 year2015 , absorb(a01) vce(r) //res2 res3 res4
-drop res res2 res3 //res2 res3 res4
+reghdfe lnfexp inc_div incs res sres small ln_ra ln_rr ln_rs ln_rw ln_rinsd ln_tmpsd ln_ta ln_tr ln_ts ln_tw Male age_hh hh_size schll_hh market road irrigation year2012 year2015 , absorb(a01) vce(r) //with interaction
+
+reghdfe lnfexp inc_div res small ln_ra ln_rr ln_rs ln_rw ln_rinsd ln_tmpsd ln_ta ln_tr ln_ts ln_tw Male age_hh hh_size schll_hh market road irrigation year2012 year2015 , absorb(a01) vce(r) //without interaction
+
+drop res sres //res2 res3 res4 resf  v2h_fef4 frmq1 frmq2 frmq3
 
 
 /*output*/
@@ -281,8 +304,16 @@ gr combine income.gph farm.gph
 graph display, scheme(s1mono) 
 graph export $figure\div.pdf, replace
 
+** bar graph
+graph bar frm_div if frm_div < 1 & year==2012, over(small) legend( label(1 "Smallholder") label(0 "Not smallholder") ) ytitle(Farm diversification)   saving(2012frm)
+graph bar inc_div if inc_div < 1 & year==2012, over(small) ytitle(Income diversification) saving(2012inc) legend( label(1 "Smallholder") label(0 "Not smallholder") )
+graph bar frm_div if frm_div < 1 & year==2015, over(small) ytitle(Farm diversification)   saving(2015frm) legend( label(1 "Smallholder") label(0 "Not smallholder") )
+graph bar inc_div if inc_div < 1 & year==2015, over(small) ytitle(Income diversification) saving(2015inc) legend( label(1 "Smallholder") label(0 "Not smallholder") )
+graph bar frm_div if frm_div < 1 & year==2018, over(small) ytitle(Farm diversification)  saving(2018frm) legend( label(1 "Smallholder") label(0 "Not smallholder") )
+graph bar inc_div if inc_div < 1 & year==2018, over(small) ytitle(Income diversification) saving(2018inc) legend( label(1 "Smallholder") label(0 "Not smallholder") )
 
-
+gr combine 2012frm.gph 2012inc.gph note("Source: BIHS 2011/12, 15, 18/19")
+graph display, scheme(s1mono) 
 **first stage estimation
 *first stage
 eststo clear
@@ -364,54 +395,110 @@ drop v2h_fef v2h_fei
 eststo clear
 xtset a01 year
 *1st stage frm q
-reghdfe frm_div preff_frm_div ln_ra ln_rr ln_rs ln_rw ln_rinsd ln_tmpsd ln_ta ln_tr ln_ts ln_tw  Male age_hh hh_size schll_hh lnfrm market road extension irrigation year2012 year2015 if frm_div<1, vce(r) absorb(a01) res //first stage
-predict double v2h_fe, r
-reghdfe frmq2 pfrmq2  ln_ra ln_rr ln_rs ln_rw ln_rinsd ln_tmpsd ln_ta ln_tr ln_ts ln_tw  Male age_hh hh_size schll_hh lnfrm marketp market road extension irrigation year2012 year2015 if frm_div<1, vce(r) absorb(a01) res //first stage
-predict double v2h_fe2, r
-reghdfe frmq3 pfrmq3  ln_ra ln_rr ln_rs ln_rw ln_rinsd ln_tmpsd ln_ta ln_tr ln_ts ln_tw  Male age_hh hh_size schll_hh lnfrm market road extension irrigation year2012 year2015 if frm_div<1, vce(r) absorb(a01) res //first stage
-predict double v2h_fe3, r
+reghdfe frm_div preff_frm_div ln_ra ln_rr ln_rs ln_rw ln_rinsd ln_tmpsd ln_ta ln_tr ln_ts ln_tw Male age_hh hh_size schll_hh lnfrm market road extension irrigation year2012 year2015  if frm_div<1,  res vce(r) absorb(a01) //first stage
+predict double res, r
 
+reghdfe frms pfrms ln_ra ln_rr ln_rs ln_rw ln_rinsd ln_tmpsd ln_ta ln_tr ln_ts ln_tw Male age_hh hh_size schll_hh market road extension irrigation year2012 year2015 if frm_div<1, res vce(r) absorb(a01) //first stage
+predict double sres, r
 **hdds frm q
-eststo: xtpoisson hdds frm_div frmq2 frmq3 q2 q3 v2h_fe v2h_fe2 v2h_fe3 ln_ra ln_rr ln_rs ln_rw ln_rinsd ln_tmpsd ln_ta ln_tr ln_ts ln_tw Male age_hh hh_size schll_hh lnfrm market road extension irrigation year2012 year2015 if frm_div<1, fe vce(r) //hdds
-quietly estadd local fe Yes, replace //add the raw of fe, year dummy, and control variables
-quietly estadd local year Yes, replace 
-quietly estadd local residual Yes, replace
-**lnfexp frm q
-eststo: reghdfe lnfexp frm_div frmq2 frmq3 q2 q3 v2h_fe v2h_fe2 v2h_fe3 ln_ra ln_rr ln_rs ln_rw  ln_rinsd ln_tmpsd ln_ta ln_tr ln_ts ln_tw Male age_hh hh_size schll_hh lnfrm  market road extension irrigation year2012 year2015 if frm_div<1, absorb(a01) vce(r) 
-label var v2h_fe "Residual"
+eststo: xtpoisson hdds frm_div frms small res sres ln_ra ln_rr ln_rs ln_rw  ln_rinsd ln_tmpsd ln_ta ln_tr ln_ts ln_tw Male age_hh hh_size schll_hh market road extension irrigation year2012 year2015 if frm_div<1, fe vce(r) //with interaction term
+ 
+
 quietly estadd local fe Yes, replace //add the raw of fe, year dummy, and control variables
 quietly estadd local year Yes, replace 
 quietly estadd local residual Yes, replace
 
-drop v2h_fe v2h_fe2 v2h_fe3 
+**lnfexp frm q
+eststo: reghdfe lnfexp frm_div frms small res sres ln_ra ln_rr ln_rs ln_rw  ln_rinsd ln_tmpsd ln_ta ln_tr ln_ts ln_tw Male age_hh hh_size schll_hh market road extension irrigation year2012 year2015 if frm_div<1, absorb(a01) vce(r) // with interaction term
+
+
+label var res "Residual"
+quietly estadd local fe Yes, replace //add the raw of fe, year dummy, and control variables
+quietly estadd local year Yes, replace 
+quietly estadd local residual Yes, replace
+
+drop res sres //v2h_fe2 v2h_fe3 
 
 
 *1st stage inc
-reghdfe inc_div preff_incdiv ln_ra ln_rr ln_rs ln_rw ln_rinsd ln_tmpsd ln_ta ln_tr ln_ts ln_tw  Male age_hh hh_size schll_hh lnfrm  market road irrigation year2012 year2015 if inc_div<1, vce(r) absorb(a01) res //first stage
-predict double v2h_fe, r
-reghdfe incq2 pincq2  ln_ra ln_rr ln_rs ln_rw ln_rinsd ln_tmpsd ln_ta ln_tr ln_ts ln_tw  Male age_hh hh_size schll_hh lnfrm  market road irrigation year2012 year2015 if inc_div<1, vce(r) absorb(a01) res //first stage
-predict double v2h_fe2, r
-reghdfe incq3 pincq3 ln_ra ln_rr ln_rs ln_rw ln_rinsd ln_tmpsd ln_ta ln_tr ln_ts ln_tw  Male age_hh hh_size schll_hh lnfrm  market road irrigation year2012 year2015 if inc_div<1, vce(r) absorb(a01) res //first stage
-predict double v2h_fe3, r
+reghdfe inc_div preff_incdiv ln_ra ln_rr ln_rs ln_rw ln_rinsd ln_tmpsd ln_ta ln_tr ln_ts ln_tw  Male age_hh hh_size schll_hh lnfrm market road irrigation year2012 year2015 if inc_div<1, vce(r) absorb(a01) res //first stage
+predict double res, r
+
+reghdfe incs pincs ln_ra ln_rr ln_rs ln_rw ln_rinsd ln_tmpsd ln_ta ln_tr ln_ts ln_tw  Male age_hh hh_size schll_hh market road extension irrigation year2012 year2015 , res vce(r) absorb(a01) //first stage
+predict double sres, r
 
 
 **hdds inc q
-eststo: xtpoisson hdds inc_div incq2 incq3 q2 q3 v2h_fe v2h_fe2 v2h_fe3 ln_ra ln_rr ln_rs ln_rw ln_rinsd ln_tmpsd ln_ta ln_tr ln_ts ln_tw Male age_hh hh_size schll_hh lnfrm market road irrigation year2012 year2015 , fe vce(r) 
+eststo: xtpoisson hdds inc_div incs res sres small ln_ra ln_rr ln_rs ln_rw ln_rinsd ln_tmpsd ln_ta ln_tr ln_ts ln_tw Male age_hh hh_size schll_hh market road irrigation year2012 year2015 , fe vce(r) //with interaction
+
 quietly estadd local fe Yes, replace //add the raw of fe, year dummy, and control variables
 quietly estadd local year Yes, replace 
 quietly estadd local residual Yes, replace
+
 **lnfexp inc q
-eststo: reghdfe lnfexp inc_div incq2 incq3 q2 q3 v2h_fe v2h_fe2 v2h_fe3 ln_ra ln_rr ln_rs ln_rw ln_rinsd ln_tmpsd ln_ta ln_tr ln_ts ln_tw Male age_hh hh_size schll_hh lnfrm market road irrigation year2012 year2015 , absorb(a01) vce(r) 
-label var v2h_fe "Residual"
-drop v2h_fe v2h_fe2 v2h_fe3 
+eststo: reghdfe lnfexp inc_div incs res sres small ln_ra ln_rr ln_rs ln_rw ln_rinsd ln_tmpsd ln_ta ln_tr ln_ts ln_tw Male age_hh hh_size schll_hh market road irrigation year2012 year2015 , absorb(a01) vce(r) //with interaction
+
+label var res "Residual"
+/*drop v2h_fe v2h_fe2 v2h_fe3 */
 quietly estadd local fe Yes, replace //add the raw of fe, year dummy, and control variables
 quietly estadd local year Yes, replace 
 quietly estadd local residual Yes, replace 
+/*label var frmq1 "Farm diversification*Q1"
 label var frmq2 "Farm diversification*Q2"
 label var frmq3 "Farm diversification*Q3"
+label var incq1 "Income diversification*Q1"
 label var incq2 "Income diversification*Q2"
 label var incq3 "Income diversification*Q3"
-label var q2 "2nd quartile of farm size (Q2)"
-label var q3 "3rd quartile of farm size (Q3)"
-esttab using $table\scnd_hetero.tex,  b(%4.3f) se replace nodepvar nogaps starlevels(* 0.1 ** 0.05 *** 0.01) label nocons keep( frm_div inc_div frmq2 frmq3  incq2 incq3  q2 q3  ) order( frm_div inc_div frmq2 frmq3  incq2 incq3  q2 q3 ) s(climate fe year control N, label("Climate variables" "HH FE" "Year dummy" "Control Variables" "Observations")) mtitles("HDDS" "Per capita food expenditure (log)" "HDDS" "Per capita food expenditure (log)")
-esttab using $table\scnd_manu_hetero.tex,  b(%4.3f) se replace nodepvar nogaps starlevels(* 0.1 ** 0.05 *** 0.01) label nocons order( frm_div inc_div frmq2 frmq3  incq2 incq3  q2 q3 "\textbf{Climate variables}" ln_ra ln_rr ln_rs ln_rw ln_rinsd ln_ta ln_tr ln_ts ln_tw ln_tmpsd "\textbf{Control variables}" Male age_hh hh_size schll_hh lnfrm market road extension irrigation) s( fe year residual N, label( "HH FE" "Year dummy" "residual" "Observations")) mtitles("HDDS" "Per capita food expenditure (log)" "HDDS" "Per capita food expenditure (log)")
+label var q1 "less than 0.2ha"
+label var q2 "0.2ha to 0.5ha"
+label var q3 "0.5ha to 0.9"*/
+label var incs "Income diversification $\times$ Smallholder"
+label var frms "Farm diversification $\times$ Smallholder"
+drop res sres
+esttab using $table\scnd_hetero.tex,  b(%4.3f) se replace nodepvar nogaps starlevels(* 0.1 ** 0.05 *** 0.01) label nocons keep( frm_div inc_div incs frms small ) order( frm_div inc_div frmq2 frmq3  incq2 incq3  q2 q3 ) s(climate fe year control N, label("Climate variables" "HH FE" "Year dummy" "Control Variables" "Observations")) mtitles("HDDS" "Per capita food expenditure (log)" "HDDS" "Per capita food expenditure (log)")
+esttab using $table\scnd_manu_hetero.tex,  b(%4.3f) se replace nodepvar nogaps starlevels(* 0.1 ** 0.05 *** 0.01) label nocons keep(frm_div inc_div incs frms small "\textbf{Climate variables}" ln_ra ln_rr ln_rs ln_rw ln_rinsd ln_ta ln_tr ln_ts ln_tw ln_tmpsd "\textbf{Control variables}" Male age_hh hh_size schll_hh  market road extension irrigation) order( frm_div inc_div incs frms small "\textbf{Climate variables}" ln_ra ln_rr ln_rs ln_rw ln_rinsd ln_ta ln_tr ln_ts ln_tw ln_tmpsd "\textbf{Control variables}" Male age_hh hh_size schll_hh  market road extension irrigation) s( fe year residual N, label( "HH FE" "Year dummy" "residual" "Observations")) mtitles("HDDS" "Per capita food expenditure (log)" "HDDS" "Per capita food expenditure (log)")
+
+
+***heterogeneous reference, without interaction
+eststo clear
+xtset a01 year
+*1st stage frm q
+reghdfe frm_div preff_frm_div ln_ra ln_rr ln_rs ln_rw ln_rinsd ln_tmpsd ln_ta ln_tr ln_ts ln_tw Male age_hh hh_size schll_hh lnfrm market road extension irrigation year2012 year2015  if frm_div<1,  res vce(r) absorb(a01) //first stage
+predict double res, r
+
+reghdfe frms pfrms ln_ra ln_rr ln_rs ln_rw ln_rinsd ln_tmpsd ln_ta ln_tr ln_ts ln_tw Male age_hh hh_size schll_hh market road extension irrigation year2012 year2015 if frm_div<1, res vce(r) absorb(a01) //first stage
+predict double sres, r
+
+eststo: xtpoisson hdds frm_div small res ln_ra ln_rr ln_rs ln_rw ln_rinsd ln_tmpsd ln_ta ln_tr ln_ts ln_tw Male age_hh hh_size schll_hh market road extension irrigation year2012 year2015 if frm_div<1, fe vce(r) //without interaction term
+quietly estadd local fe Yes, replace //add the raw of fe, year dummy, and control variables
+quietly estadd local year Yes, replace 
+quietly estadd local residual Yes, replace
+
+eststo: reghdfe lnfexp frm_div small res ln_ra ln_rr ln_rs ln_rw ln_rinsd ln_tmpsd ln_ta ln_tr ln_ts ln_tw Male age_hh hh_size schll_hh market road extension irrigation year2012 year2015 if frm_div<1, absorb(a01) vce(r) // without interaction term
+quietly estadd local fe Yes, replace //add the raw of fe, year dummy, and control variables
+quietly estadd local year Yes, replace 
+quietly estadd local residual Yes, replace
+drop res sres
+
+*1st stage inc
+reghdfe inc_div preff_incdiv ln_ra ln_rr ln_rs ln_rw ln_rinsd ln_tmpsd ln_ta ln_tr ln_ts ln_tw  Male age_hh hh_size schll_hh lnfrm market road irrigation year2012 year2015 if inc_div<1, vce(r) absorb(a01) res //first stage
+predict double res, r
+
+reghdfe incs pincs ln_ra ln_rr ln_rs ln_rw ln_rinsd ln_tmpsd ln_ta ln_tr ln_ts ln_tw  Male age_hh hh_size schll_hh market road extension irrigation year2012 year2015 , res vce(r) absorb(a01) //first stage
+predict double sres, r
+
+eststo: xtpoisson hdds inc_div res small ln_ra ln_rr ln_rs ln_rw ln_rinsd ln_tmpsd ln_ta ln_tr ln_ts ln_tw Male age_hh hh_size schll_hh market road irrigation year2012 year2015 , fe vce(r) //without interaction
+
+quietly estadd local fe Yes, replace //add the raw of fe, year dummy, and control variables
+quietly estadd local year Yes, replace 
+quietly estadd local residual Yes, replace
+
+eststo: reghdfe lnfexp inc_div res small ln_ra ln_rr ln_rs ln_rw ln_rinsd ln_tmpsd ln_ta ln_tr ln_ts ln_tw Male age_hh hh_size schll_hh market road irrigation year2012 year2015 , absorb(a01) vce(r) //without interaction
+/*drop v2h_fe v2h_fe2 v2h_fe3 */
+quietly estadd local fe Yes, replace //add the raw of fe, year dummy, and control variables
+quietly estadd local year Yes, replace 
+quietly estadd local residual Yes, replace 
+drop res sres
+
+esttab using $table\scnd_hetero_woint.tex,  b(%4.3f) se replace nodepvar nogaps starlevels(* 0.1 ** 0.05 *** 0.01) label nocons keep( frm_div inc_div small ) order( frm_div inc_div frmq2 frmq3  incq2 incq3  q2 q3 ) s(climate fe year control N, label("Climate variables" "HH FE" "Year dummy" "Control Variables" "Observations")) mtitles("HDDS" "Per capita food expenditure (log)" "HDDS" "Per capita food expenditure (log)")
+esttab using $table\scnd_manu_hetero_woint.tex,  b(%4.3f) se replace nodepvar nogaps starlevels(* 0.1 ** 0.05 *** 0.01) label nocons keep(frm_div inc_div small "\textbf{Climate variables}" ln_ra ln_rr ln_rs ln_rw ln_rinsd ln_ta ln_tr ln_ts ln_tw ln_tmpsd "\textbf{Control variables}" Male age_hh hh_size schll_hh  market road extension irrigation) order( frm_div inc_div incs frms small "\textbf{Climate variables}" ln_ra ln_rr ln_rs ln_rw ln_rinsd ln_ta ln_tr ln_ts ln_tw ln_tmpsd "\textbf{Control variables}" Male age_hh hh_size schll_hh  market road extension irrigation) s( fe year residual N, label( "HH FE" "Year dummy" "residual" "Observations")) mtitles("HDDS" "Per capita food expenditure (log)" "HDDS" "Per capita food expenditure (log)")
