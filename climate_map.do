@@ -42,11 +42,38 @@ replace dcode = "Chapai Nawabganj" if dcode == "Nawabganj"
 merge 1:1 dcode using climate
 drop _m
 
-***  plot the st.dev rainfall first wave
-spmap rsd1 using nuts2_shp, ///
- id(_ID) cln(5) fcolor(Heat) ///
- legend(pos(11) size(2.5))  legstyle(2) ///
- legend(pos(1) size(2.5))
- //label(data(nuts2_labels) x(_CX) y(_CY) label(ADM2_EN) color(black) size(1.5)) legend(pos(1) size(2.5))
+***  plot the st.dev rainfall for three waves
+gen aversd=(rsd1+rsd2+rsd3)/3 //average standard deviation of rainfall
 
+spmap aversd using nuts2_shp, ///
+ id(_ID) cln(10)  fcolor(Heat) ///
+ ocolor(gs2 ..) osize(0.03 ..) ///
+ legstyle(2) legend(pos(1) size(2)) ///
+ polygon(data("nuts2_shp") ocolor(black) osize(0.08) legenda(on) legl("Districts")) ///
+ title("{fontface Arial Bold: St.dev of rainfall for three waves}", size(medsmall)) ///
+ note("Data source: Bangladesh Meteorological Department Climate Data Library. Computed by authers")
+graph export $figure\stdev_rain.pdf, replace
 
+***  plot the rainy season rainfall for three waves
+gen averr=(rr1+rr2+rr3)/3 //rainy season rainfall
+
+spmap averr using nuts2_shp, ///
+ id(_ID) cln(10)  fcolor(Heat) ///
+ ocolor(gs2 ..) osize(0.03 ..) ///
+ legstyle(2) legend(pos(1) size(2)) ///
+ polygon(data("nuts2_shp") ocolor(black) osize(0.08) legenda(on) legl("Districts")) ///
+ title("{fontface Arial Bold: Average rainy season rainfall for three waves}", size(medsmall)) ///
+ note("Data source: Bangladesh Meteorological Department Climate Data Library. Computed by authers")
+graph export $figure\rainy_rain.pdf, replace
+ 
+***  plot the rainy season temperature for three waves
+gen avetr=(tr1+tr2+tr3)/3 //rainy season temperature
+
+spmap avetr using nuts2_shp, ///
+ id(_ID) cln(10)  fcolor(Heat) ///
+ ocolor(gs2 ..) osize(0.03 ..) ///
+ legstyle(2) legend(pos(1) size(2)) ///
+ polygon(data("nuts2_shp") ocolor(black) osize(0.08) legenda(on) legl("Districts")) ///
+ title("{fontface Arial Bold: Average rainy season temperature for three waves}", size(medsmall)) ///
+ note("Data source: Bangladesh Meteorological Department Climate Data Library. Computed by authers")
+graph export $figure\rainy_rain.pdf, replace
