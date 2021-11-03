@@ -87,10 +87,14 @@ rin_data$w13 <- apply(rin_data[27:29],1,sum)  #2010
 rin_data$s13 <- apply(rin_data[30:32],1,sum) 
 rin_data$r13 <- apply(rin_data[33:36],1,sum) 
 rin_data$a13 <- apply(rin_data[37:38],1,sum) 
-rin_data$w21 <- apply(rin_data[50:52],1,sum) #2012
-rin_data$s21 <- apply(rin_data[53:55],1,sum)
-rin_data$r21 <- apply(rin_data[56:59],1,sum)
-rin_data$a21 <- apply(rin_data[60:61],1,sum)
+39:41 #2011
+42:44
+45:48
+49:50
+rin_data$w21 <- apply(rin_data[51:53],1,sum) #2012
+rin_data$s21 <- apply(rin_data[54:56],1,sum)
+rin_data$r21 <- apply(rin_data[57:60],1,sum)
+rin_data$a21 <- apply(rin_data[61:62],1,sum)
 rin_data$w22 <- apply(rin_data[62:64],1,sum) #2013
 rin_data$s22 <- apply(rin_data[65:67],1,sum)
 rin_data$r22 <- apply(rin_data[68:71],1,sum)
@@ -136,12 +140,34 @@ rin_data1$dry33 <- apply(rin_data1[111:114],1,sum)
 rin_data1$wet33 <- apply(rin_data1[115:122],1,sum)
 rin_data_sta1 <- subset(rin_data1,select=c(1,2,124:141))
 
+###
+rin_data2 <- rin_df02[c(1,2,325:448)] #2007 Dec-2018 March
+rin_data2$s1 <- apply(rin_data2[42:44],1,sum)#2011
+rin_data2$r1 <- apply(rin_data2[45:48],1,sum)
+rin_data2$a1 <- apply(rin_data2[49:50],1,sum)
+rin_data2$w1 <- apply(rin_data2[51:53],1,sum) #2012
+rin_data2$s2 <- apply(rin_data2[78:80],1,sum) #2014
+rin_data2$r2 <- apply(rin_data2[81:84],1,sum)
+rin_data2$a2 <- apply(rin_data2[85:86],1,sum)
+rin_data2$w2 <- apply(rin_data2[87:89],1,sum) #2015
+rin_data2$s3 <- apply(rin_data2[114:116],1,sum) #2017
+rin_data2$r3 <- apply(rin_data2[117:120],1,sum)
+rin_data2$a3 <- apply(rin_data2[121:122],1,sum)
+rin_data2$w3 <- apply(rin_data2[123:125],1,sum) #2018
+rin_data2$sd1 <- apply(rin_data2[42:53],1,sd)
+rin_data2$sd2 <- apply(rin_data2[78:89],1,sd)
+rin_data2$sd3 <- apply(rin_data2[114:125],1,sd)
+rin_data_sta2 <- subset(rin_data2,select=c(1,2,127:141))
+
 ###convert into csv
 head(rin_data_sta)
 write.csv(rin_data_sta, file.choose())
 
 head(rin_data_sta1)
 write.csv(rin_data_sta1, file.choose())
+
+head(rin_data_sta2)
+write.csv(rin_data_sta2, file.choose())
 
 #extract temperature data
 setwd("C:/Users/user/Documents/Masterthesis/climatebang/")
@@ -281,31 +307,52 @@ tmp_data_sta <- subset(tmp_data,select=c(1,2,124:162))
 
 #dry and wet
 tmp_data1 <- tmp_df02[c(1,2,324:444)] #2007 Nov-2017 Oct monthly data 
-tmp_data1$dry11 <- apply(tmp_data1[3:6],1,sum) # first wave
-tmp_data1$wet11 <- apply(tmp_data1[7:14],1,sum) 
-tmp_data1$dry12 <- apply(tmp_data1[15:18],1,sum) 
-tmp_data1$wet12 <- apply(tmp_data1[19:26],1,sum)
-tmp_data1$dry13 <- apply(tmp_data1[27:30],1,sum)
-tmp_data1$wet13 <- apply(tmp_data1[31:38],1,sum) 
-tmp_data1$dry21 <- apply(tmp_data1[51:54],1,sum) #second wave
-tmp_data1$wet21 <- apply(tmp_data1[55:62],1,sum) 
-tmp_data1$dry22 <- apply(tmp_data1[63:66],1,sum) 
-tmp_data1$wet22 <- apply(tmp_data1[67:74],1,sum)
-tmp_data1$dry23 <- apply(tmp_data1[75:78],1,sum)
-tmp_data1$wet23 <- apply(tmp_data1[79:86],1,sum)
-tmp_data1$dry31 <- apply(tmp_data1[87:90],1,sum)
-tmp_data1$wet31 <- apply(tmp_data1[91:98],1,sum)
-tmp_data1$dry32 <- apply(tmp_data1[99:102],1,sum)
-tmp_data1$wet32 <- apply(tmp_data1[103:110],1,sum)
-tmp_data1$dry33 <- apply(tmp_data1[111:114],1,sum)
-tmp_data1$wet33 <- apply(tmp_data1[115:122],1,sum)
+tmp_data1$dry11 <- apply(tmp_data1[3:6],1,mean) # first wave
+tmp_data1$wet11 <- apply(tmp_data1[7:14],1,mean) 
+tmp_data1$dry12 <- apply(tmp_data1[15:18],1,mean) 
+tmp_data1$wet12 <- apply(tmp_data1[19:26],1,mean)
+tmp_data1$dry13 <- apply(tmp_data1[27:30],1,mean)
+tmp_data1$wet13 <- apply(tmp_data1[31:38],1,mean) 
+tmp_data1$dry21 <- apply(tmp_data1[51:54],1,mean) #second wave
+tmp_data1$wet21 <- apply(tmp_data1[55:62],1,mean) 
+tmp_data1$dry22 <- apply(tmp_data1[63:66],1,mean) 
+tmp_data1$wet22 <- apply(tmp_data1[67:74],1,mean)
+tmp_data1$dry23 <- apply(tmp_data1[75:78],1,mean)
+tmp_data1$wet23 <- apply(tmp_data1[79:86],1,mean)
+tmp_data1$dry31 <- apply(tmp_data1[87:90],1,mean)
+tmp_data1$wet31 <- apply(tmp_data1[91:98],1,mean)
+tmp_data1$dry32 <- apply(tmp_data1[99:102],1,mean)
+tmp_data1$wet32 <- apply(tmp_data1[103:110],1,mean)
+tmp_data1$dry33 <- apply(tmp_data1[111:114],1,mean)
+tmp_data1$wet33 <- apply(tmp_data1[115:122],1,mean)
 tmp_data_sta1 <- subset(tmp_data1,select=c(1,2,124:141))
 
+
+#the monthly year
+tmp_data2 <- tmp_df02[c(1,2,325:448)] #2007 Dec-2018 March
+tmp_data2$s1 <- apply(tmp_data2[42:44],1,mean)#2011
+tmp_data2$r1 <- apply(tmp_data2[45:48],1,mean)
+tmp_data2$a1 <- apply(tmp_data2[49:50],1,mean)
+tmp_data2$w1 <- apply(tmp_data2[51:53],1,mean) #2012
+tmp_data2$s2 <- apply(tmp_data2[78:80],1,mean) #2014
+tmp_data2$r2 <- apply(tmp_data2[81:84],1,mean)
+tmp_data2$a2 <- apply(tmp_data2[85:86],1,mean)
+tmp_data2$w2 <- apply(tmp_data2[87:89],1,mean) #2015
+tmp_data2$s3 <- apply(tmp_data2[114:116],1,mean) #2017
+tmp_data2$r3 <- apply(tmp_data2[117:120],1,mean)
+tmp_data2$a3 <- apply(tmp_data2[121:122],1,mean)
+tmp_data2$w3 <- apply(tmp_data2[123:125],1,mean) #2018
+tmp_data2$sd1 <- apply(tmp_data2[42:53],1,sd)
+tmp_data2$sd2 <- apply(tmp_data2[78:89],1,sd)
+tmp_data2$sd3 <- apply(tmp_data2[114:125],1,sd)
+tmp_data_sta2 <- subset(tmp_data2,select=c(1,2,127:141))
 ###extract temperature data set and convert into csv
 head(tmp_data_sta)
 write.csv(tmp_data_sta, file.choose())
 head(tmp_data_sta1)
 write.csv(tmp_data_sta1, file.choose())
+head(tmp_data_sta2)
+write.csv(tmp_data_sta2, file.choose())
 
 
 
