@@ -78,7 +78,7 @@ esttab using $table\robust_first_full.tex,  b(%4.3f) se replace wide nogaps star
 eststo clear
 reghdfe frm_div preff_frm_div ln_ra ln_rr ln_rs ln_rw ln_rinsd ln_tmpsd ln_ta ln_tr ln_ts ln_tw Male age_hh hh_size schll_hh lvstck lnfrm market road extension irrigation year2012 year2015 if frm_div<1, vce(r) absorb(a01) res //to remove singleton
 
-xttobit frm_div preff_frm_div ln_ra ln_rr ln_rs ln_rw ln_rinsd ln_tmpsd ln_ta ln_tr ln_ts ln_tw Male age_hh hh_size schll_hh lvstck lnfrm market road extension irrigation year2012 year2015 preff_frm_divb ln_rab ln_rrb ln_rsb ln_rwb ln_rinsdb ln_tmpsdb ln_tab ln_trb ln_tsb ln_twb Maleb age_hhb hh_sizeb schll_hhb lvstckb lnfrmb marketb roadb extensionb irrigationb if frm_div<1 & _reghdfe_resid!=., ll(0) vce(bootstrap)
+xttobit frm_div preff_frm_div ln_ra ln_rr ln_rs ln_rw ln_rinsd ln_tmpsd ln_ta ln_tr ln_ts ln_tw Male age_hh hh_size schll_hh lvstck lnfrm market road extension irrigation year2012 year2015 preff_frm_divb ln_rab ln_rrb ln_rsb ln_rwb ln_rinsdb ln_tmpsdb ln_tab ln_trb ln_tsb ln_twb Maleb age_hhb hh_sizeb schll_hhb lvstckb lnfrmb marketb roadb extensionb irrigationb if frm_div<1 & _reghdfe_resid!=., ll(0) 
 
 /*xttobit frm_div preff_frm_div ln_ra ln_rr ln_rs ln_rw ln_rinsd ln_tmpsd ln_ta ln_tr ln_ts ln_tw Male age_hh hh_size schll_hh lvstck lnfrm market road extension irrigation year2012 year2015 if frm_div<1, ll(0)*/
 predict double xb, ystar(0,1)
@@ -201,4 +201,98 @@ esttab using $table\robust_alt.tex,  b(%4.3f) se replace nogaps wide starlevels(
 esttab using $table\robust_alt_full.tex,  b(%4.3f) se replace nodepvar nogaps starlevels(* 0.1 ** 0.05 *** 0.01) label nocons order( "\textbf{Diversification}" frmdiv shnf shni  "\textbf{Climate variables}" ln_ra ln_rr ln_rs ln_rw ln_rinsd ln_ta ln_tr ln_ts ln_tw ln_tmpsd "\textbf{Control variables}" Male age_hh hh_size schll_hh lvstck lnfrm market road extension irrigation year2012 year2015 v2_fef v2h_fei ) addnote("Instrumental variables  (\% of diversification household within unions)") n mtitles("HDDS" "Per capita food expenditure (log)" "HDDS" "Per capita food expenditure (log)" "HDDS" "Per capita food expenditure (log)")
 
 
-** household expenditure
+** Quantile regression  robustness
+eststo clear
+xtset a01 year
+
+** quantile fe-ols
+reghdfe frm_div preff_frm_div ln_ra ln_rr ln_rs ln_rw ln_rinsd ln_tmpsd ln_ta ln_tr ln_ts ln_tw Male age_hh hh_size schll_hh lvstck lnfrm market road extension irrigation year2012 year2015 if frm_div<1, vce(r) absorb(a01) res //first stage
+predict double v2h_fef, r
+eststo: xtqreg lnfexp frm_div v2h_fef ln_ra ln_rr ln_rs ln_rw ln_rinsd ln_tmpsd ln_ta ln_tr ln_ts ln_tw  Male age_hh hh_size schll_hh lvstck lnfrm market road extension irrigation year2012 year2015 if frm_div<1, i(a01) quantile( .25 ) //second stage  idcrp idliv idi_crp_liv, food expenditure
+quietly estadd local fe Yes, replace //add the raw of fe, year dummy, and control variables
+quietly estadd local year Yes, replace 
+quietly estadd local control Yes, replace
+
+eststo: xtqreg lnfexp frm_div v2h_fef ln_ra ln_rr ln_rs ln_rw ln_rinsd ln_tmpsd ln_ta ln_tr ln_ts ln_tw  Male age_hh hh_size schll_hh lvstck lnfrm market road extension irrigation year2012 year2015 if frm_div<1, i(a01) quantile(  .5  ) //second stage  idcrp idliv idi_crp_liv, food expenditure
+quietly estadd local fe Yes, replace //add the raw of fe, year dummy, and control variables
+quietly estadd local year Yes, replace 
+quietly estadd local control Yes, replace
+
+eststo: xtqreg lnfexp frm_div v2h_fef ln_ra ln_rr ln_rs ln_rw ln_rinsd ln_tmpsd ln_ta ln_tr ln_ts ln_tw  Male age_hh hh_size schll_hh lvstck lnfrm market road extension irrigation year2012 year2015 if frm_div<1, i(a01) quantile( .75 ) //second stage  idcrp idliv idi_crp_liv, food expenditure
+quietly estadd local fe Yes, replace //add the raw of fe, year dummy, and control variables
+quietly estadd local year Yes, replace 
+quietly estadd local control Yes, replace
+drop v2h_fef
+*robust quantile frm
+reghdfe frm_div preff_frm_div ln_ra ln_rr ln_rs ln_rw ln_rinsd ln_tmpsd ln_ta ln_tr ln_ts ln_tw Male age_hh hh_size schll_hh lvstck lnfrm market road extension irrigation year2012 year2015 if frm_div<1, vce(r) absorb(a01) res //to remove singleton
+
+xttobit frm_div preff_frm_div ln_ra ln_rr ln_rs ln_rw ln_rinsd ln_tmpsd ln_ta ln_tr ln_ts ln_tw Male age_hh hh_size schll_hh lvstck lnfrm market road extension irrigation year2012 year2015 preff_frm_divb ln_rab ln_rrb ln_rsb ln_rwb ln_rinsdb ln_tmpsdb ln_tab ln_trb ln_tsb ln_twb Maleb age_hhb hh_sizeb schll_hhb lvstckb lnfrmb marketb roadb extensionb irrigationb if frm_div<1 & _reghdfe_resid!=., ll(0) 
+predict double xb, ystar(0,1)
+gen v2h_fef=frm_div-xb
+
+eststo: xtqreg lnfexp frm_div v2h_fef ln_ra ln_rr ln_rs ln_rw ln_rinsd ln_tmpsd ln_ta ln_tr ln_ts ln_tw  Male age_hh hh_size schll_hh lvstck lnfrm market road extension irrigation year2012 year2015 if frm_div<1, i(a01) quantile( .25  ) //second stage  idcrp idliv idi_crp_liv, food expenditure
+quietly estadd local fe Yes, replace //add the raw of fe, year dummy, and control variables
+quietly estadd local year Yes, replace 
+quietly estadd local control Yes, replace
+
+eststo: xtqreg lnfexp frm_div v2h_fef ln_ra ln_rr ln_rs ln_rw ln_rinsd ln_tmpsd ln_ta ln_tr ln_ts ln_tw  Male age_hh hh_size schll_hh lvstck lnfrm market road extension irrigation year2012 year2015 if frm_div<1, i(a01) quantile( .5   ) //second stage  idcrp idliv idi_crp_liv, food expenditure
+quietly estadd local fe Yes, replace //add the raw of fe, year dummy, and control variables
+quietly estadd local year Yes, replace 
+quietly estadd local control Yes, replace
+eststo: xtqreg lnfexp frm_div v2h_fef ln_ra ln_rr ln_rs ln_rw ln_rinsd ln_tmpsd ln_ta ln_tr ln_ts ln_tw  Male age_hh hh_size schll_hh lvstck lnfrm market road extension irrigation year2012 year2015 if frm_div<1, i(a01) quantile(   .75 ) //second stage  idcrp idliv idi_crp_liv, food expenditure
+quietly estadd local fe Yes, replace //add the raw of fe, year dummy, and control variables
+quietly estadd local year Yes, replace 
+quietly estadd local control Yes, replace
+esttab using $table\quantile.tex,  b(%4.3f) se replace nogaps nodepvar wide starlevels(* 0.1 ** 0.05 *** 0.01) label nocons keep( "\textbf{Diversification}"  frm_div inc_div ) order("\textbf{Diversification}" frm_div inc_div ) s(fe year control N, label("HH FE" "Year dummy" "Control Variables" "Observations")) addnote("Instrumental variables (\% of diversification within unions)") mgroups("FE OLS(\nth{1} estimation)" "CRE(\nth{1} estimation)", (1 0 1 0)) mtitles("\nth{25} quantile" "\nth{50} quantile" "\nth{75} quantile" "\nth{25} quantile" "\nth{50} quantile" "\nth{75} quantile")
+
+
+
+**quantile inc
+reghdfe inc_div preff_incdiv ln_ra ln_rr ln_rs ln_rw ln_rinsd ln_tmpsd ln_ta ln_tr ln_ts ln_tw  Male age_hh hh_size schll_hh lvstck lnfrm market road irrigation year2012 year2015 , vce(r) absorb(a01) res //first stage
+predict double v2h_fei, r
+
+eststo: xtqreg lnfexp inc_div v2h_fei ln_ra ln_rr ln_rs ln_rw ln_rinsd ln_tmpsd ln_ta ln_tr ln_ts ln_tw   Male age_hh hh_size schll_hh lvstck lnfrm market road irrigation year2012 year2015, i(a01) quantile(.25)  //second stage  idcrp idliv idi_crp_liv, food expenditure
+quietly estadd local fe Yes, replace //add the raw of fe, year dummy, and control variables
+quietly estadd local year Yes, replace 
+quietly estadd local control Yes, replace
+eststo: xtqreg lnfexp inc_div v2h_fei ln_ra ln_rr ln_rs ln_rw ln_rinsd ln_tmpsd ln_ta ln_tr ln_ts ln_tw   Male age_hh hh_size schll_hh lvstck lnfrm market road irrigation year2012 year2015, i(a01) quantile(  .5 )  //second stage  idcrp idliv idi_crp_liv, food expenditure
+quietly estadd local fe Yes, replace //add the raw of fe, year dummy, and control variables
+quietly estadd local year Yes, replace 
+quietly estadd local control Yes, replace
+eststo: xtqreg lnfexp inc_div v2h_fei ln_ra ln_rr ln_rs ln_rw ln_rinsd ln_tmpsd ln_ta ln_tr ln_ts ln_tw   Male age_hh hh_size schll_hh lvstck lnfrm market road irrigation year2012 year2015, i(a01) quantile(  .75)  //second stage  idcrp idliv idi_crp_liv, food expenditure
+quietly estadd local fe Yes, replace //add the raw of fe, year dummy, and control variables
+quietly estadd local year Yes, replace 
+quietly estadd local control Yes, replace
+drop v2h_fei
+
+
+
+* robust quantile inc
+reghdfe inc_div preff_incdiv ln_ra ln_rr ln_rs ln_rw ln_rinsd ln_tmpsd ln_ta ln_tr ln_ts ln_tw  Male age_hh hh_size schll_hh lvstck lnfrm market road irrigation year2012 year2015 , vce(r) absorb(a01) res //to remove singleton
+
+
+xttobit inc_div preff_incdiv ln_ra ln_rr ln_rs ln_rw ln_rinsd ln_tmpsd ln_ta ln_tr ln_ts ln_tw   Male age_hh hh_size schll_hh lvstck lnfrm market road irrigation preff_inc_divb ln_rab ln_rrb ln_rsb ln_rwb ln_rinsdb ln_tmpsdb ln_tab ln_trb ln_tsb ln_twb Maleb age_hhb hh_sizeb schll_hhb lvstckb lnfrmb marketb roadb extensionb irrigationb year2012 year2015 if _reghdfe_resid!=., ll(0) 
+predict double xb, ystar(0,1)
+gen v2h_fei=inc_div-xb
+
+eststo: xtqreg lnfexp inc_div v2h_fei ln_ra ln_rr ln_rs ln_rw ln_rinsd ln_tmpsd ln_ta ln_tr ln_ts ln_tw   Male age_hh hh_size schll_hh lvstck lnfrm market road irrigation year2012 year2015, i(a01) quantile( .25   )  //second stage  idcrp idliv idi_crp_liv, food expenditure
+quietly estadd local fe Yes, replace //add the raw of fe, year dummy, and control variables
+quietly estadd local year Yes, replace 
+quietly estadd local control Yes, replace
+eststo: xtqreg lnfexp inc_div v2h_fei ln_ra ln_rr ln_rs ln_rw ln_rinsd ln_tmpsd ln_ta ln_tr ln_ts ln_tw   Male age_hh hh_size schll_hh lvstck lnfrm market road irrigation year2012 year2015, i(a01) quantile(  .5   )  //second stage  idcrp idliv idi_crp_liv, food expenditure
+quietly estadd local fe Yes, replace //add the raw of fe, year dummy, and control variables
+quietly estadd local year Yes, replace 
+quietly estadd local control Yes, replace
+
+eststo: xtqreg lnfexp inc_div v2h_fei ln_ra ln_rr ln_rs ln_rw ln_rinsd ln_tmpsd ln_ta ln_tr ln_ts ln_tw   Male age_hh hh_size schll_hh lvstck lnfrm market road irrigation year2012 year2015, i(a01) quantile(   .75  )  //second stage  idcrp idliv idi_crp_liv, food expenditure
+quietly estadd local fe Yes, replace //add the raw of fe, year dummy, and control variables
+quietly estadd local year Yes, replace 
+quietly estadd local control Yes, replace
+
+drop v2h_fei xb _reghdfe_resid
+
+esttab using $table\quantile.tex,  b(%4.3f) se replace nogaps nodepvar wide starlevels(* 0.1 ** 0.05 *** 0.01) label nocons keep( "\textbf{Diversification}"  frm_div inc_div ) order("\textbf{Diversification}" frm_div inc_div ) s(fe year control N, label("HH FE" "Year dummy" "Control Variables" "Observations")) addnote("Instrumental variables (\% of diversification within unions)") mgroups("FE OLS(\nth{1} estimation)" "CRE(\nth{1} estimation)", (1 0 1 0)) mtitles("\nth{25} quantile" "\nth{50} quantile" "\nth{75} quantile" "\nth{25} quantile" "\nth{50} quantile" "\nth{75} quantile")
+
+
+esttab using $table\quantile_full.tex,  b(%4.3f) se replace nogaps starlevels(* 0.1 ** 0.05 *** 0.01) label nocons order( "\textbf{Diversification}" frm_div inc_div  "\textbf{Climate variables}" ln_ra ln_rr ln_rs ln_rw ln_rinsd ln_ta ln_tr ln_ts ln_tw ln_tmpsd "\textbf{Control variables}" Male age_hh hh_size schll_hh lvstck lnfrm market road extension irrigation year2012 year2015 v2_fef v2h_fei ) addnote("Instrumental variables  (\% of diversification household within unions)") n mtitles("HDDS" "Per capita food expenditure (log)" "HDDS" "Per capita food expenditure (log)" "HDDS" "Per capita food expenditure (log)")
+
