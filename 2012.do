@@ -166,6 +166,8 @@ rename s_06 agri
 label var agri "Agricultural office (minute)"
 merge 1:1 a01 using facility12, nogen
 save facility12, replace
+
+
 **Agricultural extension
 use $BIHS12\021_mod_j1_male, clear 
 keep a01 j1_01 j1_04
@@ -488,8 +490,31 @@ gen i6=(fshinc/ttinc)^2
 gen i7=(nnagent/ttinc)^2
 gen es=i1+i2+i3+i4+i5+i6+i7
 gen inc_div=1-es
-label var inc_div "Income diversification index"
-keep a01 inc_div ttinc crp_vl nnearn trsfr ttllvstck offrminc fshinc nnagent
+label var inc_div "Income diversification index" //simpson
+gen p1=(crp_vl/ttinc)
+gen p2=(nnearn/ttinc)
+gen p3=(trsfr/ttinc)
+gen p4=(ttllvstck/ttinc)
+gen p5=(offrminc/ttinc)
+gen p6=(fshinc/ttinc)
+gen p7=(nnagent/ttinc)
+gen lnp1=log(p1)
+gen lnp2=log(p2)
+gen lnp3=log(p3)
+gen lnp4=log(p4)
+gen lnp5=log(p5)
+gen lnp6=log(p6)
+gen lnp7=log(p7)
+gen shn1=p1*lnp1
+gen shn2=p2*lnp2
+gen shn3=p3*lnp3
+gen shn4=p4*lnp4
+gen shn5=p5*lnp5
+gen shn6=p6*lnp6
+gen shn7=p7*lnp7
+egen shnni = rowtotal(shn1 shn2 shn3 shn4 shn5 shn6 shn7)
+gen shni=-1*(shnni) //shannon
+keep a01 inc_div shni //ttinc ttinc crp_vl nnearn trsfr ttllvstck offrminc fshinc nnagent
 save incdiv12.dta, replace
 
 **climate variables 
@@ -516,23 +541,23 @@ gen ln_tmpsd=log(tsd)
 gen ln_rdry=log(rdry)
 gen ln_tdry=log(tdry)
 gen ln_twet=log(twet)*/
-label var rinsd "Yearly st.dev rainfall"
-label var tmpsd "Monthly st.dev temperature"
+/*label var rinsd "Yearly st.dev rainfall"*/
+/*label var tmpsd "Monthly st.dev temperature"*/
 label var ln_tmpsd "Monthly st.dev temperature (log)"
-label var rinsd_1000 "Yearly st.dev rainfall (1,000mm)"
+/*label var rinsd_1000 "Yearly st.dev rainfall (1,000mm)"*/
 label var ln_rinsd  "Yearly st.dev rainfall (log) "
 label var ln_rw "Winter rainfall (log)"
 label var ln_rs "Summer rainfall (log)"
 label var ln_rr "Rainy season rainfall (log)"
 label var ln_ra "Autumn rainfall (log)"
 label var ln_tw "Winter mean temperature (log)"
-label var ln_ts "Summar mean temperature (log)"
+label var ln_ts "Summer mean temperature (log)"
 label var ln_tr "Rainy season mean temperature (log)"
 label var ln_ta "Autumn mean temperature (log)"
-label var ln_rwet "Wet season rainfall (log)"
+/*label var ln_rwet "Wet season rainfall (log)"
 label var ln_rdry "Dry season rainfall (log)"
 label var ln_twet "Wet season temperature (log)"
-label var ln_tdry "Dry season temperature (log)"
+label var ln_tdry "Dry season temperature (log)"*/
 save climate12, replace
 
 **merge all 2012 dataset

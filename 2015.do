@@ -165,7 +165,9 @@ merge 1:1 a01 using `cal', nogen
 merge 1:1 a01 using `aes', nogen
 save facility15, replace
 
-
+*** financial market
+use $BIHS15\095_r2_weai_ind_mod_we4_male, clear
+recode we4_07d (1=1 "Yes")(nonm=0 "No"), gen(credit)
 
 **Agricultural extension
 use $BIHS15\031_r2_mod_j1_male, clear 
@@ -521,30 +523,8 @@ gen shnn1=p*lnp
 bysort a01: egen shn1=sum(shnn1)
 gen shnf=-1*(shn1)
 duplicates drop a01, force
-keep a01 frm_div shnf
+keep a01 frm_div shnf //Simpson, shannon
 save frm_div15, replace
-
-**Farm diversification shannon Index
-use $BIHS12\028_mod_m1_male, clear //crop income
-keep a01 m1_02 m1_10 m1_18 m1_20
-bysort a01 m1_02: egen eis=sum(m1_10)
-keep a01 m1_02 eis
-duplicates drop a01 m1_02, force
-save eci15, replace
-use $BIHS12\027_mod_l2_male.dta, clear // fishery income
-keep a01 l2_12 l2_01
-bysort a01 l2_01: egen eis=sum(l2_12)
-keep a01 eis l2_01
-duplicates drop a01 l2_01, force
-tempfile efi15
-save efi15, replace
-use eli15, clear //livestock income
-bysort a01 livestock: egen eis=sum(k2_12)
-keep a01 eis livestock 
-duplicates drop a01 livestock, force
-append using efi15
-append using eci15
-bysort a01: egen frminc=sum(eis) //total farm income
 
 
 **Farm diversification
@@ -581,8 +561,31 @@ gen i6=(fshinc/ttinc)^2
 gen i7=(nnagent/ttinc)^2
 gen es=i1+i2+i3+i4+i5+i6+i7
 gen inc_div=1-es
-label var inc_div "Income diversification index"
-keep a01 inc_div ttinc ttinc crp_vl nnearn trsfr ttllvstck offrminc fshinc nnagent
+label var inc_div "Income diversification index" //simpson
+gen p1=(crp_vl/ttinc)
+gen p2=(nnearn/ttinc)
+gen p3=(trsfr/ttinc)
+gen p4=(ttllvstck/ttinc)
+gen p5=(offrminc/ttinc)
+gen p6=(fshinc/ttinc)
+gen p7=(nnagent/ttinc)
+gen lnp1=log(p1)
+gen lnp2=log(p2)
+gen lnp3=log(p3)
+gen lnp4=log(p4)
+gen lnp5=log(p5)
+gen lnp6=log(p6)
+gen lnp7=log(p7)
+gen shn1=p1*lnp1
+gen shn2=p2*lnp2
+gen shn3=p3*lnp3
+gen shn4=p4*lnp4
+gen shn5=p5*lnp5
+gen shn6=p6*lnp6
+gen shn7=p7*lnp7
+egen shnni = rowtotal(shn1 shn2 shn3 shn4 shn5 shn6 shn7)
+gen shni=-1*(shnni) //shannon
+keep a01 inc_div shni //ttinc ttinc crp_vl nnearn trsfr ttllvstck offrminc fshinc nnagent
 save incdiv15.dta, replace
 /*gen es=(typ_plntd/ttl_frm)^2
 label var es "enterprise share (planted area)"
@@ -620,23 +623,23 @@ gen ln_tmpsd=log(tsd)
 gen ln_rdry=log(rdry)
 gen ln_tdry=log(tdry)
 gen ln_twet=log(twet)*/
-label var rinsd "Yearly st.dev rainfall"
-label var tmpsd "Monthly st.dev temperature"
+/*label var rinsd "Yearly st.dev rainfall"*/
+/*label var tmpsd "Monthly st.dev temperature"*/
 label var ln_tmpsd "Monthly st.dev temperature (log)"
-label var rinsd_1000 "Yearly st.dev rainfall (1,000mm)"
+/*label var rinsd_1000 "Yearly st.dev rainfall (1,000mm)"*/
 label var ln_rinsd  "Yearly st.dev rainfall (log) "
 label var ln_rw "Winter rainfall (log)"
 label var ln_rs "Summer rainfall (log)"
 label var ln_rr "Rainy season rainfall (log)"
 label var ln_ra "Autumn rainfall (log)"
 label var ln_tw "Winter mean temperature (log)"
-label var ln_ts "Summar mean temperature (log)"
+label var ln_ts "Summer mean temperature (log)"
 label var ln_tr "Rainy season mean temperature (log)"
 label var ln_ta "Autumn mean temperature (log)"
-label var ln_rwet "Wet season rainfall (log)"
+/*label var ln_rwet "Wet season rainfall (log)"
 label var ln_rdry "Dry season rainfall (log)"
 label var ln_twet "Wet season temperature (log)"
-label var ln_tdry "Dry season temperature (log)"
+label var ln_tdry "Dry season temperature (log)"*/
 save climate15, replace
 
 **merge all 2015 dataset
