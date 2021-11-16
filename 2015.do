@@ -57,8 +57,16 @@ label var nnearn "Non-earned income"
 keep a01 nnearn
 save nnrn15.dta, replace //non-earned  income
 
+**remittance
+use $BIHS15\054_r2_mod_v2_male, clear
+keep a01 v2_06
+bysort a01: egen remi=sum(v2_06)
+duplicates drop a01, force
+label var remi "remittance"
+save rem15.dta, replace
+
 **Social safety net program
-use $BIHS15\052_r2_mod_u_male.dta, replace
+use $BIHS15/052_r2_mod_u_male.dta, clear
 bysort a01: gen trsfr=sum(u02)
 label var trsfr "Social safety net program transfer"
 keep a01 trsfr
@@ -156,6 +164,14 @@ label var agri "Agricultural office (minute)"
 tempfile aes
 save `aes'
 use $BIHS15\049_r2_mod_s_male.dta, clear
+keep a01 s_01 s_04
+keep if s_01==7 
+drop s_01
+rename s_04 town
+label var town "Distance to town (km)"
+tempfile town
+save `town'
+use $BIHS15\049_r2_mod_s_male.dta, clear
 keep a01 s_01 s_06
 keep if s_01==6 
 drop s_01
@@ -163,6 +179,7 @@ rename s_06 market
 label var market "Market access (minute)"
 merge 1:1 a01 using `cal', nogen
 merge 1:1 a01 using `aes', nogen
+merge 1:1 a01 using `town', nogen
 save facility15, replace
 
 *** financial market
@@ -231,15 +248,27 @@ label var fshinc "fishery income"
 duplicates drop a01, force
 save fsh15.dta, replace
 
-**keep non-farm income
+** non-farm wage labor
 use $BIHS15\008_r2_mod_c_male.dta, clear
+drop if c05== 1 
 keep a01 c14
 replace c14=0 if c14==.
-bysort a01: egen nnfrminc=sum(c14)
+bysort a01: egen nnfrminc=sum(c14) 
 keep a01 nnfrminc
-label var nnfrminc "Non-farm income"
+label var nnfrminc "non-farm wage"
 duplicates drop a01, force
 save nnfrminc15.dta, replace
+
+** farm wage labor
+use $BIHS15\008_r2_mod_c_male.dta, clear
+keep if c05== 1 
+keep a01 c14
+replace c14=0 if c14==.
+bysort a01: egen frmwage=sum(c14) 
+keep a01 frmwage
+label var frmwage "farm wage"
+duplicates drop a01, force
+save frmwage15.dta, replace
 
 /*Non-agricultural enterprise*/
 use $BIHS15\041_r2_mod_n_male.dta, clear
@@ -545,45 +574,48 @@ merge 1:1 a01 using lvstckinc15.dta, nogen
 merge 1:1 a01 using offfrm15.dta, nogen
 merge 1:1 a01 using fsh15.dta, nogen
 merge 1:1 a01 using nnagent15.dta, nogen
+merge 1:1 a01 using rem15.dta, nogen
+merge 1:1 a01 using offfrmagr15.dta, nogen
+merge 1:1 a01 using frmwage15.dta, nogen
 drop dstnc_sll_ trnsctn lvstck fshdiv
 replace crp_vl=0 if crp_vl==.
 replace offrminc=0 if offrminc==.
 replace nnearn=0 if nnearn==.
 replace fshinc=0 if fshinc==.
 replace ttllvstck=0 if ttllvstck==.
-gen ttinc= crp_vl+nnearn+trsfr+ttllvstck+offrminc+fshinc+nnagent //total income
-gen i1=(crp_vl/ttinc)^2
-gen i2=(nnearn/ttinc)^2
-gen i3=(trsfr/ttinc)^2
-gen i4=(ttllvstck/ttinc)^2
-gen i5=(offrminc/ttinc)^2
-gen i6=(fshinc/ttinc)^2
-gen i7=(nnagent/ttinc)^2
-gen es=i1+i2+i3+i4+i5+i6+i7
+replace remi=0 if remi==.
+gen ttinc= crp_vl+nnearn+trsfr+ttllvstck+offrminc+fshinc+nnagent+remi+frmwage+offrmagr //total income
+gen frmself=crp_vl+ttllvstck+fshinc+offrmagr //farm self
+gen nonself=nnagent //non-farm self
+gen nonwage=offrminc //non-farm wage
+gen nonearn=remi+trsfr+nnearn //non-earned 
+gen i1=(frmself/ttinc)^2
+gen i2=(frmwage/ttinc)^2
+gen i3=(nonself/ttinc)^2
+gen i4=(nonwage/ttinc)^2
+gen i5=(nonearn/ttinc)^2
+gen es=i1+i2+i3+i4+i5
 gen inc_div=1-es
 label var inc_div "Income diversification index" //simpson
-gen p1=(crp_vl/ttinc)
-gen p2=(nnearn/ttinc)
-gen p3=(trsfr/ttinc)
-gen p4=(ttllvstck/ttinc)
-gen p5=(offrminc/ttinc)
-gen p6=(fshinc/ttinc)
-gen p7=(nnagent/ttinc)
+gen p1=(frmself/ttinc)
+gen p2=(frmwage/ttinc)
+gen p3=(nonself/ttinc)
+gen p4=(nonwage/ttinc)
+gen p5=(nonearn/ttinc)
+
 gen lnp1=log(p1)
 gen lnp2=log(p2)
 gen lnp3=log(p3)
 gen lnp4=log(p4)
 gen lnp5=log(p5)
-gen lnp6=log(p6)
-gen lnp7=log(p7)
+
 gen shn1=p1*lnp1
 gen shn2=p2*lnp2
 gen shn3=p3*lnp3
 gen shn4=p4*lnp4
 gen shn5=p5*lnp5
-gen shn6=p6*lnp6
-gen shn7=p7*lnp7
-egen shnni = rowtotal(shn1 shn2 shn3 shn4 shn5 shn6 shn7)
+
+egen shnni = rowtotal(shn1 shn2 shn3 shn4 shn5)
 gen shni=-1*(shnni) //shannon
 keep a01 inc_div shni //ttinc ttinc crp_vl nnearn trsfr ttllvstck offrminc fshinc nnagent
 save incdiv15.dta, replace
