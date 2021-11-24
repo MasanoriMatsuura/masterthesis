@@ -164,11 +164,11 @@ label var agri "Agricultural office (minute)"
 tempfile aes
 save `aes'
 use $BIHS15\049_r2_mod_s_male.dta, clear
-keep a01 s_01 s_04
+keep a01 s_01 s_06
 keep if s_01==7 
 drop s_01
-rename s_04 town
-label var town "Distance to town (km)"
+rename s_06 town
+label var town "Distance to near town (minute)"
 tempfile town
 save `town'
 use $BIHS15\049_r2_mod_s_male.dta, clear
@@ -584,12 +584,15 @@ replace nnearn=0 if nnearn==.
 replace fshinc=0 if fshinc==.
 replace ttllvstck=0 if ttllvstck==.
 replace remi=0 if remi==.
+replace nnagent=0 if nnagent==.
+replace frmwage=0 if frmwage==.
+replace offrmagr=0 if offrmagr==.
 gen ttinc= crp_vl+nnearn+trsfr+ttllvstck+offrminc+fshinc+nnagent+remi+frmwage+offrmagr //total income
-gen frmself=crp_vl+ttllvstck+fshinc+offrmagr //farm self
+gen aginc=ttllvstck+crp_vl+fshinc
 gen nonself=nnagent //non-farm self
-gen nonwage=offrminc //non-farm wage
+gen nonwage=offrminc+offrmagr //non-farm wage
 gen nonearn=remi+trsfr+nnearn //non-earned 
-gen i1=(frmself/ttinc)^2
+gen i1=(aginc/ttinc)^2
 gen i2=(frmwage/ttinc)^2
 gen i3=(nonself/ttinc)^2
 gen i4=(nonwage/ttinc)^2
@@ -597,24 +600,21 @@ gen i5=(nonearn/ttinc)^2
 gen es=i1+i2+i3+i4+i5
 gen inc_div=1-es
 label var inc_div "Income diversification index" //simpson
-gen p1=(frmself/ttinc)
+gen p1=(aginc/ttinc)
 gen p2=(frmwage/ttinc)
 gen p3=(nonself/ttinc)
 gen p4=(nonwage/ttinc)
 gen p5=(nonearn/ttinc)
-
 gen lnp1=log(p1)
 gen lnp2=log(p2)
 gen lnp3=log(p3)
 gen lnp4=log(p4)
 gen lnp5=log(p5)
-
 gen shn1=p1*lnp1
 gen shn2=p2*lnp2
 gen shn3=p3*lnp3
 gen shn4=p4*lnp4
 gen shn5=p5*lnp5
-
 egen shnni = rowtotal(shn1 shn2 shn3 shn4 shn5)
 gen shni=-1*(shnni) //shannon
 keep a01 inc_div shni //ttinc ttinc crp_vl nnearn trsfr ttllvstck offrminc fshinc nnagent
