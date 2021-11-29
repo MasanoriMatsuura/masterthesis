@@ -152,9 +152,9 @@ xtpoisson hdds frmdiv v2h_fef ln_ra ln_rr ln_rs ln_rw ln_rinsd ln_tmpsd ln_ta ln
 drop v2h_fef //shannon farm index
 
 
-reghdfe inc_div preff_incdiv ln_ra ln_rr ln_rs ln_rw ln_rinsd ln_tmpsd ln_ta ln_tr ln_ts ln_tw  Male age_hh hh_size schll_hh lvstck lnfrm market road irrigation year2012 year2015 , vce(r) absorb(a01) res //first stage
+reghdfe inc_div preff_incdiv ln_ra ln_rr ln_rs ln_rw ln_rinsd ln_tmpsd ln_ta ln_tr ln_ts ln_tw  Male age_hh hh_size schll_hh lvstck lnfrm market road irrigation extension year2012 year2015 , vce(r) absorb(a01) res //first stage
 predict double v2h_fei, r
-xtpoisson hdds inc_div v2h_fei ln_ra ln_rr ln_rs ln_rw ln_rinsd ln_tmpsd ln_ta ln_tr ln_ts ln_tw Male age_hh hh_size schll_hh lvstck lnfrm market road irrigation year2012 year2015, fe vce(r) //second stage
+xtpoisson hdds inc_div v2h_fei ln_ra ln_rr ln_rs ln_rw ln_rinsd ln_tmpsd ln_ta ln_tr ln_ts ln_tw Male age_hh hh_size schll_hh lvstck lnfrm market road irrigation extension year2012 year2015, fe vce(r) //second stage
 
 drop v2h_fei
 
@@ -170,9 +170,9 @@ reghdfe lnfexp frm_div v2h_fef ln_ra ln_rr ln_rs ln_rw ln_rinsd ln_tmpsd ln_ta l
 drop v2h_fef
 
 
-reghdfe inc_div preff_incdiv ln_ra ln_rr ln_rs ln_rw ln_rinsd ln_tmpsd ln_ta ln_tr ln_ts ln_tw  Male age_hh hh_size schll_hh lvstck lnfrm market road irrigation year2012 year2015 , vce(r) absorb(a01) res //first stage
+reghdfe inc_div preff_incdiv ln_ra ln_rr ln_rs ln_rw ln_rinsd ln_tmpsd ln_ta ln_tr ln_ts ln_tw  Male age_hh hh_size schll_hh lvstck lnfrm market road irrigation extension year2012 year2015 , vce(r) absorb(a01) res //first stage
 predict double v2h_fei, r
-reghdfe lnfexp inc_div v2h_fei ln_ra ln_rr ln_rs ln_rw ln_rinsd ln_tmpsd ln_ta ln_tr ln_ts ln_tw   Male age_hh hh_size schll_hh lvstck lnfrm market road irrigation year2012 year2015 , absorb(a01) vce(r) //second stage  idcrp idliv idi_crp_liv, food expenditure
+reghdfe lnfexp inc_div v2h_fei ln_ra ln_rr ln_rs ln_rw ln_rinsd ln_tmpsd ln_ta ln_tr ln_ts ln_tw   Male age_hh hh_size schll_hh lvstck lnfrm market road irrigation extension year2012 year2015 , absorb(a01) vce(r) //second stage  idcrp idliv idi_crp_liv, food expenditure
 drop v2h_fei
 
 
@@ -301,7 +301,7 @@ quietly estadd local fe Yes, replace
 quietly estadd local year Yes, replace 
 quietly estadd local control Yes, replace
 
-eststo: reghdfe inc_div preff_incdiv ln_ra ln_rr ln_rs ln_rw ln_ta ln_tr ln_ts ln_tw  ln_rinsd ln_tmpsd Male age_hh hh_size schll_hh lvstck lnfrm market road irrigation year2012 year2015 , vce(r) absorb(a01)  //first stage
+eststo: reghdfe inc_div preff_incdiv ln_ra ln_rr ln_rs ln_rw ln_ta ln_tr ln_ts ln_tw  ln_rinsd ln_tmpsd Male age_hh hh_size schll_hh lvstck lnfrm market road irrigation  extension  year2012 year2015 , vce(r) absorb(a01)  //first stage
 quietly estadd local fe Yes, replace
 quietly estadd local year Yes, replace 
 quietly estadd local control Yes, replace
@@ -334,7 +334,7 @@ quietly estadd local year Yes, replace
 quietly estadd local control Yes, replace*/ //second stage joint
 
 
-reghdfe inc_div preff_incdiv ln_ra ln_rr ln_rs ln_rw ln_rinsd ln_tmpsd ln_ta ln_tr ln_ts ln_tw  Male age_hh hh_size schll_hh lvstck lnfrm market road irrigation year2012 year2015 , vce(r) absorb(a01) res //first stage
+reghdfe inc_div preff_incdiv ln_ra ln_rr ln_rs ln_rw ln_rinsd ln_tmpsd ln_ta ln_tr ln_ts ln_tw  Male age_hh hh_size schll_hh lvstck lnfrm market road irrigation extension  extension year2012 year2015 , vce(r) absorb(a01) res //first stage
 predict double v2h_fei, r
 eststo: xtpoisson hdds inc_div  v2h_fei ln_ra ln_rr ln_rs ln_rw ln_rinsd ln_tmpsd ln_ta ln_tr ln_ts ln_tw   Male age_hh hh_size schll_hh lvstck lnfrm market road irrigation year2012 year2015, fe vce(r) //second stage 
 quietly estadd local fe Yes, replace //add the raw of fe, year dummy, and control variables
@@ -343,7 +343,7 @@ quietly estadd local control Yes, replace
 label var v2h_fei "Residual-income"
 
 
-eststo: reghdfe lnfexp inc_div v2h_fei ln_ra ln_rr ln_rs ln_rw ln_rinsd ln_tmpsd ln_ta ln_tr ln_ts ln_tw  Male age_hh hh_size schll_hh lvstck lnfrm market road  irrigation year2012 year2015, absorb(a01) vce(r) //second stage  idcrp idliv idi_crp_liv, food expenditure
+eststo: reghdfe lnfexp inc_div v2h_fei ln_ra ln_rr ln_rs ln_rw ln_rinsd ln_tmpsd ln_ta ln_tr ln_ts ln_tw  Male age_hh hh_size schll_hh lvstck lnfrm market road  irrigation extension  year2012 year2015, absorb(a01) vce(r) //second stage  idcrp idliv idi_crp_liv, food expenditure
 quietly estadd local fe Yes, replace //add the raw of fe, year dummy, and control variables
 quietly estadd local year Yes, replace 
 quietly estadd local control Yes, replace
@@ -396,22 +396,22 @@ drop res sres //v2h_fe2 v2h_fe3
 
 
 *1st stage inc
-reghdfe inc_div preff_incdiv ln_ra ln_rr ln_rs ln_rw ln_rinsd ln_tmpsd ln_ta ln_tr ln_ts ln_tw  Male age_hh hh_size schll_hh lvstck lnfrm market road irrigation year2012 year2015 if inc_div<1, vce(r) absorb(a01) res //first stage
+reghdfe inc_div preff_incdiv ln_ra ln_rr ln_rs ln_rw ln_rinsd ln_tmpsd ln_ta ln_tr ln_ts ln_tw  Male age_hh hh_size schll_hh lvstck lnfrm market road irrigation extension  year2012 year2015 if inc_div<1, vce(r) absorb(a01) res //first stage
 predict double res, r
 
-reghdfe incs pincs ln_ra ln_rr ln_rs ln_rw ln_rinsd ln_tmpsd ln_ta ln_tr ln_ts ln_tw  Male age_hh hh_size schll_hh lvstck market road extension irrigation year2012 year2015 , res vce(r) absorb(a01) //first stage
+reghdfe incs pincs ln_ra ln_rr ln_rs ln_rw ln_rinsd ln_tmpsd ln_ta ln_tr ln_ts ln_tw  Male age_hh hh_size schll_hh lvstck market road extension irrigation  extension year2012 year2015 , res vce(r) absorb(a01) //first stage
 predict double sres, r
 
 
 **hdds inc q
-eststo: xtpoisson hdds inc_div incs res sres small ln_ra ln_rr ln_rs ln_rw ln_rinsd ln_tmpsd ln_ta ln_tr ln_ts ln_tw Male age_hh hh_size schll_hh lvstck market road irrigation year2012 year2015 , fe vce(r) //with interaction
+eststo: xtpoisson hdds inc_div incs res sres small ln_ra ln_rr ln_rs ln_rw ln_rinsd ln_tmpsd ln_ta ln_tr ln_ts ln_tw Male age_hh hh_size schll_hh lvstck market road irrigation extension year2012 year2015 , fe vce(r) //with interaction
 
 quietly estadd local fe Yes, replace //add the raw of fe, year dummy, and control variables
 quietly estadd local year Yes, replace 
 quietly estadd local residual Yes, replace
 
 **lnfexp inc q
-eststo: reghdfe lnfexp inc_div incs res sres small ln_ra ln_rr ln_rs ln_rw ln_rinsd ln_tmpsd ln_ta ln_tr ln_ts ln_tw Male age_hh hh_size schll_hh lvstck market road irrigation year2012 year2015 , absorb(a01) vce(r) //with interaction
+eststo: reghdfe lnfexp inc_div incs res sres small ln_ra ln_rr ln_rs ln_rw ln_rinsd ln_tmpsd ln_ta ln_tr ln_ts ln_tw Male age_hh hh_size schll_hh lvstck market road irrigation extension  year2012 year2015 , absorb(a01) vce(r) //with interaction
 
 label var res "Residual"
 /*drop v2h_fe v2h_fe2 v2h_fe3 */
@@ -456,19 +456,19 @@ quietly estadd local residual Yes, replace
 drop res sres
 
 *1st stage inc
-reghdfe inc_div preff_incdiv ln_ra ln_rr ln_rs ln_rw ln_rinsd ln_tmpsd ln_ta ln_tr ln_ts ln_tw  Male age_hh hh_size schll_hh lvstck lnfrm market road irrigation year2012 year2015 if inc_div<1, vce(r) absorb(a01) res //first stage
+reghdfe inc_div preff_incdiv ln_ra ln_rr ln_rs ln_rw ln_rinsd ln_tmpsd ln_ta ln_tr ln_ts ln_tw  Male age_hh hh_size schll_hh lvstck lnfrm market road irrigation extension  year2012 year2015 if inc_div<1, vce(r) absorb(a01) res //first stage
 predict double res, r
 
-reghdfe incs pincs ln_ra ln_rr ln_rs ln_rw ln_rinsd ln_tmpsd ln_ta ln_tr ln_ts ln_tw  Male age_hh hh_size schll_hh lvstck market road extension irrigation year2012 year2015 , res vce(r) absorb(a01) //first stage
+reghdfe incs pincs ln_ra ln_rr ln_rs ln_rw ln_rinsd ln_tmpsd ln_ta ln_tr ln_ts ln_tw  Male age_hh hh_size schll_hh lvstck market road extension irrigation  extension year2012 year2015 , res vce(r) absorb(a01) //first stage
 predict double sres, r
 
-eststo: xtpoisson hdds inc_div res small ln_ra ln_rr ln_rs ln_rw ln_rinsd ln_tmpsd ln_ta ln_tr ln_ts ln_tw Male age_hh hh_size schll_hh lvstck market road irrigation year2012 year2015 , fe vce(r) //without interaction
+eststo: xtpoisson hdds inc_div res small ln_ra ln_rr ln_rs ln_rw ln_rinsd ln_tmpsd ln_ta ln_tr ln_ts ln_tw Male age_hh hh_size schll_hh lvstck market road irrigation extension  year2012 year2015 , fe vce(r) //without interaction
 
 quietly estadd local fe Yes, replace //add the raw of fe, year dummy, and control variables
 quietly estadd local year Yes, replace 
 quietly estadd local residual Yes, replace
 
-eststo: reghdfe lnfexp inc_div res small ln_ra ln_rr ln_rs ln_rw ln_rinsd ln_tmpsd ln_ta ln_tr ln_ts ln_tw Male age_hh hh_size schll_hh lvstck market road irrigation year2012 year2015 , absorb(a01) vce(r) //without interaction
+eststo: reghdfe lnfexp inc_div res small ln_ra ln_rr ln_rs ln_rw ln_rinsd ln_tmpsd ln_ta ln_tr ln_ts ln_tw Male age_hh hh_size schll_hh lvstck market road irrigation  extension year2012 year2015 , absorb(a01) vce(r) //without interaction
 /*drop v2h_fe v2h_fe2 v2h_fe3 */
 quietly estadd local fe Yes, replace //add the raw of fe, year dummy, and control variables
 quietly estadd local year Yes, replace 
@@ -503,18 +503,18 @@ quietly estadd local control Yes, replace
 drop v2h_fef
 
 **quantile inc
-reghdfe inc_div preff_incdiv ln_ra ln_rr ln_rs ln_rw ln_rinsd ln_tmpsd ln_ta ln_tr ln_ts ln_tw  Male age_hh hh_size schll_hh lvstck lnfrm market road irrigation year2012 year2015 , vce(r) absorb(a01) res //first stage
+reghdfe inc_div preff_incdiv ln_ra ln_rr ln_rs ln_rw ln_rinsd ln_tmpsd ln_ta ln_tr ln_ts ln_tw  Male age_hh hh_size schll_hh lvstck lnfrm market road irrigation extension  year2012 year2015 , vce(r) absorb(a01) res //first stage
 predict double v2h_fei, r
 
-eststo: xtqreg lnfexp inc_div v2h_fei ln_ra ln_rr ln_rs ln_rw ln_rinsd ln_tmpsd ln_ta ln_tr ln_ts ln_tw   Male age_hh hh_size schll_hh lvstck lnfrm market road irrigation year2012 year2015, i(a01) quantile(.25)  //second stage  idcrp idliv idi_crp_liv, food expenditure
+eststo: xtqreg lnfexp inc_div v2h_fei ln_ra ln_rr ln_rs ln_rw ln_rinsd ln_tmpsd ln_ta ln_tr ln_ts ln_tw   Male age_hh hh_size schll_hh lvstck lnfrm market road irrigation  extension year2012 year2015, i(a01) quantile(.25)  //second stage  idcrp idliv idi_crp_liv, food expenditure
 quietly estadd local fe Yes, replace //add the raw of fe, year dummy, and control variables
 quietly estadd local year Yes, replace 
 quietly estadd local control Yes, replace
-eststo: xtqreg lnfexp inc_div v2h_fei ln_ra ln_rr ln_rs ln_rw ln_rinsd ln_tmpsd ln_ta ln_tr ln_ts ln_tw   Male age_hh hh_size schll_hh lvstck lnfrm market road irrigation year2012 year2015, i(a01) quantile(  .5 )  //second stage  idcrp idliv idi_crp_liv, food expenditure
+eststo: xtqreg lnfexp inc_div v2h_fei ln_ra ln_rr ln_rs ln_rw ln_rinsd ln_tmpsd ln_ta ln_tr ln_ts ln_tw   Male age_hh hh_size schll_hh lvstck lnfrm market road irrigation extension  year2012 year2015, i(a01) quantile(  .5 )  //second stage  idcrp idliv idi_crp_liv, food expenditure
 quietly estadd local fe Yes, replace //add the raw of fe, year dummy, and control variables
 quietly estadd local year Yes, replace 
 quietly estadd local control Yes, replace
-eststo: xtqreg lnfexp inc_div v2h_fei ln_ra ln_rr ln_rs ln_rw ln_rinsd ln_tmpsd ln_ta ln_tr ln_ts ln_tw   Male age_hh hh_size schll_hh lvstck lnfrm market road irrigation year2012 year2015, i(a01) quantile(  .75)  //second stage  idcrp idliv idi_crp_liv, food expenditure
+eststo: xtqreg lnfexp inc_div v2h_fei ln_ra ln_rr ln_rs ln_rw ln_rinsd ln_tmpsd ln_ta ln_tr ln_ts ln_tw   Male age_hh hh_size schll_hh lvstck lnfrm market road irrigation extension  year2012 year2015, i(a01) quantile(  .75)  //second stage  idcrp idliv idi_crp_liv, food expenditure
 quietly estadd local fe Yes, replace //add the raw of fe, year dummy, and control variables
 quietly estadd local year Yes, replace 
 quietly estadd local control Yes, replace
