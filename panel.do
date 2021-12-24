@@ -283,7 +283,8 @@ gr combine income.gph farm.gph
 graph display, scheme(s1mono) 
 graph export $figure\div.png, replace
 
-*
+*pie chart of income composition
+graph pie aginc frmwage nonself nonwage nonearn
 **first stage estimation
 *first stage
 eststo clear
@@ -501,6 +502,7 @@ eststo: xtqreg lnfexp frm_div v2h_fef ln_ra ln_rr ln_rs ln_rw ln_rinsd ln_tmpsd 
 quietly estadd local fe Yes, replace //add the raw of fe, year dummy, and control variables
 quietly estadd local year Yes, replace 
 quietly estadd local control Yes, replace
+label var v2h_fef "Residual-farm"
 drop v2h_fef
 
 **quantile inc
@@ -519,7 +521,10 @@ eststo: xtqreg lnfexp inc_div v2h_fei ln_ra ln_rr ln_rs ln_rw ln_rinsd ln_tmpsd 
 quietly estadd local fe Yes, replace //add the raw of fe, year dummy, and control variables
 quietly estadd local year Yes, replace 
 quietly estadd local control Yes, replace
+label var v2h_fei "Residual-income"
 drop v2h_fei 
+
+
 esttab using $table\quantile.tex,  b(%4.3f) se replace nogaps nodepvar wide starlevels(* 0.1 ** 0.05 *** 0.01) label nocons keep( "\textbf{Diversification}"  frm_div inc_div ) order("\textbf{Diversification}" frm_div inc_div) s(fe year control N, label("FE" "Year dummy" "Control Variables" "Observations")) addnote("Instrumental variables (\% of diversification within unions)")  mtitles("\nth{25} quantile" "\nth{50} quantile" "\nth{75} quantile" "\nth{25} quantile" "\nth{50} quantile" "\nth{75} quantile")
 
-esttab using $table\quantile_full.tex,  b(%4.3f) se replace nogaps nodepvar wide starlevels(* 0.1 ** 0.05 *** 0.01) label nocons keep(frm_div inc_div "\textbf{Climate variables}" ln_ra ln_rr ln_rs ln_rw ln_rinsd ln_ta ln_tr ln_ts ln_tw ln_tmpsd "\textbf{Control variables}" Male age_hh hh_size schll_hh lvstck market road extension irrigation) order( frm_div inc_div "\textbf{Climate variables}" ln_ra ln_rr ln_rs ln_rw ln_rinsd ln_ta ln_tr ln_ts ln_tw ln_tmpsd "\textbf{Control variables}" Male age_hh hh_size schll_hh lvstck market road extension irrigation) addnote("Instrumental variables (\% of diversification within unions)")  mtitles("\nth{25} quantile" "\nth{50} quantile" "\nth{75} quantile" "\nth{25} quantile" "\nth{50} quantile" "\nth{75} quantile")
+esttab using $table\quantile_full.tex,  b(%4.3f) se replace nodepvar nogaps starlevels(* 0.1 ** 0.05 *** 0.01) label nocons order("\textbf{Diversification}" frm_div inc_div  "\textbf{Climate variables}" ln_ra ln_rr ln_rs ln_rw ln_rinsd ln_ta ln_tr ln_ts ln_tw ln_tmpsd "\textbf{Control variables}" Male age_hh hh_size schll_hh lvstck market road extension irrigation) mtitles("\nth{25} quantile" "\nth{50} quantile" "\nth{75} quantile" "\nth{25} quantile" "\nth{50} quantile" "\nth{75} quantile")
