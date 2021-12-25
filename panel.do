@@ -47,6 +47,11 @@ recode year (2015=1)(nonm=0), gen(year2015)
 label var year2012 "Year 2012"
 label var year2015 "Year 2015"
 recode dvcode (55=1)(nonm=0), gen(Rangpur) //division dummy
+label var aginc "Farm self"
+label var frmwage "Farm wage"
+label var nonself "Non-farm self"
+label var nonwage "Non-farm wage and salary"
+label var nonearn "Non-earned"
 /*label var Rangpur "Rangpur division (dummy)"
 label var ttinc "Total yearly income (taka)"
 gen ttinc10000=ttinc/10000
@@ -284,7 +289,16 @@ graph display, scheme(s1mono)
 graph export $figure\div.png, replace
 
 *pie chart of income composition
-graph pie aginc frmwage nonself nonwage nonearn
+graph pie aginc frmwage nonself nonwage nonearn if year==2012, plabel(_all percent, color(white)) subtitle("2011/12") saving(pie12) 
+graph pie aginc frmwage nonself nonwage nonearn if year==2015,  plabel(_all percent, color(white)) saving(pie15) subtitle("2015")
+graph pie aginc frmwage nonself nonwage nonearn if year==2018,  plabel(_all percent, color(white)) saving(pie18) subtitle("2018/19")
+gr combine pie12.gph pie15.gph pie18.gph, title("Breakdown of household income by source") note(Source: "BIHS2011/12, 2015, and 2018/19 calculated by author") 
+graph display, scheme(s1mono) 
+graph export $figure\income_dist.png, replace
+
+
+
+
 **first stage estimation
 *first stage
 eststo clear

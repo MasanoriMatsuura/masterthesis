@@ -542,7 +542,7 @@ gen shn4=p4*lnp4
 gen shn5=p5*lnp5
 egen shnni = rowtotal(shn1 shn2 shn3 shn4 shn5)
 gen shni=-1*(shnni) //shannon
-keep a01 inc_div shni //ttinc ttinc crp_vl nnearn trsfr ttllvstck offrminc fshinc nnagent
+keep a01 aginc frmwage nonself nonwage nonearn inc_div shni //ttinc ttinc crp_vl nnearn trsfr ttllvstck offrminc fshinc nnagent
 save incdiv12.dta, replace
 
 **climate variables 
