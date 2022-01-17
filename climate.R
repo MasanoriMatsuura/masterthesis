@@ -1,7 +1,7 @@
 ###data cleaning for climate variables
 library(ncdf4)
 
-#extract rainfall data
+#extract rainfall data (Jan 1981 to Mar 2021)
 ncpath <- "C:/Users/user/Documents/Masterthesis/climatebang/"
 ncname_r <- "rain"
 ncfname_r <- paste(ncpath, ncname_r, ".nc", sep = "")
@@ -57,111 +57,41 @@ lonlat_r <- as.matrix(expand.grid(lon_r,lat_r))
 rin_df02 <- data.frame(cbind(lonlat_r),rin_mat)
 names(rin_df02) <- c("lon", "lat")
 
-rin_data <- rin_df02[c(1,2,325:445)] #2007 Dec-2017 Nov monthly data 
-#get the year rain summation, SD
-rin_data$sum11 <- apply(rin_data[3:14],1,sum) #2008
-rin_data$sum12 <- apply(rin_data[15:26],1,sum) #2009
-rin_data$sum13 <- apply(rin_data[27:38],1,sum) #2010
-rin_data$sum21 <- apply(rin_data[51:62],1,sum) #2012
-rin_data$sum22 <- apply(rin_data[63:74],1,sum) #2013
-rin_data$sum23 <- apply(rin_data[75:86],1,sum) #2014
-rin_data$sum31 <- apply(rin_data[87:98],1,sum) #2015
-rin_data$sum32 <- apply(rin_data[99:110],1,sum) #2016
-rin_data$sum33 <- apply(rin_data[111:122],1,sum) #2017
-rin_data$mean1 <- apply(rin_data[138:140],1,mean) #2008-2010 mean
-rin_data$mean2 <- apply(rin_data[141:143],1,mean) #2012-2014 mean
-rin_data$mean3 <- apply(rin_data[144:146], 1, mean) #2015-2017 mean
-rin_data$sd1 <-apply(rin_data[3:38],1,sd) #2008-2010 monthly sd
-rin_data$sd2 <-apply(rin_data[51:86],1,sd) #2012-2014 monthly sd
-rin_data$sd3 <- apply(rin_data[87:122],1,sd) #2015-2017 monthly sd
+#30 years historical
+rin_data1 <- rin_df02[c(1:460)] #1981 Jan-2018 Oct monthly data 
+rin_data2$s1 <- apply(rin_data2[3:5],1,sum)#2011 summer
+rin_data2$r1 <- apply(rin_data2[6:9],1,sum)
+rin_data2$a1 <- apply(rin_data2[10:11],1,sum)
+rin_data2$w1 <- apply(rin_data2[12:14],1,sum) #2012 winter
+rin_data2$s2 <- apply(rin_data2[39:41],1,sum) #2014 summer
+rin_data2$r2 <- apply(rin_data2[42:45],1,sum)
+rin_data2$a2 <- apply(rin_data2[46:47],1,sum)
+rin_data2$w2 <- apply(rin_data2[48:50],1,sum) #2015 winter
+rin_data2$s3 <- apply(rin_data2[87:89],1,sum) #2018 summer
+rin_data2$r3 <- apply(rin_data2[90:93],1,sum)
+rin_data2$a3 <- apply(rin_data2[94:95],1,sum)
+rin_data2$w3 <- apply(rin_data2[96:98],1,sum) #2019 winter
 
-rin_data$w11 <- apply(rin_data[3:5],1,sum)#2008 winter December(2007) to February 2 
-rin_data$s11 <- apply(rin_data[6:8],1,sum) #2008 summer march to may 2 
-rin_data$r11 <- apply(rin_data[9:12],1,sum)#2008 rain June to September 3 
-rin_data$a11 <- apply(rin_data[13:14],1,sum)#2008 autumn October to November 1  
-rin_data$w12 <- apply(rin_data[15:17],1,sum) #2009
-rin_data$s12 <- apply(rin_data[18:20],1,sum)
-rin_data$r12 <- apply(rin_data[21:24],1,sum)
-rin_data$a12 <- apply(rin_data[25:26],1,sum)
-rin_data$w13 <- apply(rin_data[27:29],1,sum)  #2010
-rin_data$s13 <- apply(rin_data[30:32],1,sum) 
-rin_data$r13 <- apply(rin_data[33:36],1,sum) 
-rin_data$a13 <- apply(rin_data[37:38],1,sum) 
-39:41 #2011
-42:44
-45:48
-49:50
-rin_data$w21 <- apply(rin_data[51:53],1,sum) #2012
-rin_data$s21 <- apply(rin_data[54:56],1,sum)
-rin_data$r21 <- apply(rin_data[57:60],1,sum)
-rin_data$a21 <- apply(rin_data[61:62],1,sum)
-rin_data$w22 <- apply(rin_data[62:64],1,sum) #2013
-rin_data$s22 <- apply(rin_data[65:67],1,sum)
-rin_data$r22 <- apply(rin_data[68:71],1,sum)
-rin_data$a22 <- apply(rin_data[72:74],1,sum)
-rin_data$w23 <- apply(rin_data[75:77],1,sum) #2014
-rin_data$s23 <- apply(rin_data[78:80],1,sum)
-rin_data$r23 <- apply(rin_data[81:84],1,sum)
-rin_data$a23 <- apply(rin_data[85:86],1,sum)
-rin_data$w31 <- apply(rin_data[87:89],1,sum) #2015
-rin_data$s31 <- apply(rin_data[90:92],1,sum)
-rin_data$r31 <- apply(rin_data[93:96],1,sum)
-rin_data$a31 <- apply(rin_data[97:98],1,sum) 
-rin_data$w32 <- apply(rin_data[99:101],1,sum)  #2016
-rin_data$s32 <- apply(rin_data[102:104],1,sum)
-rin_data$r32 <- apply(rin_data[105:108],1,sum)
-rin_data$a32 <- apply(rin_data[109:110],1,sum)
-rin_data$w33 <- apply(rin_data[111:113],1,sum) #2017
-rin_data$s33 <- apply(rin_data[114:116],1,sum)
-rin_data$r33 <- apply(rin_data[117:120],1,sum)
-rin_data$a33 <- apply(rin_data[121:122],1,sum)
-
-rin_data_sta <- subset(rin_data,select=c(1,2,124:162))
-
-#wet season and dry season
-rin_data1 <- rin_df02[c(1,2,324:444)] #2007 Nov-2017 Oct monthly data 
-rin_data1$dry11 <- apply(rin_data1[3:6],1,sum) # first wave
-rin_data1$wet11 <- apply(rin_data1[7:14],1,sum) 
-rin_data1$dry12 <- apply(rin_data1[15:18],1,sum) 
-rin_data1$wet12 <- apply(rin_data1[19:26],1,sum)
-rin_data1$dry13 <- apply(rin_data1[27:30],1,sum)
-rin_data1$wet13 <- apply(rin_data1[31:38],1,sum) 
-rin_data1$dry21 <- apply(rin_data1[51:54],1,sum) #second wave
-rin_data1$wet21 <- apply(rin_data1[55:62],1,sum) 
-rin_data1$dry22 <- apply(rin_data1[63:66],1,sum) 
-rin_data1$wet22 <- apply(rin_data1[67:74],1,sum)
-rin_data1$dry23 <- apply(rin_data1[75:78],1,sum)
-rin_data1$wet23 <- apply(rin_data1[79:86],1,sum)
-rin_data1$dry31 <- apply(rin_data1[87:90],1,sum)
-rin_data1$wet31 <- apply(rin_data1[91:98],1,sum)
-rin_data1$dry32 <- apply(rin_data1[99:102],1,sum)
-rin_data1$wet32 <- apply(rin_data1[103:110],1,sum)
-rin_data1$dry33 <- apply(rin_data1[111:114],1,sum)
-rin_data1$wet33 <- apply(rin_data1[115:122],1,sum)
 rin_data_sta1 <- subset(rin_data1,select=c(1,2,124:141))
 
-###
-rin_data2 <- rin_df02[c(1,2,325:448)] #2007 Dec-2018 March
-rin_data2$s1 <- apply(rin_data2[42:44],1,sum)#2011
-rin_data2$r1 <- apply(rin_data2[45:48],1,sum)
-rin_data2$a1 <- apply(rin_data2[49:50],1,sum)
-rin_data2$w1 <- apply(rin_data2[51:53],1,sum) #2012
-rin_data2$s2 <- apply(rin_data2[78:80],1,sum) #2014
-rin_data2$r2 <- apply(rin_data2[81:84],1,sum)
-rin_data2$a2 <- apply(rin_data2[85:86],1,sum)
-rin_data2$w2 <- apply(rin_data2[87:89],1,sum) #2015
-rin_data2$s3 <- apply(rin_data2[114:116],1,sum) #2017
-rin_data2$r3 <- apply(rin_data2[117:120],1,sum)
-rin_data2$a3 <- apply(rin_data2[121:122],1,sum)
-rin_data2$w3 <- apply(rin_data2[123:125],1,sum) #2018
-rin_data2$sd1 <- apply(rin_data2[42:53],1,sd)
-rin_data2$sd2 <- apply(rin_data2[78:89],1,sd)
-rin_data2$sd3 <- apply(rin_data2[114:125],1,sd)
-rin_data_sta2 <- subset(rin_data2,select=c(1,2,127:141))
+### Main
+rin_data2 <- rin_df02[c(1,2,365:460)] #2011 March -2019 Feb
+rin_data2$s1 <- apply(rin_data2[3:5],1,sum)#2011 summer
+rin_data2$r1 <- apply(rin_data2[6:9],1,sum)
+rin_data2$a1 <- apply(rin_data2[10:11],1,sum)
+rin_data2$w1 <- apply(rin_data2[12:14],1,sum) #2012 winter
+rin_data2$s2 <- apply(rin_data2[39:41],1,sum) #2014 summer
+rin_data2$r2 <- apply(rin_data2[42:45],1,sum)
+rin_data2$a2 <- apply(rin_data2[46:47],1,sum)
+rin_data2$w2 <- apply(rin_data2[48:50],1,sum) #2015 winter
+rin_data2$s3 <- apply(rin_data2[87:89],1,sum) #2018 summer
+rin_data2$r3 <- apply(rin_data2[90:93],1,sum)
+rin_data2$a3 <- apply(rin_data2[94:95],1,sum)
+rin_data2$w3 <- apply(rin_data2[96:98],1,sum) #2019 winter
+
+rin_data_sta2 <- subset(rin_data2,select=c(1,2,99:110))
 
 ###convert into csv
-head(rin_data_sta)
-write.csv(rin_data_sta, file.choose())
 
 head(rin_data_sta1)
 write.csv(rin_data_sta1, file.choose())
@@ -257,53 +187,6 @@ lonlat_t <- as.matrix(expand.grid(lon_t,lat_t))
 tmp_df02 <- data.frame(cbind(lonlat_t),tmp_mat)
 names(tmp_df02) <- c("lon", "lat")
 
-tmp_data <- tmp_df02[c(1,2,325:445)] #2007 Dec-2017 Dec monthly data
-
-#get the annual mean
-tmp_data$mean1 <- apply(tmp_data[3:38],1,mean) # monthly average
-tmp_data$mean2 <- apply(tmp_data[51:86],1,mean) 
-tmp_data$mean3 <- apply(tmp_data[87:122],1,mean) 
-tmp_data$sd1 <-apply(tmp_data[3:38],1,sd)
-tmp_data$sd2 <-apply(tmp_data[51:86],1,sd)
-tmp_data$sd3 <- apply(tmp_data[87:122],1,sd)
-tmp_data$w11 <- apply(tmp_data[3:5],1,mean)#2008 winter December(2007) to February 2 
-tmp_data$s11 <- apply(tmp_data[6:8],1,mean) #2008 summer march to may 2 
-tmp_data$r11 <- apply(tmp_data[9:12],1,mean)#2008 rain June to September 3 
-tmp_data$a11 <- apply(tmp_data[13:14],1,mean)#2008 autumn October to November 1  
-tmp_data$w12 <- apply(tmp_data[15:17],1,mean) #2009
-tmp_data$s12 <- apply(tmp_data[18:20],1,mean)
-tmp_data$r12 <- apply(tmp_data[21:24],1,mean)
-tmp_data$a12 <- apply(tmp_data[25:26],1,mean)
-tmp_data$w13 <- apply(tmp_data[27:29],1,mean)  #2010
-tmp_data$s13 <- apply(tmp_data[30:32],1,mean) 
-tmp_data$r13 <- apply(tmp_data[33:36],1,mean) 
-tmp_data$a13 <- apply(tmp_data[37:38],1,mean) 
-tmp_data$w21 <- apply(tmp_data[50:52],1,mean) #2012
-tmp_data$s21 <- apply(tmp_data[53:55],1,mean)
-tmp_data$r21 <- apply(tmp_data[56:59],1,mean)
-tmp_data$a21 <- apply(tmp_data[60:61],1,mean)
-tmp_data$w22 <- apply(tmp_data[62:64],1,mean) #2013
-tmp_data$s22 <- apply(tmp_data[65:67],1,mean)
-tmp_data$r22 <- apply(tmp_data[68:71],1,mean)
-tmp_data$a22 <- apply(tmp_data[72:74],1,mean)
-tmp_data$w23 <- apply(tmp_data[75:77],1,mean) #2014
-tmp_data$s23 <- apply(tmp_data[78:80],1,mean)
-tmp_data$r23 <- apply(tmp_data[81:84],1,mean)
-tmp_data$a23 <- apply(tmp_data[85:86],1,mean)
-tmp_data$w31 <- apply(tmp_data[87:89],1,mean) #2015
-tmp_data$s31 <- apply(tmp_data[90:92],1,mean)
-tmp_data$r31 <- apply(tmp_data[93:96],1,mean)
-tmp_data$a31 <- apply(tmp_data[97:98],1,mean) 
-tmp_data$w32 <- apply(tmp_data[99:101],1,mean)  #2016
-tmp_data$s32 <- apply(tmp_data[102:104],1,mean)
-tmp_data$r32 <- apply(tmp_data[105:108],1,mean)
-tmp_data$a32 <- apply(tmp_data[109:110],1,mean)
-tmp_data$w33 <- apply(tmp_data[111:113],1,mean) #2017
-tmp_data$s33 <- apply(tmp_data[114:116],1,mean)
-tmp_data$r33 <- apply(tmp_data[117:120],1,mean)
-tmp_data$a33 <- apply(tmp_data[121:122],1,mean)
-
-tmp_data_sta <- subset(tmp_data,select=c(1,2,124:162))
 
 #dry and wet
 tmp_data1 <- tmp_df02[c(1,2,324:444)] #2007 Nov-2017 Oct monthly data 
@@ -328,24 +211,21 @@ tmp_data1$wet33 <- apply(tmp_data1[115:122],1,mean)
 tmp_data_sta1 <- subset(tmp_data1,select=c(1,2,124:141))
 
 
-#the monthly year
-tmp_data2 <- tmp_df02[c(1,2,325:448)] #2007 Dec-2018 March
-tmp_data2$s1 <- apply(tmp_data2[42:44],1,mean)#2011
-tmp_data2$r1 <- apply(tmp_data2[45:48],1,mean)
-tmp_data2$a1 <- apply(tmp_data2[49:50],1,mean)
-tmp_data2$w1 <- apply(tmp_data2[51:53],1,mean) #2012
-tmp_data2$s2 <- apply(tmp_data2[78:80],1,mean) #2014
-tmp_data2$r2 <- apply(tmp_data2[81:84],1,mean)
-tmp_data2$a2 <- apply(tmp_data2[85:86],1,mean)
-tmp_data2$w2 <- apply(tmp_data2[87:89],1,mean) #2015
-tmp_data2$s3 <- apply(tmp_data2[114:116],1,mean) #2017
-tmp_data2$r3 <- apply(tmp_data2[117:120],1,mean)
-tmp_data2$a3 <- apply(tmp_data2[121:122],1,mean)
-tmp_data2$w3 <- apply(tmp_data2[123:125],1,mean) #2018
-tmp_data2$sd1 <- apply(tmp_data2[42:53],1,sd)
-tmp_data2$sd2 <- apply(tmp_data2[78:89],1,sd)
-tmp_data2$sd3 <- apply(tmp_data2[114:125],1,sd)
-tmp_data_sta2 <- subset(tmp_data2,select=c(1,2,127:141))
+#main
+tmp_data2 <- tmp_df02[c(1,2,365:460)] #2011 March -2019 Feb
+tmp_data2$s1 <- apply(tmp_data2[3:5],1,mean)#2011 summer
+tmp_data2$r1 <- apply(tmp_data2[6:9],1,mean)
+tmp_data2$a1 <- apply(tmp_data2[10:11],1,mean)
+tmp_data2$w1 <- apply(tmp_data2[12:14],1,mean) #2012 winter
+tmp_data2$s2 <- apply(tmp_data2[39:41],1,mean) #2014 summer
+tmp_data2$r2 <- apply(tmp_data2[42:45],1,mean)
+tmp_data2$a2 <- apply(tmp_data2[46:47],1,mean)
+tmp_data2$w2 <- apply(tmp_data2[48:50],1,mean) #2015 winter
+tmp_data2$s3 <- apply(tmp_data2[87:89],1,mean) #2018 summer
+tmp_data2$r3 <- apply(tmp_data2[90:93],1,mean)
+tmp_data2$a3 <- apply(tmp_data2[94:95],1,mean)
+tmp_data2$w3 <- apply(tmp_data2[96:98],1,mean) #2019 winter
+tmp_data_sta2 <- subset(tmp_data2,select=c(1,2,99:110))
 ###extract temperature data set and convert into csv
 head(tmp_data_sta)
 write.csv(tmp_data_sta, file.choose())
