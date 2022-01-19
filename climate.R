@@ -1,6 +1,5 @@
 ###data cleaning for climate variables
-library(ncdf4)
-
+pacman::p_load('ncdf4','dplyr')
 #extract rainfall data (Jan 1981 to Mar 2021)
 ncpath <- "C:/Users/user/Documents/Masterthesis/climatebang/"
 ncname_r <- "rain"
@@ -58,19 +57,26 @@ rin_df02 <- data.frame(cbind(lonlat_r),rin_mat)
 names(rin_df02) <- c("lon", "lat")
 
 #30 years historical
-rin_data1 <- rin_df02[c(1:460)] #1981 Jan-2018 Oct monthly data 
-rin_data2$s1 <- apply(rin_data2[3:5],1,sum)#2011 summer
-rin_data2$r1 <- apply(rin_data2[6:9],1,sum)
-rin_data2$a1 <- apply(rin_data2[10:11],1,sum)
-rin_data2$w1 <- apply(rin_data2[12:14],1,sum) #2012 winter
-rin_data2$s2 <- apply(rin_data2[39:41],1,sum) #2014 summer
-rin_data2$r2 <- apply(rin_data2[42:45],1,sum)
-rin_data2$a2 <- apply(rin_data2[46:47],1,sum)
-rin_data2$w2 <- apply(rin_data2[48:50],1,sum) #2015 winter
-rin_data2$s3 <- apply(rin_data2[87:89],1,sum) #2018 summer
-rin_data2$r3 <- apply(rin_data2[90:93],1,sum)
-rin_data2$a3 <- apply(rin_data2[94:95],1,sum)
-rin_data2$w3 <- apply(rin_data2[96:98],1,sum) #2019 winter
+rin_hist1 <- rin_df02[c(17:376)] #1982 March-2012 Feb monthly data without lon and lat
+rin_hist2 <- rin_df02[c(47:412)]# 1985 March-2015 Feb
+rin_hist3 <- rin_df02[c(95:460)]# 1989 March-2019 Feb
+s <- rin_hist1[, c(TRUE, TRUE,TRUE,FALSE,FALSE,FALSE,FALSE,FALSE,FALSE,FALSE,FALSE,FALSE)] %>% View() # 30 years historical summer for 2011
+r <- rin_hist1[, c(FALSE,FALSE,FALSE,TALSE,TALSE,TALSE,TALSE,FALSE,FALSE,FALSE,FALSE,FALSE)] %>% View() # 30 years historical summer for 2011
+a <- rin_hist1[, c(TRUE, TRUE,TRUE,FALSE,FALSE,FALSE,FALSE,FALSE,FALSE,FALSE,FALSE,FALSE)] %>% View() # 30 years historical summer for 2011
+w <- rin_hist1[, c(TRUE, TRUE,TRUE,FALSE,FALSE,FALSE,FALSE,FALSE,FALSE,FALSE,FALSE,FALSE)] %>% View() # 30 years historical summer for 2011
+
+rin_data1$s1 <- apply(rin_data1[3:5],1,sum)
+rin_data1$r1 <- apply(rin_data1[6:9],1,sum)
+rin_data1$a1 <- apply(rin_data1[10:11],1,sum)
+rin_data1$w1 <- apply(rin_data1[12:14],1,sum) #30 years historical 2012 winter
+rin_data1$s2 <- apply(rin_data1[39:41],1,sum) #2014 summer
+rin_data1$r2 <- apply(rin_data1[42:45],1,sum)
+rin_data1$a2 <- apply(rin_data1[46:47],1,sum)
+rin_data1$w2 <- apply(rin_data1[48:50],1,sum) #2015 winter
+rin_data1$s3 <- apply(rin_data1[87:89],1,sum) #2018 summer
+rin_data1$r3 <- apply(rin_data1[90:93],1,sum)
+rin_data1$a3 <- apply(rin_data1[94:95],1,sum)
+rin_data1$w3 <- apply(rin_data1[96:98],1,sum) #2019 winter
 
 rin_data_sta1 <- subset(rin_data1,select=c(1,2,124:141))
 
