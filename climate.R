@@ -214,49 +214,49 @@ tmp_df02 <- data.frame(cbind(lonlat_t),tmp_mat)
 names(tmp_df02) <- c("lon", "lat")
 
 
-#dry and wet
+#historical temperature
 tmp_lonlat <- tmp_df02[c(1:2)] #longitude and latitude
 tmp_hist1 <- tmp_df02[c(17:376)] #1982 March-2012 Feb monthly data without lon and lat
 tmp_hist2 <- tmp_df02[c(47:412)]# 1985 March-2015 Feb
 tmp_hist3 <- tmp_df02[c(95:460)]# 1989 March-2019 Feb
-hs1 <- tmp_hist1[, c(TRUE, TRUE,TRUE,FALSE,FALSE,FALSE,FALSE,FALSE,FALSE,FALSE,FALSE,FALSE)] # 30 years historical summer for 2011
-hr1 <- tmp_hist1[, c(FALSE,FALSE,FALSE,TRUE,TRUE,TRUE,TRUE,FALSE,FALSE,FALSE,FALSE,FALSE)]  # 30 years historical summer for 2011
-ha1 <- tmp_hist1[, c(FALSE,FALSE,FALSE,FALSE,FALSE,FALSE,FALSE,TRUE,TRUE,FALSE,FALSE,FALSE)]  # 30 years historical summer for 2011
-hw1 <- tmp_hist1[, c(TRUE, TRUE,TRUE,FALSE,FALSE,FALSE,FALSE,FALSE,FALSE,TRUE,TRUE,TRUE)]  # 30 years historical summer for 2011
-sds1 <- rowSds(as.matrix(hs1), na.rm=TRUE)
-sdr1 <- rowSds(as.matrix(hr1), na.rm=TRUE)
-sda1 <- rowSds(as.matrix(ha1), na.rm=TRUE)
-sdw1 <- rowSds(as.matrix(hw1), na.rm=TRUE)
-hs1 <- rowSums(hs1)/30
-hr1 <- rowSums(hr1)/30
-ha1 <- rowSums(ha1)/30
-hw1 <- rowSums(hw1)/30
+hst1 <- tmp_hist1[, c(TRUE, TRUE,TRUE,FALSE,FALSE,FALSE,FALSE,FALSE,FALSE,FALSE,FALSE,FALSE)] # 30 years historical summer for 2011
+hrt1 <- tmp_hist1[, c(FALSE,FALSE,FALSE,TRUE,TRUE,TRUE,TRUE,FALSE,FALSE,FALSE,FALSE,FALSE)]  # 30 years historical summer for 2011
+hat1 <- tmp_hist1[, c(FALSE,FALSE,FALSE,FALSE,FALSE,FALSE,FALSE,TRUE,TRUE,FALSE,FALSE,FALSE)]  # 30 years historical summer for 2011
+hwt1 <- tmp_hist1[, c(TRUE, TRUE,TRUE,FALSE,FALSE,FALSE,FALSE,FALSE,FALSE,TRUE,TRUE,TRUE)]  # 30 years historical summer for 2011
+sdst1 <- rowSds(as.matrix(hst1), na.rm=TRUE)
+sdrt1 <- rowSds(as.matrix(hrt1), na.rm=TRUE)
+sdat1 <- rowSds(as.matrix(hat1), na.rm=TRUE)
+sdwt1 <- rowSds(as.matrix(hwt1), na.rm=TRUE)
+hst1 <- rowMeans(hst1)
+hrt1 <- rowMeans(hrt1)
+hat1 <- rowMeans(hat1)
+hwt1 <- rowMeans(hwt1)
 
-hs2 <- tmp_hist2[, c(TRUE, TRUE,TRUE,FALSE,FALSE,FALSE,FALSE,FALSE,FALSE,FALSE,FALSE,FALSE)] # 30 years historical summer for 2011
-hr2 <- tmp_hist2[, c(FALSE,FALSE,FALSE,TRUE,TRUE,TRUE,TRUE,FALSE,FALSE,FALSE,FALSE,FALSE)]  # 30 years historical summer for 2011
-ha2 <- tmp_hist2[, c(FALSE,FALSE,FALSE,FALSE,FALSE,FALSE,FALSE,TRUE,TRUE,FALSE,FALSE,FALSE)]  # 30 years historical summer for 2011
-hw2 <- tmp_hist2[, c(TRUE, TRUE,TRUE,FALSE,FALSE,FALSE,FALSE,FALSE,FALSE,TRUE,TRUE,TRUE)]  # 30 years historical summer for 2011
-sds2 <- rowSds(as.matrix(hs2), na.rm=TRUE)
-sdr2 <- rowSds(as.matrix(hr2), na.rm=TRUE)
-sda2 <- rowSds(as.matrix(ha2), na.rm=TRUE)
-sdw2 <- rowSds(as.matrix(hw2), na.rm=TRUE)
-hs2 <- rowSums(hs2)/30
-hr2 <- rowSums(hr2)/30
-ha2 <- rowSums(ha2)/30
-hw2 <- rowSums(hw2)/30
-hs3 <- tmp_hist3[, c(TRUE, TRUE,TRUE,FALSE,FALSE,FALSE,FALSE,FALSE,FALSE,FALSE,FALSE,FALSE)] # 30 years historical summer for 2011
-hr3 <- tmp_hist3[, c(FALSE,FALSE,FALSE,TRUE,TRUE,TRUE,TRUE,FALSE,FALSE,FALSE,FALSE,FALSE)]  # 30 years historical summer for 2011
-ha3 <- tmp_hist3[, c(FALSE,FALSE,FALSE,FALSE,FALSE,FALSE,FALSE,TRUE,TRUE,FALSE,FALSE,FALSE)]  # 30 years historical summer for 2011
-hw3 <- tmp_hist3[, c(TRUE, TRUE,TRUE,FALSE,FALSE,FALSE,FALSE,FALSE,FALSE,TRUE,TRUE,TRUE)]  # 30 years historical summer for 2011
-sds3 <- rowSds(as.matrix(hs3), na.rm=TRUE)
-sdr3 <- rowSds(as.matrix(hr3), na.rm=TRUE)
-sda3 <- rowSds(as.matrix(ha3), na.rm=TRUE)
-sdw3 <- rowSds(as.matrix(hw3), na.rm=TRUE)
-hs3 <- rowSums(hs3)/30
-hr3 <- rowSums(hr3)/30
-ha3 <- rowSums(ha3)/30
-hw3 <- rowSums(hw3)/30
-tmp_data_sta1 <- data.frame(tmp_lonlat, hs1, hr1, ha1, hw1, sds1, sdr1, sda1, sdw1, hs2, hr2, ha2, hw2, sds2, sdr2, sda2, sdw2, hs3, hr3, ha3, hw3, sds3, sdr3, sda3, sdw3)
+hst2 <- tmp_hist2[, c(TRUE, TRUE,TRUE,FALSE,FALSE,FALSE,FALSE,FALSE,FALSE,FALSE,FALSE,FALSE)] # 30 years historical summer for 2011
+hrt2 <- tmp_hist2[, c(FALSE,FALSE,FALSE,TRUE,TRUE,TRUE,TRUE,FALSE,FALSE,FALSE,FALSE,FALSE)]  # 30 years historical summer for 2011
+hat2 <- tmp_hist2[, c(FALSE,FALSE,FALSE,FALSE,FALSE,FALSE,FALSE,TRUE,TRUE,FALSE,FALSE,FALSE)]  # 30 years historical summer for 2011
+hwt2 <- tmp_hist2[, c(TRUE, TRUE,TRUE,FALSE,FALSE,FALSE,FALSE,FALSE,FALSE,TRUE,TRUE,TRUE)]  # 30 years historical summer for 2011
+sdst2 <- rowSds(as.matrix(hst2), na.rm=TRUE)
+sdrt2 <- rowSds(as.matrix(hrt2), na.rm=TRUE)
+sdat2 <- rowSds(as.matrix(hat2), na.rm=TRUE)
+sdwt2 <- rowSds(as.matrix(hwt2), na.rm=TRUE)
+hst2 <- rowMeans(hst2)
+hrt2 <- rowMeans(hrt2)
+hat2 <- rowMeans(hat2)
+hwt2 <- rowMeans(hwt2)
+hst3 <- tmp_hist3[, c(TRUE, TRUE,TRUE,FALSE,FALSE,FALSE,FALSE,FALSE,FALSE,FALSE,FALSE,FALSE)] # 30 years historical summer for 2011
+hrt3 <- tmp_hist3[, c(FALSE,FALSE,FALSE,TRUE,TRUE,TRUE,TRUE,FALSE,FALSE,FALSE,FALSE,FALSE)]  # 30 years historical summer for 2011
+hat3 <- tmp_hist3[, c(FALSE,FALSE,FALSE,FALSE,FALSE,FALSE,FALSE,TRUE,TRUE,FALSE,FALSE,FALSE)]  # 30 years historical summer for 2011
+hwt3 <- tmp_hist3[, c(TRUE, TRUE,TRUE,FALSE,FALSE,FALSE,FALSE,FALSE,FALSE,TRUE,TRUE,TRUE)]  # 30 years historical summer for 2011
+sdst3 <- rowSds(as.matrix(hst3), na.rm=TRUE)
+sdrt3 <- rowSds(as.matrix(hrt3), na.rm=TRUE)
+sdat3 <- rowSds(as.matrix(hat3), na.rm=TRUE)
+sdwt3 <- rowSds(as.matrix(hwt3), na.rm=TRUE)
+hst3 <- rowMeans(hst3)
+hrt3 <- rowMeans(hrt3)
+hat3 <- rowMeans(hat3)
+hwt3 <- rowMeans(hwt3)
+tmp_data_sta1 <- data.frame(tmp_lonlat, hst1, hrt1, hat1, hwt1, sdst1, sdrt1, sdat1, sdwt1, hst2, hrt2, hat2, hwt2, sdst2, sdrt2, sdat2, sdwt2, hst3, hrt3, hat3, hwt3, sdst3, sdrt3, sdat3, sdwt3)
 
 
 
@@ -276,8 +276,7 @@ tmp_data2$a3 <- apply(tmp_data2[94:95],1,mean)
 tmp_data2$w3 <- apply(tmp_data2[96:98],1,mean) #2019 winter
 tmp_data_sta2 <- subset(tmp_data2,select=c(1,2,99:110))
 ###extract temperature data set and convert into csv
-head(tmp_data_sta)
-write.csv(tmp_data_sta, file.choose())
+
 head(tmp_data_sta1)
 write.csv(tmp_data_sta1, file.choose())
 head(tmp_data_sta2)
