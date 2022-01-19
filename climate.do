@@ -1,5 +1,6 @@
 /*create dataset for regression*/
 /*Author: Masanori Matsuura*/
+ssc install geonear
 clear all
 set more off
 *set the pathes
@@ -80,13 +81,7 @@ keep district dcode lat lon
 drop if district==.
 save district.dta, replace //true district data and comparable with BIHS
 
-** match climate data with district
-import delimited using $climate\rain.csv, clear
-rename v1 nid
-save rain.dta, replace
-import delimited using $climate\temp.csv, clear
-rename v1 nid
-save temp.dta, replace
+
 import delimited using $climate\rain1.csv, clear
 rename v1 nid
 save rain1.dta, replace
@@ -94,20 +89,28 @@ import delimited using $climate\temp1.csv, clear
 rename v1 nid
 save temp1.dta, replace
 
+import delimited using $climate\rain2.csv, clear
+rename (v1 var1 var2)(nid lon lat)
+save rain2.dta, replace
+import delimited using $climate\temp2.csv, clear
+rename v1 nid
+save temp2.dta, replace
 ** match using geonear
 use district, clear
-ssc install geonear
-geonear district lat lon using rain.dta, neighbors(nid lat lon) //match with rain and district
+
 geonear district lat lon using rain1.dta, neighbors(nid lat lon) //match with rain and district
+geonear district lat lon using rain2.dta, neighbors(nid lat lon) //match with rain and 
 save climate.dta, replace
 use climate, clear
 drop km_to_nid
-merge m:m nid using rain.dta, nogen //merge district data and  rain data
 merge m:m nid using rain1.dta, nogen //merge district data and  rain data
+merge m:m nid using rain2.dta, nogen //merge district data and  rain data
 
-rename (w11 s11 r11 a11 w12 s12  r12 a12 w13 s13 r13 a13 w21 r21 s21 a21 w22 s22 r22 a22 w23 r23 s23 a23 w31 s31 r31 a31 w32 s32 r32 a32 w33 s33 r33 a33 sd1 sd2 sd3 wet11 dry11 wet12 dry12 wet13 dry13 wet21 dry21 wet22 dry22 wet23 dry23 wet31 dry31 wet32 dry32 wet33 dry33)(rw11 rs11 rr11 ra11 rw12 rs12 rr12 ra12 rw13 rs13 rr13 ra13 rw21 rr21 rs21 ra21 rw22 rs22 rr22 ra22 rw23 rr23 rs23 ra23 rw31 rs31 rr31 ra31 rw32 rs32 rr32 ra32 rw33 rs33 rr33 ra33 rinsd1 rinsd2 rinsd3 rwet11 rdry11 rwet12 rdry12 rwet13 rdry13 rwet21 rdry21 rwet22 rdry22 rwet23 rdry23 rwet31 rdry31 rwet32 rdry32 rwet33 rdry33) //cleaning
+
+rename (s1 r1 a1 w1 s2 r2 a2 w2 s3 r3 a3 w3 sd1 sd2 sd3)(rs1 rr1 ra1 rw1 rs2 rr2 ra2 rw2 rs3 rr3 ra3 rw3 rsd1 rsd2 rsd3)
 drop if district==.
-destring (rw11 rs11 rr11 ra11 rw12 rs12 rr12 ra12 rw13 rs13 rr13 ra13 rw21 rr21 rs21 ra21 rw22 rs22 rr22 ra22 rw23 rr23 rs23 ra23 rw31 rs31 rr31 ra31 rw32 rs32 rr32 ra32 rw33 rs33 rr33 ra33 rinsd1 rinsd2 rinsd3 rwet11 rdry11 rwet12 rdry12 rwet13 rdry13 rwet21 rdry21 rwet22 rdry22 rwet23 rdry23 rwet31 rdry31 rwet32 rdry32 rwet33 rdry33), replace
+
+destring (rs1 rr1 ra1 rw1 rs2 rr2 ra2 rw2 rs3 rr3 ra3 rw3 rsd1 rsd2 rsd3), replace
 gen rw1=(rw11+rw12+rw13)/3
 gen rs1=(rs11+rs12+rs13)/3
 gen rr1=(rr11+rr12+rr13)/3
@@ -132,26 +135,21 @@ label var rw3 "Winter rainfall"
 label var rs3 "Summer rainfall"
 label var rr3 "Rainy rainfall"
 label var ra3 "Autumn rainfall"
-gen rwet1=(rwet11+rwet12+rwet13)/3
-gen rdry1=(rdry11+rdry12+rdry13)/3
-label var rwet1 "Wet season rainfall"
-label var rdry1 "Dry season rainfall"
-gen rwet2=(rwet21+rwet22+rwet23)/3
-gen rdry2=(rdry21+rdry22+rdry23)/3
-label var rwet2 "Wet season rainfall"
-label var rdry2 "Dry season rainfall"
-gen rwet3=(rwet31+rwet32+rwet33)/3
-gen rdry3=(rdry31+rdry32+rdry33)/3
-label var rwet3 "Wet season rainfall"
-label var rdry3 "Dry season rainfall"
+
+
+label var rsd1 "St.dev monthly rainfall"
+label var rsd2 "St.dev monthly rainfall"
+label var rsd3 "St.dev monthly rainfall"
 save climate, replace
 
-geonear district lat lon using temp.dta, neighbors(nid lat lon) //merge district data and temperature data
 geonear district lat lon using temp1.dta, neighbors(nid lat lon) //merge district data and temperature data
+geonear district lat lon using temp2.dta, neighbors(nid lat lon) //merge district data and temperature data
 drop km_to_nid
-merge m:m nid using temp.dta, nogen //merge
 merge m:m nid using temp1.dta, nogen //merge
-rename (w11 s11 r11 a11 w12 s12  r12 a12 w13 s13 r13 a13 w21 r21 s21 a21 w22 s22 r22 a22 w23 r23 s23 a23 w31 s31 r31 a31 w32 s32 r32 a32 w33 s33 r33 a33 sd1 sd2 sd3 wet11 dry11 wet12 dry12 wet13 dry13 wet21 dry21 wet22 dry22 wet23 dry23 wet31 dry31 wet32 dry32 wet33 dry33)(tw11 ts11 tr11 ta11 tw12 ts12 tr12 ta12 tw13 ts13 tr13 ta13 tw21 tr21 ts21 ta21 tw22 ts22 tr22 ta22 tw23 tr23 ts23 ta23 tw31 ts31 tr31 ta31 tw32 ts32 tr32 ta32 tw33 ts33 tr33 ta33 tmpsd1 tmpsd2 tmpsd3 twet11 tdry11 twet12 tdry12 twet13 tdry13 twet21 tdry21 twet22 tdry22 twet23 tdry23 twet31 tdry31 twet32 tdry32 twet33 tdry33) //renaming 
+merge m:m nid using temp2.dta, nogen //merge
+
+
+rename (s1 r1 a1 w1 s2 r2 a2 w2 s3 r3 a3 w3 sd1 sd2 sd3)(ts1 tr1 ta1 tw1 ts2 tr2 ta2 tw2 ts3 tr3 ta3 tw3 tsd1 tsd2 tsd3)
 drop if district==.
 save qgis_climate.dta, replace
 drop nid nid lat lon 
@@ -179,17 +177,9 @@ label var tw3 "Winter temperature"
 label var ts3 "Summer temperature"
 label var tr3 "Rainy temperature"
 label var ta3 "Autumn temperature"
-gen twet1=(twet11+twet12+twet13)/3
-gen tdry1=(tdry11+tdry12+tdry13)/3
-label var twet1 "Wet season temperature"
-label var tdry1 "Dry season temperature"
-gen twet2=(twet21+twet22+twet23)/3
-gen tdry2=(tdry21+tdry22+tdry23)/3
-label var twet2 "Wet season temperature"
-label var tdry2 "Dry season temperature"
-gen twet3=(twet31+twet32+twet33)/3
-gen tdry3=(tdry31+tdry32+tdry33)/3
-label var twet3 "Wet season temperature"
-label var tdry3 "Dry season temperature"
+
+label var tsd1 "St.dev monthly temperature"
+label var tsd2 "St.dev monthly temperature"
+label var tsd3 "St.dev monthly temperature"
 drop ta12 tw13 ts13 tr13 ta13 tw21 tr21 ts21 ta21 tw22 ts22 tr22 ta22 tw23 tr23 ts23 ta23 tw31 ts31 tr31 ta31 tw32 ts32 tr32 ta32 tw33 ts33 tr33 ta33 rw11 rs11 rr11 ra11 rw12 rs12 rr12 ra12 rw13 rs13 rr13 ra13 rw21 rr21 rs21 ra21 rw22 rs22 rr22 ra22 rw23 rr23 rs23 ra23 rw31 rs31 rr31 ra31 rw32 rs32 rr32 ra32 rw33 rs33 rr33 ra33
 save climate, replace
