@@ -262,18 +262,18 @@ tmp_data_sta1 <- data.frame(tmp_lonlat, hst1, hrt1, hat1, hwt1, sdst1, sdrt1, sd
 
 #main
 tmp_data2 <- tmp_df02[c(1,2,365:460)] #2011 March -2019 Feb
-tmp_data2$s1 <- apply(tmp_data2[3:5],1,mean)#2011 summer
-tmp_data2$r1 <- apply(tmp_data2[6:9],1,mean)
-tmp_data2$a1 <- apply(tmp_data2[10:11],1,mean)
-tmp_data2$w1 <- apply(tmp_data2[12:14],1,mean) #2012 winter
-tmp_data2$s2 <- apply(tmp_data2[39:41],1,mean) #2014 summer
-tmp_data2$r2 <- apply(tmp_data2[42:45],1,mean)
-tmp_data2$a2 <- apply(tmp_data2[46:47],1,mean)
-tmp_data2$w2 <- apply(tmp_data2[48:50],1,mean) #2015 winter
-tmp_data2$s3 <- apply(tmp_data2[87:89],1,mean) #2018 summer
-tmp_data2$r3 <- apply(tmp_data2[90:93],1,mean)
-tmp_data2$a3 <- apply(tmp_data2[94:95],1,mean)
-tmp_data2$w3 <- apply(tmp_data2[96:98],1,mean) #2019 winter
+tmp_data2$ts1 <- apply(tmp_data2[3:5],1,mean)#2011 summer
+tmp_data2$tr1 <- apply(tmp_data2[6:9],1,mean)
+tmp_data2$ta1 <- apply(tmp_data2[10:11],1,mean)
+tmp_data2$tw1 <- apply(tmp_data2[12:14],1,mean) #2012 winter
+tmp_data2$ts2 <- apply(tmp_data2[39:41],1,mean) #2014 summer
+tmp_data2$tr2 <- apply(tmp_data2[42:45],1,mean)
+tmp_data2$ta2 <- apply(tmp_data2[46:47],1,mean)
+tmp_data2$tw2 <- apply(tmp_data2[48:50],1,mean) #2015 winter
+tmp_data2$ts3 <- apply(tmp_data2[87:89],1,mean) #2018 summer
+tmp_data2$tr3 <- apply(tmp_data2[90:93],1,mean)
+tmp_data2$ta3 <- apply(tmp_data2[94:95],1,mean)
+tmp_data2$tw3 <- apply(tmp_data2[96:98],1,mean) #2019 winter
 tmp_data_sta2 <- subset(tmp_data2,select=c(1,2,99:110))
 ###extract temperature data set and convert into csv
 
