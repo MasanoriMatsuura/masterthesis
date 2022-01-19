@@ -14,7 +14,7 @@ cd "C:\Users\user\Documents\Masterthesis\BIHS\Do"
 *BIHS2018 data cleaning 
 **keep geographical code
 use $BIHS18Male\009_bihs_r3_male_mod_a, clear
-keep a01 dvcode district upazila union mouza village
+keep a01 dvcode div div_name district upazila union mouza village
 rename (district upazila union mouza village)(dcode uzcode uncode mzcode Village)
 duplicates drop a01, force
 save 2018, replace
@@ -497,11 +497,37 @@ label var stshock "Temperature shock in summer"
 label var rtshock "Temperature shock in rainy season"
 label var atshock "Temperature shock in autumn"
 label var wtshock "Temperature shock in winter"
+replace dcode=52 if District_Name=="Dinajpur"
+replace dcode=5 if District_Name=="Narayanganj"
+replace dcode=6 if District_Name=="Narsingdi"
+replace dcode=42 if District_Name=="Natore"
+replace dcode=41 if District_Name=="Chapai Nawabganj"
+replace dcode=16 if District_Name=="Netrakona"
+replace dcode=50 if District_Name=="Nilphamari"
+replace dcode=28 if District_Name=="Noakhali"
+replace dcode=43 if District_Name=="Pabna"
+replace dcode=54 if District_Name=="Panchagarh"
+replace dcode=64 if District_Name=="Patuakhali"
+replace dcode=40 if District_Name=="Naogon"
+replace dcode=62 if District_Name=="Pirojpur"
+replace dcode=39 if District_Name=="Rajshahi"
+replace dcode=10 if District_Name=="Rajbari"
+replace dcode=22 if District_Name=="Rangamati"
+replace dcode=51 if District_Name=="Rangpur"
+replace dcode=11 if District_Name=="Shariatpur"
+replace dcode=35 if District_Name=="Satkhira"
+replace dcode=44 if District_Name=="Sirajganj"
+replace dcode=13 if District_Name=="Sherpur"
+replace dcode=58 if District_Name=="Sunamganj"
+replace dcode=55 if District_Name=="Sylhet"
+replace dcode=17 if District_Name=="Tangail"
+replace dcode=53 if District_Name=="Thakurgaon"
 
 save climate18, replace
 
 **merge all 2018 dataset
 use 2018.dta,clear
+
 merge m:1 dcode using climate18, nogen
 duplicates drop a01, force
 merge 1:1 a01 using sciec18, nogen
