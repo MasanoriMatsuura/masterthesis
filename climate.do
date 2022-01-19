@@ -132,16 +132,16 @@ merge m:m nid using temp2.dta, nogen //merge
 drop if district==.
 save qgis_climate.dta, replace
 drop nid nid lat lon 
-label var sdst1 "30-year summer rainfall SD"
-label var sdst2 "30-year summer rainfall SD"
-label var sdst3 "30-year summer rainfall SD"
-label var sdrt1 "30-year rainy season rainfall SD"
-label var sdrt2 "30-year rainy season rainfall SD"
-label var sdrt3 "30-year rainy season rainfall SD"
-label var sdat1 "30-year autumn rainfall SD"
-label var sdat2 "30-year autumn rainfall SD"
-label var sdat3 "30-year autumn rainfall SD"
-label var sdwt1 "30-year winter rainfall SD"
-label var sdwt2 "30-year winter rainfall SD"
-label var sdwt3 "30-year winter rainfall SD"
+label var sdst1 "30-year summer temperature SD"
+label var sdst2 "30-year summer temperature SD"
+label var sdst3 "30-year summer temperature SD"
+label var sdrt1 "30-year rainy season temperature SD"
+label var sdrt2 "30-year rainy season temperature SD"
+label var sdrt3 "30-year rainy season temperature SD"
+label var sdat1 "30-year autumn temperature SD"
+label var sdat2 "30-year autumn temperature SD"
+label var sdat3 "30-year autumn temperature SD"
+label var sdwt1 "30-year winter temperature SD"
+label var sdwt2 "30-year winter temperature SD"
+label var sdwt3 "30-year winter temperature SD"
 save climate, replace
