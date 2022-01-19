@@ -95,9 +95,10 @@ save rain2.dta, replace
 import delimited using $climate\temp2.csv, clear
 rename v1 nid
 save temp2.dta, replace
-** match using geonear
-use district, clear
 
+
+*** rainfall
+use district, clear
 geonear district lat lon using rain1.dta, neighbors(nid lat lon) //match with rain and district
 geonear district lat lon using rain2.dta, neighbors(nid lat lon) //match with rain and 
 save climate.dta, replace
@@ -105,81 +106,42 @@ use climate, clear
 drop km_to_nid
 merge m:m nid using rain1.dta, nogen //merge district data and  rain data
 merge m:m nid using rain2.dta, nogen //merge district data and  rain data
-
-
-rename (s1 r1 a1 w1 s2 r2 a2 w2 s3 r3 a3 w3 sd1 sd2 sd3)(rs1 rr1 ra1 rw1 rs2 rr2 ra2 rw2 rs3 rr3 ra3 rw3 rsd1 rsd2 rsd3)
 drop if district==.
-
-destring (rs1 rr1 ra1 rw1 rs2 rr2 ra2 rw2 rs3 rr3 ra3 rw3 rsd1 rsd2 rsd3), replace
-gen rw1=(rw11+rw12+rw13)/3
-gen rs1=(rs11+rs12+rs13)/3
-gen rr1=(rr11+rr12+rr13)/3
-gen ra1=(ra11+ra12+ra13)/3
-label var rw1 "Winter rainfall"
-label var rs1 "Summer rainfall"
-label var rr1 "Rainy rainfall"
-label var ra1 "Autumn rainfall"
-gen rw2=(rw21+rw22+rw23)/3
-gen rs2=(rs21+rs22+rs23)/3
-gen rr2=(rr21+rr22+rr23)/3
-gen ra2=(ra21+ra22+ra23)/3
-label var rw2 "Winter rainfall"
-label var rs2 "Summer rainfall"
-label var rr2 "Rainy rainfall"
-label var ra2 "Autumn rainfall"
-gen rw3=(rw31+rw32+rw33)/3
-gen rs3=(rs31+rs32+rs33)/3
-gen rr3=(rr31+rr32+rr33)/3
-gen ra3=(ra31+ra32+ra33)/3
-label var rw3 "Winter rainfall"
-label var rs3 "Summer rainfall"
-label var rr3 "Rainy rainfall"
-label var ra3 "Autumn rainfall"
-
-
-label var rsd1 "St.dev monthly rainfall"
-label var rsd2 "St.dev monthly rainfall"
-label var rsd3 "St.dev monthly rainfall"
+destring (hs1 hr1 ha1 hw1 hs2 hr2 ha2 hw2 hs3 hr3 ha3 hw3 s1 r1 a1 w1 s2 r2 a2 w2 s3 r3 a3 w3 sds1 sdr1 sda1 sdw1 sds2 sdr2 sda2 sdw2 sds3 sdr3 sda3 sdw3), replace
+label var sds1 "30-year summer rainfall SD"
+label var sds2 "30-year summer rainfall SD"
+label var sds3 "30-year summer rainfall SD"
+label var sdr1 "30-year rainy season rainfall SD"
+label var sdr2 "30-year rainy season rainfall SD"
+label var sdr3 "30-year rainy season rainfall SD"
+label var sda1 "30-year autumn rainfall SD"
+label var sda2 "30-year autumn rainfall SD"
+label var sda3 "30-year autumn rainfall SD"
+label var sdw1 "30-year winter rainfall SD"
+label var sdw2 "30-year winter rainfall SD"
+label var sdw3 "30-year winter rainfall SD"
 save climate, replace
 
+*** temperature
 geonear district lat lon using temp1.dta, neighbors(nid lat lon) //merge district data and temperature data
 geonear district lat lon using temp2.dta, neighbors(nid lat lon) //merge district data and temperature data
 drop km_to_nid
 merge m:m nid using temp1.dta, nogen //merge
 merge m:m nid using temp2.dta, nogen //merge
 
-
-rename (s1 r1 a1 w1 s2 r2 a2 w2 s3 r3 a3 w3 sd1 sd2 sd3)(ts1 tr1 ta1 tw1 ts2 tr2 ta2 tw2 ts3 tr3 ta3 tw3 tsd1 tsd2 tsd3)
 drop if district==.
 save qgis_climate.dta, replace
 drop nid nid lat lon 
-gen tw1=(tw11+tw12+tw13)/3
-gen ts1=(ts11+ts12+ts13)/3
-gen tr1=(tr11+tr12+tr13)/3
-gen ta1=(ta11+ta12+ta13)/3
-label var tw1 "Winter temperature"
-label var ts1 "Summer temperature"
-label var tr1 "Rainy temperature"
-label var ta1 "Autumn temperature"
-gen tw2=(tw21+tw22+tw23)/3
-gen ts2=(ts21+ts22+ts23)/3
-gen tr2=(tr21+tr22+tr23)/3
-gen ta2=(ta21+ta22+ta23)/3
-label var tw2 "Winter temperature"
-label var ts2 "Summer temperature"
-label var tr2 "Rainy temperature"
-label var ta2 "Autumn temperature"
-gen tw3=(tw31+tw32+tw33)/3
-gen ts3=(ts31+ts32+ts33)/3
-gen tr3=(tr31+tr32+tr33)/3
-gen ta3=(ta31+ta32+ta33)/3
-label var tw3 "Winter temperature"
-label var ts3 "Summer temperature"
-label var tr3 "Rainy temperature"
-label var ta3 "Autumn temperature"
-
-label var tsd1 "St.dev monthly temperature"
-label var tsd2 "St.dev monthly temperature"
-label var tsd3 "St.dev monthly temperature"
-drop ta12 tw13 ts13 tr13 ta13 tw21 tr21 ts21 ta21 tw22 ts22 tr22 ta22 tw23 tr23 ts23 ta23 tw31 ts31 tr31 ta31 tw32 ts32 tr32 ta32 tw33 ts33 tr33 ta33 rw11 rs11 rr11 ra11 rw12 rs12 rr12 ra12 rw13 rs13 rr13 ra13 rw21 rr21 rs21 ra21 rw22 rs22 rr22 ra22 rw23 rr23 rs23 ra23 rw31 rs31 rr31 ra31 rw32 rs32 rr32 ra32 rw33 rs33 rr33 ra33
+label var sdst1 "30-year summer rainfall SD"
+label var sdst2 "30-year summer rainfall SD"
+label var sdst3 "30-year summer rainfall SD"
+label var sdrt1 "30-year rainy season rainfall SD"
+label var sdrt2 "30-year rainy season rainfall SD"
+label var sdrt3 "30-year rainy season rainfall SD"
+label var sdat1 "30-year autumn rainfall SD"
+label var sdat2 "30-year autumn rainfall SD"
+label var sdat3 "30-year autumn rainfall SD"
+label var sdwt1 "30-year winter rainfall SD"
+label var sdwt2 "30-year winter rainfall SD"
+label var sdwt3 "30-year winter rainfall SD"
 save climate, replace
