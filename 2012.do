@@ -109,7 +109,7 @@ bysort a01: egen _shnc=sum(lnc*es_sh)
 gen shnc=-1*_shnc
 keep a01 crp_div shnc
 label var shnc "Crop diversification index (shannon)"
-keep a01 crp_div
+keep a01 crp_div shnc
 duplicates drop a01, force
 save crp_div12.dta, replace
 
@@ -423,44 +423,58 @@ save incdiv12.dta, replace
 **climate variables 
 use climate, clear
 rename (district dcode) (dcode District_Name) //renaming
-drop rw3 rs3 rr3 ra3 rw2 rs2 rr2 ra2 tw3 ts3 tr3 ta3 tw2 ts2 tr2 ta2 rsd3 rsd2 tsd3 tsd2 //tmpsd1 tmpsd2 rinsd1 rinsd2 rwet1 rdry1 rwet2 rdry2 twet1 tdry1 twet2 tdry2 
-/*rename (rw3 rs3 rr3 ra3 rinsd3 tw3 ts3 tr3 ta3 tmpsd3 rwet3 rdry3 twet3 tdry3)(rw rs rr ra rinsd tw ts tr ta tmpsd rwet rdry twet tdry)*/
-rename (rw1 rs1 rr1 ra1 rsd1 tw1 ts1 tr1 ta1 tsd1 )(rw rs rr ra rsd tw ts tr ta tsd )
-//gen rinsd_1000=rinsd/1000
-gen ln_rw=log(rw)
-gen ln_rs=log(rs)
-gen ln_rr=log(rr)
-gen ln_ra=log(ra)
-//gen ln_rinsd=log(rinsd)
-gen ln_rinsd=log(rsd)
-gen ln_tw=log(tw)
-gen ln_ts=log(ts)
-gen ln_tr=log(tr)
-gen ln_ta=log(ta)
-//gen ln_tmpsd=log(tmpsd)
-gen ln_tmpsd=log(tsd)
+keep dcode District_Name hs1 hr1 ha1 hw1 sds1 sdr1 sda1 sdw1 s1 r1 w1 a1 hst1 hrt1 hat1 hwt1 sdst1 sdrt1 sdat1 sdwt1 ts1 tr1 ta1 tw1 
+rename (hs1 hr1 ha1 hw1 sds1 sdr1 sda1 sdw1 s1 r1 w1 a1 hst1 hrt1 hat1 hwt1 sdst1 sdrt1 sdat1 sdwt1 ts1 tr1 ta1 tw1)(hs hr ha hw sds sdr sda sdw s r w a hst hrt hat hwt sdst sdrt sdat sdwt ts tr ta tw)
 
-/*gen ln_rwet=log(rwet)
-gen ln_rdry=log(rdry)
-gen ln_tdry=log(tdry)
-gen ln_twet=log(twet)*/
-/*label var rinsd "Yearly st.dev rainfall"*/
-/*label var tmpsd "Monthly st.dev temperature"*/
-label var ln_tmpsd "Monthly st.dev temperature (log)"
-/*label var rinsd_1000 "Yearly st.dev rainfall (1,000mm)"*/
-label var ln_rinsd  "Yearly st.dev rainfall (log) "
-label var ln_rw "Winter rainfall (log)"
-label var ln_rs "Summer rainfall (log)"
-label var ln_rr "Rainy season rainfall (log)"
-label var ln_ra "Autumn rainfall (log)"
-label var ln_tw "Winter mean temperature (log)"
-label var ln_ts "Summer mean temperature (log)"
-label var ln_tr "Rainy season mean temperature (log)"
-label var ln_ta "Autumn mean temperature (log)"
-/*label var ln_rwet "Wet season rainfall (log)"
-label var ln_rdry "Dry season rainfall (log)"
-label var ln_twet "Wet season temperature (log)"
-label var ln_tdry "Dry season temperature (log)"*/
+gen srshock=log(s)-log(hs)
+gen rrshock=log(r)-log(hr)
+gen arshock=log(a)-log(ha)
+gen wrshock=log(w)-log(hw)
+gen ln_sds=log(sds)
+gen ln_sdr=log(sdr)
+gen ln_sda=log(sda)
+gen ln_sdw=log(sdw)
+gen stshock=log(ts)-log(hst)
+gen rtshock=log(tr)-log(hrt)
+gen atshock=log(ta)-log(hat)
+gen wtshock=log(tw)-log(hwt)
+gen ln_sdst=log(sdst)
+gen ln_sdrt=log(sdrt)
+gen ln_sdat=log(sdat)
+gen ln_sdwt=log(sdwt)
+label var s "Summer rainfall(mm)" 
+label var r "Rainy season rainfall(mm)"
+label var a "Autumn rainfall(mm)"
+label var w "Winter rainfall(mm)"
+label var hs "30-year summer rainfall"
+label var hr "30-year rainy season rainfall"
+label var ha "30-year autumn rainfall"
+label var hw "30-year winter rainfall"
+label var ts "Summer average temperature(\textdegree{}C)"
+label var tr "Rainy season average temperature(\textdegree{}C)"
+label var ta "Autumn season average temperature(\textdegree{}C)"
+label var tw "Winter average temperature(\textdegree{}C)"
+label var hst "30-year summer average temperature(\textdegree{}C)"
+label var hrt "30-year rainy season average temperature(\textdegree{}C)"
+label var hat "30-year autumn average temperature(\textdegree{}C)"
+label var hwt "30-year winter average temperature(\textdegree{}C)"
+label var ln_sds "30-year summer rainfall SD(log)"
+label var ln_sdr  "30-year rainy season rainfall SD(log)"
+label var ln_sda  "30-year autumn rainfall SD(log)"
+label var ln_sdw  "30-year winter rainfall SD(log)"
+label var ln_sdst "30-year summer temperature SD(log)"
+label var ln_sdrt "30-year rainy season temperature SD(log)"
+label var ln_sdat "30-year autumn temperature SD(log)"
+label var ln_sdwt "30-year winter temperature SD(log)"
+label var srshock "Rainfall shock in summer"
+label var rrshock "Rainfall shock in rainy season"
+label var arshock "Rainfall shock in autumn"
+label var wrshock "Rainfall shock in winter"
+label var stshock "Temperature shock in summer"
+label var rtshock "Temperature shock in rainy season"
+label var atshock "Temperature shock in autumn"
+label var wtshock "Temperature shock in winter"
+
 save climate12, replace
 
 **merge all 2012 dataset

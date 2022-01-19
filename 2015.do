@@ -308,187 +308,14 @@ label var offrminc "Off-farm income"
 keep a01 offrminc
 save offfrm15.dta, replace 
 
-/*food consumption*/
+*HDDS
 use $BIHS15\042_r2_mod_o1_female.dta, clear //create Household dietary diversity score (HDDS)
 
 recode o1_01 (1/16 277/290 297 901 296 302 =1 "Cereals")(61 621 622 295 301 3231=2 "White tubers and roots")(41/60 63/82 86/115 904 905 291 292 298 441=3 "Vegetables")(141/170 317 319 907=4 "Fruits")(121/129 906 322 =5 "Meat")(130/135 =6 "Eggs")(176/205 211/243 908 909 =7 "Fish and seafood")(21/28 902 299=8 "Legumes, nuts and seeds")(132/135 1321/1323 2941/2943 294=9 "Milk and milk products")(31/36 903 312 =10 "Oils and fats")(266/271 293 303/311=11 "Sweets")(246/251 253/264 272/276 318 323 910 300 314/321 2521 2522 313= 12 "Spices, condiments and beverages"), gen(hdds_i)
 
-/*foreach v of varlist x1_07_01-x1_07_15 {
-recode `v' (1/16 277/297 303/305 323 901 2771/2779 2781/2789 2791/2799 2801/2809 2811/2819 2841/2843 2851/2859 2861/2863 2871/2879 2891/2896 2901/2909 2951/2952 2961 2971 2981/2899 3031 3032=1 "Cereals")(41/61 302 621 622 3231 =2 "White roots and tubers")( 63/82 86/115 298 300 441 904 905 2921/2923 2881/2889 2921/2923 2981 3001 =3 "Vegetables")(141/170 907 1421 1422 1461 1462=4 "Fruits")(121/129 322 906 =5 "Meat")(130/131 1301 1302 =6 "Eggs")(176/205 211/243 908 909 =7 "Fish and seafood")(21/28 31/32 299 317/320 2911/2919 2991=8 "Leagumes, nuts and seeds")(132/135 1321/1323 2941/2943=9 "Milk and milk products")(33/36 312/313 902 903 3121/3129 =10 "Oils and fats")(303/311 321=11 "Sweets")(246/251 252 253/264 266/276 300 301 314/316 318 319 910 2521 2522 2721/2724 3131 3132 = 12 "Spices, condiments, and beverages"), gen(f`v')  
-} // for each categorize ingredients
-keep a01 fx1_07_01 
-duplicates drop a01 fx1_07_01, force
-rename fx1_07_01 item
-save fd15.dta, replace
-
-use $BIHS15\064_r2_mod_x1_1_female.dta, clear //create Household dietary diversity score (HDDS)
-foreach v of varlist x1_07_01-x1_07_15 {
-recode `v' (1/16 277/297 303/305 323 901 2771/2779 2781/2789 2791/2799 2801/2809 2811/2819 2841/2843 2851/2859 2861/2863 2871/2879 2891/2896 2901/2909 2951/2952 2961 2971 2981/2899 3031 3032=1 "Cereals")(41/61 302 621 622 3231 =2 "White roots and tubers")( 63/82 86/115 298 300 441 904 905 2921/2923 2881/2889 2921/2923 2981 3001 =3 "Vegetables")(141/170 907 1421 1422 1461 1462=4 "Fruits")(121/129 322 906 =5 "Meat")(130/131 1301 1302 =6 "Eggs")(176/205 211/243 908 909 =7 "Fish and seafood")(21/28 31/32 299 317/320 2911/2919 2991=8 "Leagumes, nuts and seeds")(132/135 1321/1323 2941/2943=9 "Milk and milk products")(33/36 312/313 902 903 3121/3129 =10 "Oils and fats")(303/311 321=11 "Sweets")(246/251 252 253/264 266/276 300 301 314/316 318 319 910 2521 2522 2721/2724 3131 3132 = 12 "Spices, condiments, and beverages"), gen(f`v') 
-} // for each categorize ingredients
-keep a01 fx1_07_01 
-duplicates drop a01 fx1_07_01, force
-rename fx1_07_01 item
-tempfile hdds115
-save hdd115, replace
-
-use $BIHS15\064_r2_mod_x1_1_female.dta, clear //create Household dietary diversity score (HDDS)
-foreach v of varlist x1_07_01-x1_07_15 {
-recode `v' (1/16 277/297 303/305 323 901 2771/2779 2781/2789 2791/2799 2801/2809 2811/2819 2841/2843 2851/2859 2861/2863 2871/2879 2891/2896 2901/2909 2951/2952 2961 2971 2981/2899 3031 3032=1 "Cereals")(41/61 302 621 622 3231 =2 "White roots and tubers")( 63/82 86/115 298 300 441 904 905 2921/2923 2881/2889 2921/2923 2981 3001 =3 "Vegetables")(141/170 907 1421 1422 1461 1462=4 "Fruits")(121/129 322 906 =5 "Meat")(130/131 1301 1302 =6 "Eggs")(176/205 211/243 908 909 =7 "Fish and seafood")(21/28 31/32 299 317/320 2911/2919 2991=8 "Leagumes, nuts and seeds")(132/135 1321/1323 2941/2943=9 "Milk and milk products")(33/36 312/313 902 903 3121/3129 =10 "Oils and fats")(303/311 321=11 "Sweets")(246/251 252 253/264 266/276 300 301 314/316 318 319 910 2521 2522 2721/2724 3131 3132 = 12 "Spices, condiments, and beverages"), gen(f`v') 
-} // for each categorize ingredients
-keep a01 fx1_07_02
-duplicates drop a01 fx1_07_02, force
-rename fx1_07_02 item
-tempfile hdds215
-save hdd215, replace
-
-use $BIHS15\064_r2_mod_x1_1_female.dta, clear //create Household dietary diversity score (HDDS)
-foreach v of varlist x1_07_01-x1_07_15 {
-recode `v' (1/16 277/297 303/305 323 901 2771/2779 2781/2789 2791/2799 2801/2809 2811/2819 2841/2843 2851/2859 2861/2863 2871/2879 2891/2896 2901/2909 2951/2952 2961 2971 2981/2899 3031 3032=1 "Cereals")(41/61 302 621 622 3231 =2 "White roots and tubers")( 63/82 86/115 298 300 441 904 905 2921/2923 2881/2889 2921/2923 2981 3001 =3 "Vegetables")(141/170 907 1421 1422 1461 1462=4 "Fruits")(121/129 322 906 =5 "Meat")(130/131 1301 1302 =6 "Eggs")(176/205 211/243 908 909 =7 "Fish and seafood")(21/28 31/32 299 317/320 2911/2919 2991=8 "Leagumes, nuts and seeds")(132/135 1321/1323 2941/2943=9 "Milk and milk products")(33/36 312/313 902 903 3121/3129 =10 "Oils and fats")(303/311 321=11 "Sweets")(246/251 252 253/264 266/276 300 301 314/316 318 319 910 2521 2522 2721/2724 3131 3132 = 12 "Spices, condiments, and beverages"), gen(f`v') 
-} // for each categorize ingredients
-keep a01 fx1_07_03
-duplicates drop a01 fx1_07_03, force
-rename fx1_07_03 item
-tempfile hdds315
-save hdd315, replace
-
-use $BIHS15\064_r2_mod_x1_1_female.dta, clear //create Household dietary diversity score (HDDS)
-foreach v of varlist x1_07_01-x1_07_15 {
-recode `v' (1/16 277/297 303/305 323 901 2771/2779 2781/2789 2791/2799 2801/2809 2811/2819 2841/2843 2851/2859 2861/2863 2871/2879 2891/2896 2901/2909 2951/2952 2961 2971 2981/2899 3031 3032=1 "Cereals")(41/61 302 621 622 3231 =2 "White roots and tubers")( 63/82 86/115 298 300 441 904 905 2921/2923 2881/2889 2921/2923 2981 3001 =3 "Vegetables")(141/170 907 1421 1422 1461 1462=4 "Fruits")(121/129 322 906 =5 "Meat")(130/131 1301 1302 =6 "Eggs")(176/205 211/243 908 909 =7 "Fish and seafood")(21/28 31/32 299 317/320 2911/2919 2991=8 "Leagumes, nuts and seeds")(132/135 1321/1323 2941/2943=9 "Milk and milk products")(33/36 312/313 902 903 3121/3129 =10 "Oils and fats")(303/311 321=11 "Sweets")(246/251 252 253/264 266/276 300 301 314/316 318 319 910 2521 2522 2721/2724 3131 3132 = 12 "Spices, condiments, and beverages"), gen(f`v') 
-} // for each categorize ingredients
-keep a01 fx1_07_04
-duplicates drop a01 fx1_07_04, force
-rename fx1_07_04 item
-tempfile hdds415
-save hdd415, replace
-
-use $BIHS15\064_r2_mod_x1_1_female.dta, clear //create Household dietary diversity score (HDDS)
-foreach v of varlist x1_07_01-x1_07_15 {
-recode `v' (1/16 277/297 303/305 323 901 2771/2779 2781/2789 2791/2799 2801/2809 2811/2819 2841/2843 2851/2859 2861/2863 2871/2879 2891/2896 2901/2909 2951/2952 2961 2971 2981/2899 3031 3032=1 "Cereals")(41/61 302 621 622 3231 =2 "White roots and tubers")( 63/82 86/115 298 300 441 904 905 2921/2923 2881/2889 2921/2923 2981 3001 =3 "Vegetables")(141/170 907 1421 1422 1461 1462=4 "Fruits")(121/129 322 906 =5 "Meat")(130/131 1301 1302 =6 "Eggs")(176/205 211/243 908 909 =7 "Fish and seafood")(21/28 31/32 299 317/320 2911/2919 2991=8 "Leagumes, nuts and seeds")(132/135 1321/1323 2941/2943=9 "Milk and milk products")(33/36 312/313 902 903 3121/3129 =10 "Oils and fats")(303/311 321=11 "Sweets")(246/251 252 253/264 266/276 300 301 314/316 318 319 910 2521 2522 2721/2724 3131 3132 = 12 "Spices, condiments, and beverages"), gen(f`v') 
-} // for each categorize ingredients
-keep a01 fx1_07_05
-duplicates drop a01 fx1_07_05, force
-rename fx1_07_05 item
-tempfile hdds515
-save hdd515, replace
-
-use $BIHS15\064_r2_mod_x1_1_female.dta, clear //create Household dietary diversity score (HDDS)
-foreach v of varlist x1_07_01-x1_07_15 {
-recode `v' (1/16 277/297 303/305 323 901 2771/2779 2781/2789 2791/2799 2801/2809 2811/2819 2841/2843 2851/2859 2861/2863 2871/2879 2891/2896 2901/2909 2951/2952 2961 2971 2981/2899 3031 3032=1 "Cereals")(41/61 302 621 622 3231 =2 "White roots and tubers")( 63/82 86/115 298 300 441 904 905 2921/2923 2881/2889 2921/2923 2981 3001 =3 "Vegetables")(141/170 907 1421 1422 1461 1462=4 "Fruits")(121/129 322 906 =5 "Meat")(130/131 1301 1302 =6 "Eggs")(176/205 211/243 908 909 =7 "Fish and seafood")(21/28 31/32 299 317/320 2911/2919 2991=8 "Leagumes, nuts and seeds")(132/135 1321/1323 2941/2943=9 "Milk and milk products")(33/36 312/313 902 903 3121/3129 =10 "Oils and fats")(303/311 321=11 "Sweets")(246/251 252 253/264 266/276 300 301 314/316 318 319 910 2521 2522 2721/2724 3131 3132 = 12 "Spices, condiments, and beverages"), gen(f`v') 
-} // for each categorize ingredients
-keep a01 fx1_07_06
-duplicates drop a01 fx1_07_06, force
-rename fx1_07_06 item
-tempfile hdds615
-save hdd615, replace
-
-use $BIHS15\064_r2_mod_x1_1_female.dta, clear //create Household dietary diversity score (HDDS)
-foreach v of varlist x1_07_01-x1_07_15 {
-recode `v' (1/16 277/297 303/305 323 901 2771/2779 2781/2789 2791/2799 2801/2809 2811/2819 2841/2843 2851/2859 2861/2863 2871/2879 2891/2896 2901/2909 2951/2952 2961 2971 2981/2899 3031 3032=1 "Cereals")(41/61 302 621 622 3231 =2 "White roots and tubers")( 63/82 86/115 298 300 441 904 905 2921/2923 2881/2889 2921/2923 2981 3001 =3 "Vegetables")(141/170 907 1421 1422 1461 1462=4 "Fruits")(121/129 322 906 =5 "Meat")(130/131 1301 1302 =6 "Eggs")(176/205 211/243 908 909 =7 "Fish and seafood")(21/28 31/32 299 317/320 2911/2919 2991=8 "Leagumes, nuts and seeds")(132/135 1321/1323 2941/2943=9 "Milk and milk products")(33/36 312/313 902 903 3121/3129 =10 "Oils and fats")(303/311 321=11 "Sweets")(246/251 252 253/264 266/276 300 301 314/316 318 319 910 2521 2522 2721/2724 3131 3132 = 12 "Spices, condiments, and beverages"), gen(f`v') 
-} // for each categorize ingredients
-keep a01 fx1_07_07
-duplicates drop a01 fx1_07_07, force
-rename fx1_07_07 item
-tempfile hdds715
-save hdd715, replace
-
-use $BIHS15\064_r2_mod_x1_1_female.dta, clear //create Household dietary diversity score (HDDS)
-foreach v of varlist x1_07_01-x1_07_15 {
-recode `v' (1/16 277/297 303/305 323 901 2771/2779 2781/2789 2791/2799 2801/2809 2811/2819 2841/2843 2851/2859 2861/2863 2871/2879 2891/2896 2901/2909 2951/2952 2961 2971 2981/2899 3031 3032=1 "Cereals")(41/61 302 621 622 3231 =2 "White roots and tubers")( 63/82 86/115 298 300 441 904 905 2921/2923 2881/2889 2921/2923 2981 3001 =3 "Vegetables")(141/170 907 1421 1422 1461 1462=4 "Fruits")(121/129 322 906 =5 "Meat")(130/131 1301 1302 =6 "Eggs")(176/205 211/243 908 909 =7 "Fish and seafood")(21/28 31/32 299 317/320 2911/2919 2991=8 "Leagumes, nuts and seeds")(132/135 1321/1323 2941/2943=9 "Milk and milk products")(33/36 312/313 902 903 3121/3129 =10 "Oils and fats")(303/311 321=11 "Sweets")(246/251 252 253/264 266/276 300 301 314/316 318 319 910 2521 2522 2721/2724 3131 3132 = 12 "Spices, condiments, and beverages"), gen(f`v') 
-} // for each categorize ingredients
-keep a01 fx1_07_08
-duplicates drop a01 fx1_07_08, force
-rename fx1_07_08 item
-tempfile hdds815
-save hdd815, replace
-
-use $BIHS15\064_r2_mod_x1_1_female.dta, clear //create Household dietary diversity score (HDDS)
-foreach v of varlist x1_07_01-x1_07_15 {
-recode `v' (1/16 277/297 303/305 323 901 2771/2779 2781/2789 2791/2799 2801/2809 2811/2819 2841/2843 2851/2859 2861/2863 2871/2879 2891/2896 2901/2909 2951/2952 2961 2971 2981/2899 3031 3032=1 "Cereals")(41/61 302 621 622 3231 =2 "White roots and tubers")( 63/82 86/115 298 300 441 904 905 2921/2923 2881/2889 2921/2923 2981 3001 =3 "Vegetables")(141/170 907 1421 1422 1461 1462=4 "Fruits")(121/129 322 906 =5 "Meat")(130/131 1301 1302 =6 "Eggs")(176/205 211/243 908 909 =7 "Fish and seafood")(21/28 31/32 299 317/320 2911/2919 2991=8 "Leagumes, nuts and seeds")(132/135 1321/1323 2941/2943=9 "Milk and milk products")(33/36 312/313 902 903 3121/3129 =10 "Oils and fats")(303/311 321=11 "Sweets")(246/251 252 253/264 266/276 300 301 314/316 318 319 910 2521 2522 2721/2724 3131 3132 = 12 "Spices, condiments, and beverages"), gen(f`v') 
-} // for each categorize ingredients
-keep a01 fx1_07_09
-duplicates drop a01 fx1_07_09, force
-rename fx1_07_09 item
-tempfile hdds915
-save hdd915, replace
-
-use $BIHS15\064_r2_mod_x1_1_female.dta, clear //create Household dietary diversity score (HDDS)
-foreach v of varlist x1_07_01-x1_07_15 {
-recode `v' (1/16 277/297 303/305 323 901 2771/2779 2781/2789 2791/2799 2801/2809 2811/2819 2841/2843 2851/2859 2861/2863 2871/2879 2891/2896 2901/2909 2951/2952 2961 2971 2981/2899 3031 3032=1 "Cereals")(41/61 302 621 622 3231 =2 "White roots and tubers")( 63/82 86/115 298 300 441 904 905 2921/2923 2881/2889 2921/2923 2981 3001 =3 "Vegetables")(141/170 907 1421 1422 1461 1462=4 "Fruits")(121/129 322 906 =5 "Meat")(130/131 1301 1302 =6 "Eggs")(176/205 211/243 908 909 =7 "Fish and seafood")(21/28 31/32 299 317/320 2911/2919 2991=8 "Leagumes, nuts and seeds")(132/135 1321/1323 2941/2943=9 "Milk and milk products")(33/36 312/313 902 903 3121/3129 =10 "Oils and fats")(303/311 321=11 "Sweets")(246/251 252 253/264 266/276 300 301 314/316 318 319 910 2521 2522 2721/2724 3131 3132 = 12 "Spices, condiments, and beverages"), gen(f`v') 
-} // for each categorize ingredients
-keep a01 fx1_07_10
-duplicates drop a01 fx1_07_10, force
-rename fx1_07_10 item
-tempfile hdds1015
-save hdd1015, replace
-
-use $BIHS15\064_r2_mod_x1_1_female.dta, clear //create Household dietary diversity score (HDDS)
-foreach v of varlist x1_07_01-x1_07_15 {
-recode `v' (1/16 277/297 303/305 323 901 2771/2779 2781/2789 2791/2799 2801/2809 2811/2819 2841/2843 2851/2859 2861/2863 2871/2879 2891/2896 2901/2909 2951/2952 2961 2971 2981/2899 3031 3032=1 "Cereals")(41/61 302 621 622 3231 =2 "White roots and tubers")( 63/82 86/115 298 300 441 904 905 2921/2923 2881/2889 2921/2923 2981 3001 =3 "Vegetables")(141/170 907 1421 1422 1461 1462=4 "Fruits")(121/129 322 906 =5 "Meat")(130/131 1301 1302 =6 "Eggs")(176/205 211/243 908 909 =7 "Fish and seafood")(21/28 31/32 299 317/320 2911/2919 2991=8 "Leagumes, nuts and seeds")(132/135 1321/1323 2941/2943=9 "Milk and milk products")(33/36 312/313 902 903 3121/3129 =10 "Oils and fats")(303/311 321=11 "Sweets")(246/251 252 253/264 266/276 300 301 314/316 318 319 910 2521 2522 2721/2724 3131 3132 = 12 "Spices, condiments, and beverages"), gen(f`v') 
-} // for each categorize ingredients
-keep a01 fx1_07_11
-duplicates drop a01 fx1_07_11, force
-rename fx1_07_11 item
-tempfile hdds1115
-save hdd1115, replace
-
-use $BIHS15\064_r2_mod_x1_1_female.dta, clear //create Household dietary diversity score (HDDS)
-foreach v of varlist x1_07_01-x1_07_15 {
-recode `v' (1/16 277/297 303/305 323 901 2771/2779 2781/2789 2791/2799 2801/2809 2811/2819 2841/2843 2851/2859 2861/2863 2871/2879 2891/2896 2901/2909 2951/2952 2961 2971 2981/2899 3031 3032=1 "Cereals")(41/61 302 621 622 3231 =2 "White roots and tubers")( 63/82 86/115 298 300 441 904 905 2921/2923 2881/2889 2921/2923 2981 3001 =3 "Vegetables")(141/170 907 1421 1422 1461 1462=4 "Fruits")(121/129 322 906 =5 "Meat")(130/131 1301 1302 =6 "Eggs")(176/205 211/243 908 909 =7 "Fish and seafood")(21/28 31/32 299 317/320 2911/2919 2991=8 "Leagumes, nuts and seeds")(132/135 1321/1323 2941/2943=9 "Milk and milk products")(33/36 312/313 902 903 3121/3129 =10 "Oils and fats")(303/311 321=11 "Sweets")(246/251 252 253/264 266/276 300 301 314/316 318 319 910 2521 2522 2721/2724 3131 3132 = 12 "Spices, condiments, and beverages"), gen(f`v') 
-} // for each categorize ingredients
-keep a01 fx1_07_12
-duplicates drop a01 fx1_07_12, force
-rename fx1_07_12 item
-tempfile hdds1215
-save hdd1215, replace
-
-use $BIHS15\064_r2_mod_x1_1_female.dta, clear //create Household dietary diversity score (HDDS)
-foreach v of varlist x1_07_01-x1_07_15 {
-recode `v' (1/16 277/297 303/305 323 901 2771/2779 2781/2789 2791/2799 2801/2809 2811/2819 2841/2843 2851/2859 2861/2863 2871/2879 2891/2896 2901/2909 2951/2952 2961 2971 2981/2899 3031 3032=1 "Cereals")(41/61 302 621 622 3231 =2 "White roots and tubers")( 63/82 86/115 298 300 441 904 905 2921/2923 2881/2889 2921/2923 2981 3001 =3 "Vegetables")(141/170 907 1421 1422 1461 1462=4 "Fruits")(121/129 322 906 =5 "Meat")(130/131 1301 1302 =6 "Eggs")(176/205 211/243 908 909 =7 "Fish and seafood")(21/28 31/32 299 317/320 2911/2919 2991=8 "Leagumes, nuts and seeds")(132/135 1321/1323 2941/2943=9 "Milk and milk products")(33/36 312/313 902 903 3121/3129 =10 "Oils and fats")(303/311 321=11 "Sweets")(246/251 252 253/264 266/276 300 301 314/316 318 319 910 2521 2522 2721/2724 3131 3132 = 12 "Spices, condiments, and beverages"), gen(f`v') 
-} // for each categorize ingredients
-keep a01 fx1_07_13 
-duplicates drop a01 fx1_07_13, force
-rename fx1_07_13 item
-tempfile hdds1315
-save hdd1315, replace
-
-use $BIHS15\064_r2_mod_x1_1_female.dta, clear //create Household dietary diversity score (HDDS)
-foreach v of varlist x1_07_01-x1_07_15 {
-recode `v' (1/16 277/297 303/305 323 901 2771/2779 2781/2789 2791/2799 2801/2809 2811/2819 2841/2843 2851/2859 2861/2863 2871/2879 2891/2896 2901/2909 2951/2952 2961 2971 2981/2899 3031 3032=1 "Cereals")(41/61 302 621 622 3231 =2 "White roots and tubers")( 63/82 86/115 298 300 441 904 905 2921/2923 2881/2889 2921/2923 2981 3001 =3 "Vegetables")(141/170 907 1421 1422 1461 1462=4 "Fruits")(121/129 322 906 =5 "Meat")(130/131 1301 1302 =6 "Eggs")(176/205 211/243 908 909 =7 "Fish and seafood")(21/28 31/32 299 317/320 2911/2919 2991=8 "Leagumes, nuts and seeds")(132/135 1321/1323 2941/2943=9 "Milk and milk products")(33/36 312/313 902 903 3121/3129 =10 "Oils and fats")(303/311 321=11 "Sweets")(246/251 252 253/264 266/276 300 301 314/316 318 319 910 2521 2522 2721/2724 3131 3132 = 12 "Spices, condiments, and beverages"), gen(f`v') 
-} // for each categorize ingredients
-keep a01 fx1_07_14
-duplicates drop a01 fx1_07_14, force
-rename fx1_07_14 item
-tempfile hdds1415
-save hdd1415, replace
-
-use $BIHS15\064_r2_mod_x1_1_female.dta, clear //create Household dietary diversity score (HDDS)
-foreach v of varlist x1_07_01-x1_07_15 {
-recode `v' (1/16 277/297 303/305 323 901 2771/2779 2781/2789 2791/2799 2801/2809 2811/2819 2841/2843 2851/2859 2861/2863 2871/2879 2891/2896 2901/2909 2951/2952 2961 2971 2981/2899 3031 3032=1 "Cereals")(41/61 302 621 622 3231 =2 "White roots and tubers")( 63/82 86/115 298 300 441 904 905 2921/2923 2881/2889 2921/2923 2981 3001 =3 "Vegetables")(141/170 907 1421 1422 1461 1462=4 "Fruits")(121/129 322 906 =5 "Meat")(130/131 1301 1302 =6 "Eggs")(176/205 211/243 908 909 =7 "Fish and seafood")(21/28 31/32 299 317/320 2911/2919 2991=8 "Leagumes, nuts and seeds")(132/135 1321/1323 2941/2943=9 "Milk and milk products")(33/36 312/313 902 903 3121/3129 =10 "Oils and fats")(303/311 321=11 "Sweets")(246/251 252 253/264 266/276 300 301 314/316 318 319 910 2521 2522 2721/2724 3131 3132 = 12 "Spices, condiments, and beverages"), gen(f`v') 
-} // for each categorize ingredients
-keep a01 fx1_07_15 
-duplicates drop a01 fx1_07_15, force
-rename fx1_07_15 item
-tempfile hdds1515
-save hdd1515, replace*/
-
-use fd15.dta, clear
-append using hdd215
-append using hdd315
-append using hdd415
-append using hdd515
-append using hdd615
-append using hdd715
-append using hdd815
-append using hdd915
-append using hdd1015
-append using hdd1115
-append using hdd1215
-append using hdd1315
-append using hdd1415
-append using hdd1515
-duplicates drop a01 item, force
+duplicates drop a01 hdds_i, force
 bysort a01: egen hdds=count(a01)
-drop item
+drop hdds_i
 label var hdds "Household Dietary Diversity"
 duplicates drop a01, force
 save fd15.dta, replace
@@ -637,44 +464,57 @@ save crp_div15.dta, replace*/
 **climate variables 
 use climate, clear
 rename (district dcode) (dcode District_Name) //renaming
-drop rw1 rs1 rr1 ra1 rw3 rs3 rr3 ra3 tw1 ts1 tr1 ta1 tw3 ts3 tr3 ta3 rsd1 rsd3 tsd3 tsd3 //tmpsd1 tmpsd2 rinsd1 rinsd2 rwet1 rdry1 rwet2 rdry2 twet1 tdry1 twet2 tdry2 
-/*rename (rw3 rs3 rr3 ra3 rinsd3 tw3 ts3 tr3 ta3 tmpsd3 rwet3 rdry3 twet3 tdry3)(rw rs rr ra rinsd tw ts tr ta tmpsd rwet rdry twet tdry)*/
-rename (rw2 rs2 rr2 ra2 rsd2 tw2 ts2 tr2 ta2 tsd2 )(rw rs rr ra rsd tw ts tr ta tsd )
-//gen rinsd_1000=rinsd/1000
-gen ln_rw=log(rw)
-gen ln_rs=log(rs)
-gen ln_rr=log(rr)
-gen ln_ra=log(ra)
-//gen ln_rinsd=log(rinsd)
-gen ln_rinsd=log(rsd)
-gen ln_tw=log(tw)
-gen ln_ts=log(ts)
-gen ln_tr=log(tr)
-gen ln_ta=log(ta)
-//gen ln_tmpsd=log(tmpsd)
-gen ln_tmpsd=log(tsd)
+keep dcode District_Name hs2 hr2 ha2 hw2 sds2 sdr2 sda2 sdw2 s2 r2 w2 a2 hst2 hrt2 hat2 hwt2 sdst2 sdrt2 sdat2 sdwt2 ts2 tr2 ta2 tw2 
+rename (hs2 hr2 ha2 hw2 sds2 sdr2 sda2 sdw2 s2 r2 w2 a2 hst2 hrt2 hat2 hwt2 sdst2 sdrt2 sdat2 sdwt2 ts2 tr2 ta2 tw2)(hs hr ha hw sds sdr sda sdw s r w a hst hrt hat hwt sdst sdrt sdat sdwt ts tr ta tw)
 
-/*gen ln_rwet=log(rwet)
-gen ln_rdry=log(rdry)
-gen ln_tdry=log(tdry)
-gen ln_twet=log(twet)*/
-/*label var rinsd "Yearly st.dev rainfall"*/
-/*label var tmpsd "Monthly st.dev temperature"*/
-label var ln_tmpsd "Monthly st.dev temperature (log)"
-/*label var rinsd_1000 "Yearly st.dev rainfall (1,000mm)"*/
-label var ln_rinsd  "Yearly st.dev rainfall (log) "
-label var ln_rw "Winter rainfall (log)"
-label var ln_rs "Summer rainfall (log)"
-label var ln_rr "Rainy season rainfall (log)"
-label var ln_ra "Autumn rainfall (log)"
-label var ln_tw "Winter mean temperature (log)"
-label var ln_ts "Summer mean temperature (log)"
-label var ln_tr "Rainy season mean temperature (log)"
-label var ln_ta "Autumn mean temperature (log)"
-/*label var ln_rwet "Wet season rainfall (log)"
-label var ln_rdry "Dry season rainfall (log)"
-label var ln_twet "Wet season temperature (log)"
-label var ln_tdry "Dry season temperature (log)"*/
+gen srshock=log(s)-log(hs)
+gen rrshock=log(r)-log(hr)
+gen arshock=log(a)-log(ha)
+gen wrshock=log(w)-log(hw)
+gen ln_sds=log(sds)
+gen ln_sdr=log(sdr)
+gen ln_sda=log(sda)
+gen ln_sdw=log(sdw)
+gen stshock=log(ts)-log(hst)
+gen rtshock=log(tr)-log(hrt)
+gen atshock=log(ta)-log(hat)
+gen wtshock=log(tw)-log(hwt)
+gen ln_sdst=log(sdst)
+gen ln_sdrt=log(sdrt)
+gen ln_sdat=log(sdat)
+gen ln_sdwt=log(sdwt)
+label var s "Summer rainfall(mm)" 
+label var r "Rainy season rainfall(mm)"
+label var a "Autumn rainfall(mm)"
+label var w "Winter rainfall(mm)"
+label var hs "30-year summer rainfall"
+label var hr "30-year rainy season rainfall"
+label var ha "30-year autumn rainfall"
+label var hw "30-year winter rainfall"
+label var ts "Summer average temperature(\textdegree{}C)"
+label var tr "Rainy season average temperature(\textdegree{}C)"
+label var ta "Autumn season average temperature(\textdegree{}C)"
+label var tw "Winter average temperature(\textdegree{}C)"
+label var hst "30-year summer average temperature(\textdegree{}C)"
+label var hrt "30-year rainy season average temperature(\textdegree{}C)"
+label var hat "30-year autumn average temperature(\textdegree{}C)"
+label var hwt "30-year winter average temperature(\textdegree{}C)"
+label var ln_sds "30-year summer rainfall SD(log)"
+label var ln_sdr  "30-year rainy season rainfall SD(log)"
+label var ln_sda  "30-year autumn rainfall SD(log)"
+label var ln_sdw  "30-year winter rainfall SD(log)"
+label var ln_sdst "30-year summer temperature SD(log)"
+label var ln_sdrt "30-year rainy season temperature SD(log)"
+label var ln_sdat "30-year autumn temperature SD(log)"
+label var ln_sdwt "30-year winter temperature SD(log)"
+label var srshock "Rainfall shock in summer"
+label var rrshock "Rainfall shock in rainy season"
+label var arshock "Rainfall shock in autumn"
+label var wrshock "Rainfall shock in winter"
+label var stshock "Temperature shock in summer"
+label var rtshock "Temperature shock in rainy season"
+label var atshock "Temperature shock in autumn"
+label var wtshock "Temperature shock in winter"
 save climate15, replace
 
 **merge all 2015 dataset
