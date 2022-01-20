@@ -422,8 +422,8 @@ save incdiv12.dta, replace
 
 **climate variables 
 use climate, clear
-rename (district dcode) (dcode District_Name) //renaming
-keep dcode District_Name hs1 hr1 ha1 hw1 sds1 sdr1 sda1 sdw1 s1 r1 w1 a1 hst1 hrt1 hat1 hwt1 sdst1 sdrt1 sdat1 sdwt1 ts1 tr1 ta1 tw1 
+/*rename (district dcode) (dcode District_Name) //renaming*/
+keep dvcode division hs1 hr1 ha1 hw1 sds1 sdr1 sda1 sdw1 s1 r1 w1 a1 hst1 hrt1 hat1 hwt1 sdst1 sdrt1 sdat1 sdwt1 ts1 tr1 ta1 tw1 
 rename (hs1 hr1 ha1 hw1 sds1 sdr1 sda1 sdw1 s1 r1 w1 a1 hst1 hrt1 hat1 hwt1 sdst1 sdrt1 sdat1 sdwt1 ts1 tr1 ta1 tw1)(hs hr ha hw sds sdr sda sdw s r w a hst hrt hat hwt sdst sdrt sdat sdwt ts tr ta tw)
 
 gen srshock=log(s)-log(hs)
@@ -479,7 +479,7 @@ save climate12, replace
 
 **merge all 2012 dataset
 use 2012.dta,clear
-merge m:1 dcode using climate12, nogen
+merge m:1 dvcode using climate12, nogen
 merge 1:1 a01 using sciec12, nogen
 merge 1:1 a01 using agrnmic12, nogen
 merge 1:1 a01 using nnrn12, nogen
