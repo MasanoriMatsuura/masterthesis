@@ -83,7 +83,7 @@ gen preff_incdiv=(adaptation_ni-inc_div_i)/(total_ni) //creating peer effect
 sort uncode year
 by uncode year: egen adaptation_nshc=sum(shnc_i)
 by uncode year: egen total_nshc=count(a01)
-gen preff_shc=(adaptation_nshc-shnc_i)/(total_nshc) //creating peer effect shannon farm
+gen preff_shc=(adaptation_nshc-shnc_i)/(total_nshc) //creating peer effect shannon crop
 sort uncode year
 by uncode year: egen adaptation_nshi=sum(shni_i)
 by uncode year: egen total_nshi=count(a01)
@@ -127,12 +127,12 @@ graph export $figure\fsecurity_farm.png, replace
 **poisson with control function fixed effect HDDS
 xtset a01 year 
 
-reghdfe crp_div preff_crp_div srshock rrshock arshock wrshock stshock rtshock atshock wtshock Male age_hh hh_size  schll_hh lvstck lnfrm market road irrigation extension year2012 year2015, vce(r) absorb(a01) res //first stage lsrshock rrshock arshock wrshock ln_sds ln_sdr ln_sda ln_sdw stshock rtshock atshock wtshock ln_sdst ln_sdrt ln_sdat ln_sdwt
+reghdfe crp_div preff_crp_div srshock rrshock arshock wrshock stshock rtshock atshock wtshock Male age_hh hh_size  schll_hh lvstck lnfrm market road irrigation extension , vce(r) absorb(a01 year) res //first stage lsrshock rrshock arshock wrshock ln_sds ln_sdr ln_sda ln_sdw stshock rtshock atshock wtshock ln_sdst ln_sdrt ln_sdat ln_sdwt
 predict double v2h_fec, r
-xtpoisson hdds crp_div v2h_fec srshock rrshock arshock wrshock stshock rtshock atshock wtshock Male age_hh hh_size schll_hh lvstck lnfrm market road irrigation extension year2012 year2015, fe vce(r) //second stage   ln_sds ln_sdr ln_sda ln_sdw  ln_sdst ln_sdrt ln_sdat ln_sdwt
+xtpoisson hdds crp_div v2h_fec srshock rrshock arshock wrshock stshock rtshock atshock wtshock Male age_hh hh_size schll_hh lvstck lnfrm market road irrigation extension  year2012 year2015, fe vce(r) //second stage   ln_sds ln_sdr ln_sda ln_sdw  ln_sdst ln_sdrt ln_sdat ln_sdwt
 drop v2h_fec
 
-reghdfe inc_div preff_incdiv srshock rrshock arshock wrshock stshock rtshock atshock wtshock Male age_hh hh_size schll_hh lvstck lnfrm market road irrigation extension year2012 year2015, vce(r) absorb(a01) res //first stage ln_sds ln_sdr ln_sda ln_sdw n_sdst ln_sdrt ln_sdat ln_sdwt
+reghdfe inc_div preff_incdiv srshock rrshock arshock wrshock stshock rtshock atshock wtshock Male age_hh hh_size schll_hh lvstck lnfrm market road irrigation extension, vce(r) absorb(a01 year) res //first stage ln_sds ln_sdr ln_sda ln_sdw n_sdst ln_sdrt ln_sdat ln_sdwt
 predict double v2h_fei, r
 xtpoisson hdds inc_div v2h_fei srshock rrshock arshock wrshock stshock rtshock atshock wtshock Male age_hh hh_size schll_hh lvstck lnfrm market road irrigation extension year2012 year2015, fe vce(r) //second stage
 drop v2h_fei
@@ -141,21 +141,22 @@ drop v2h_fei
 
 **2SRI fixed effect household food consumption expenditure
 
-reghdfe crp_div preff_crp_div srshock rrshock arshock wrshock  stshock rtshock atshock wtshock  Male age_hh hh_size schll_hh lvstck lnfrm market road irrigation extension year2012 year2015, vce(r) absorb(a01) res //first stage
-predict double v2h_fec, r
-reghdfe lnfexp crp_div v2h_fec srshock rrshock arshock wrshock  stshock rtshock atshock wtshock  Male age_hh hh_size schll_hh lvstck lnfrm market road irrigation extension year2012 year2015, absorb(a01) vce(r) //second stage  idcrp idliv idi_crp_liv, food expenditure
-drop v2h_fec
+ivreghdfe lnexp srshock rrshock arshock wrshock  stshock rtshock atshock wtshock  Male age_hh hh_size schll_hh lvstck lnfrm market road irrigation extension (crp_div=preff_crp_div), absorb(a01 year) vce(r) first
+reghdfe crp_div preff_crp_div srshock rrshock arshock wrshock  stshock rtshock atshock wtshock  Male age_hh hh_size schll_hh lvstck lnfrm market road irrigation extension , absorb(a01 year) vce(r) //first stage
+
+ivreghdfe lnexp srshock rrshock arshock wrshock  stshock rtshock atshock wtshock  Male age_hh hh_size schll_hh lvstck lnfrm market road irrigation extension (crp_div=preff_crp_div), absorb(a01 year) vce(r) //second stage
 
 
-reghdfe inc_div preff_incdiv srshock rrshock arshock wrshock stshock rtshock atshock wtshock Male age_hh hh_size schll_hh lvstck lnfrm market road irrigation extension year2012 year2015 , vce(r) absorb(a01) res //first stage
+reghdfe inc_div preff_incdiv srshock rrshock arshock wrshock stshock rtshock atshock wtshock Male age_hh hh_size schll_hh lvstck lnfrm market road irrigation extension , vce(r) absorb(a01 year) res //first stage
 predict double v2h_fei, r
-reghdfe lnfexp inc_div v2h_fei srshock rrshock arshock wrshock stshock rtshock atshock wtshock  Male age_hh hh_size schll_hh lvstck lnfrm market road irrigation extension year2012 year2015 , absorb(a01) vce(r) //second stage  idcrp idliv idi_crp_liv, food expenditure
+reghdfe lnfexp inc_div v2h_fei srshock rrshock arshock wrshock stshock rtshock atshock wtshock  Male age_hh hh_size schll_hh lvstck lnfrm market road irrigation extension, absorb(a01 year) vce(r) //second stage  idcrp idliv idi_crp_liv, food expenditure
 drop v2h_fei
 
 
 **weak IV
-ivreghdfe lnexp srshock rrshock arshock wrshock  stshock rtshock atshock wtshock  Male age_hh hh_size schll_hh lvstck lnfrm market road irrigation extension year2012 year2015 (crp_div=preff_crp_div), absorb(a01) vce(r) //second stage  ln_sds ln_sdr ln_sda ln_sdw ln_sdst ln_sdrt ln_sdat ln_sdwt
-ivreghdfe lnfexp srshock rrshock arshock wrshock  stshock rtshock atshock wtshock Male age_hh hh_size schll_hh lvstck lnfrm market road extension irrigation year2012 year2015 (inc_div=preff_incdiv), absorb(a01) vce(r) //second stage ln_sds ln_sdr ln_sda ln_sdw ln_sdst ln_sdrt ln_sdat ln_sdwt
+ivreghdfe lnexp srshock rrshock arshock wrshock  stshock rtshock atshock wtshock  Male age_hh hh_size schll_hh lvstck lnfrm market road irrigation extension (crp_div=preff_crp_div), absorb(a01 year) vce(r) //second stage  ln_sds ln_sdr ln_sda ln_sdw ln_sdst ln_sdrt ln_sdat ln_sdwt
+
+ivreghdfe lnfexp srshock rrshock arshock wrshock  stshock rtshock atshock wtshock Male age_hh hh_size schll_hh lvstck lnfrm market road extension irrigation (inc_div=preff_incdiv), absorb(a01 year) vce(r) //second stage ln_sds ln_sdr ln_sda ln_sdw ln_sdst ln_sdrt ln_sdat ln_sdwt
 
 
 
@@ -247,9 +248,10 @@ drop v2h_fei
 **Descriptive statistics
 eststo clear
 sort year
-by year: eststo: quietly estpost summarize hdds pc_foodxm_d crp_div inc_div preff_crp_div preff_incdiv hs hr ha hw sds sdr sda sdw s r a w hst hrt hat hwt sdst sdrt sdat sdwt ts tr ta tw Male age_hh hh_size schll_hh lvstck farmsize market road extension irrigation
-by year: summarize hdds pc_foodxm_d crp_div inc_div preff_crp_div preff_incdiv hs hr ha hw sds sdr sda sdw s r a w hst hrt hat hwt sdst sdrt sdat sdwt ts tr ta tw Male age_hh hh_size schll_hh lvstck farmsize market road extension irrigation
+by year: eststo: quietly estpost summarize hdds pc_foodxm_d crp_div inc_div preff_crp_div preff_incdiv hs hr ha hw s r a w hst hrt hat hwt ts tr ta tw Male age_hh hh_size schll_hh lvstck farmsize market road extension irrigation
 esttab using $table\dessta.rtf, cells("mean(fmt(2)) sd(fmt(2))") label nodepvar replace addnote(Source: Bangladesh Integrated Household Survey 2011/12, 2015, 2018/19, 100 decimal is 0.4 ha, currency is Bangladesh taka) //cells("mean(fmt(2)) sd(fmt(2)) N(fmt(4))")
+
+by year: summarize hdds pc_foodxm_d crp_div inc_div preff_crp_div preff_incdiv hs hr ha hw s r a w hst hrt hat hwt ts tr ta tw Male age_hh hh_size schll_hh lvstck farmsize market road extension irrigation if hdds!=.
 
 
 **histgram of diversification index
