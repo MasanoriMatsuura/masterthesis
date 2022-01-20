@@ -463,8 +463,8 @@ save crp_div15.dta, replace*/
 
 **climate variables 
 use climate, clear
-rename (district dcode) (dcode District_Name) //renaming
-keep dcode District_Name hs2 hr2 ha2 hw2 sds2 sdr2 sda2 sdw2 s2 r2 w2 a2 hst2 hrt2 hat2 hwt2 sdst2 sdrt2 sdat2 sdwt2 ts2 tr2 ta2 tw2 
+/*rename (district dcode) (dcode District_Name) //renaming*/
+keep dvcode division hs2 hr2 ha2 hw2 sds2 sdr2 sda2 sdw2 s2 r2 w2 a2 hst2 hrt2 hat2 hwt2 sdst2 sdrt2 sdat2 sdwt2 ts2 tr2 ta2 tw2 
 rename (hs2 hr2 ha2 hw2 sds2 sdr2 sda2 sdw2 s2 r2 w2 a2 hst2 hrt2 hat2 hwt2 sdst2 sdrt2 sdat2 sdwt2 ts2 tr2 ta2 tw2)(hs hr ha hw sds sdr sda sdw s r w a hst hrt hat hwt sdst sdrt sdat sdwt ts tr ta tw)
 
 gen srshock=log(s)-log(hs)
@@ -519,7 +519,7 @@ save climate15, replace
 
 **merge all 2015 dataset
 use 2015.dta,clear
-merge m:1 dcode using climate15, nogen
+merge m:1 dvcode using climate15, nogen
 merge 1:1 a01 using sciec15, nogen
 merge 1:1 a01 using agrnmic15, nogen
 merge 1:1 a01 using nnrn15, nogen

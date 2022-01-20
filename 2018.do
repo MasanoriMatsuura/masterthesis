@@ -445,8 +445,8 @@ save incdiv18.dta, replace
 
 **climate variables 
 use climate, clear
-rename (district dcode) (dcode District_Name) //renaming
-keep dcode District_Name hs3 hr3 ha3 hw3 sds3 sdr3 sda3 sdw3 s3 r3 w3 a3 hst3 hrt3 hat3 hwt3 sdst3 sdrt3 sdat3 sdwt3 ts3 tr3 ta3 tw3 
+/*rename (district dcode) (dcode District_Name) //renaming*/
+keep dvcode division hs3 hr3 ha3 hw3 sds3 sdr3 sda3 sdw3 s3 r3 w3 a3 hst3 hrt3 hat3 hwt3 sdst3 sdrt3 sdat3 sdwt3 ts3 tr3 ta3 tw3 
 rename (hs3 hr3 ha3 hw3 sds3 sdr3 sda3 sdw3 s3 r3 w3 a3 hst3 hrt3 hat3 hwt3 sdst3 sdrt3 sdat3 sdwt3 ts3 tr3 ta3 tw3)(hs hr ha hw sds sdr sda sdw s r w a hst hrt hat hwt sdst sdrt sdat sdwt ts tr ta tw)
 
 gen srshock=log(s)-log(hs)
@@ -497,38 +497,78 @@ label var stshock "Temperature shock in summer"
 label var rtshock "Temperature shock in rainy season"
 label var atshock "Temperature shock in autumn"
 label var wtshock "Temperature shock in winter"
-replace dcode=52 if District_Name=="Dinajpur"
+
+/*replace dcode=1 if District_Name=="Dhaka"
+replace dcode=2 if District_Name=="Gazipur"
+replace dcode=3 if District_Name=="Manikganj"
+replace dcode=4 if District_Name=="Munshiganj"
 replace dcode=5 if District_Name=="Narayanganj"
 replace dcode=6 if District_Name=="Narsingdi"
-replace dcode=42 if District_Name=="Natore"
-replace dcode=41 if District_Name=="Chapai Nawabganj"
-replace dcode=16 if District_Name=="Netrakona"
-replace dcode=50 if District_Name=="Nilphamari"
-replace dcode=28 if District_Name=="Noakhali"
-replace dcode=43 if District_Name=="Pabna"
-replace dcode=54 if District_Name=="Panchagarh"
-replace dcode=64 if District_Name=="Patuakhali"
-replace dcode=40 if District_Name=="Naogon"
-replace dcode=62 if District_Name=="Pirojpur"
-replace dcode=39 if District_Name=="Rajshahi"
+replace dcode=7 if District_Name=="Faridpur"
+replace dcode=8 if District_Name=="Gopalganj"
+replace dcode=9 if District_Name=="Madaripur"
 replace dcode=10 if District_Name=="Rajbari"
-replace dcode=22 if District_Name=="Rangamati"
-replace dcode=51 if District_Name=="Rangpur"
 replace dcode=11 if District_Name=="Shariatpur"
-replace dcode=35 if District_Name=="Satkhira"
-replace dcode=44 if District_Name=="Sirajganj"
+replace dcode=12 if District_Name==""
 replace dcode=13 if District_Name=="Sherpur"
-replace dcode=58 if District_Name=="Sunamganj"
-replace dcode=55 if District_Name=="Sylhet"
+replace dcode=14 if District_Name==""
+replace dcode=15 if District_Name==""
+replace dcode=16 if District_Name=="Netrakona"
 replace dcode=17 if District_Name=="Tangail"
-replace dcode=53 if District_Name=="Thakurgaon"
+replace dcode=18 if District_Name==""
+replace dcode=19 if District_Name=="Cox's Bazar"
+replace dcode=20 if District_Name==""
+replace dcode=21 if District_Name==""
+replace dcode=22 if District_Name=="Rangamati"
+replace dcode=23 if District_Name==""
+replace dcode=24 if District_Name=="Chandpur"
+replace dcode=25 if District_Name==""
+replace dcode=26 if District_Name==""
+replace dcode=27 if District_Name==""
+replace dcode=28 if District_Name=="Noakhali"
+replace dcode=29 if District_Name==""
+replace dcode=30 if District_Name==""
+replace dcode=31 if District_Name==""
+replace dcode=32 if District_Name==""
+replace dcode=33 if District_Name==""
+replace dcode=34 if District_Name==""
+replace dcode=35 if District_Name=="Satkhira"
+replace dcode=36 if District_Name==""
+replace dcode=37 if District_Name==""
+replace dcode=38 if District_Name==""
+replace dcode=39 if District_Name=="Rajshahi"
+replace dcode=40 if District_Name=="Naogon"
+replace dcode=41 if District_Name=="Chapai Nawabganj"
+replace dcode=42 if District_Name=="Natore"
+replace dcode=43 if District_Name=="Pabna"
+replace dcode=44 if District_Name=="Sirajganj"
+replace dcode=45 if District_Name=="Bogra"
+replace dcode=46 if District_Name==""
+replace dcode=47 if District_Name==""
+replace dcode=48 if District_Name==""
+replace dcode=49 if District_Name==""
+replace dcode=50 if District_Name=="Nilphamari"
+replace dcode=51 if District_Name=="Rangpur"
+replace dcode=52 if District_Name=="Dinajpur"
+replace dcode=53 if District_Name=="Thakurgaon" 
+replace dcode=54 if District_Name=="Panchagarh"
+replace dcode=55 if District_Name=="Sylhet"
+replace dcode=56 if District_Name==""
+replace dcode=57 if District_Name==""
+replace dcode=58 if District_Name=="Sunamganj"
+replace dcode=59 if District_Name==""
+replace dcode=60 if District_Name==""
+replace dcode=61 if District_Name==""
+replace dcode=62 if District_Name=="Pirojpur"
+replace dcode=63 if District_Name==""
+replace dcode=64 if District_Name=="Patuakhali"*/
 
 save climate18, replace
 
 **merge all 2018 dataset
 use 2018.dta,clear
 
-merge m:1 dcode using climate18, nogen
+merge m:1 dvcode using climate18, nogen
 duplicates drop a01, force
 merge 1:1 a01 using sciec18, nogen
 merge 1:1 a01 using agrnmic18, nogen
