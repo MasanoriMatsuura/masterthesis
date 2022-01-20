@@ -43,7 +43,7 @@ save agrnmic18.dta, replace
 
 /*irrigation*/
 use $BIHS18Male\022_bihs_r3_male_mod_h2.dta, clear
-recode h2_02 (.=0 "No")(1=0 "No") (nonm=1 "Yes"), gen(irri)
+recode h2_02 (1=0 "No") (nonm=1 "Yes"), gen(irri)
 label var irri "Irrigation(=1)"
 collapse (sum) i1=irri, by(a01)
 recode i1 (0=0 "No")(nonm=1 "Yes"), gen(irrigation)
