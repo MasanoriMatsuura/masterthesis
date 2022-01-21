@@ -127,7 +127,7 @@ graph export $figure\fsecurity_farm.png, replace
 **poisson with control function fixed effect HDDS
 xtset a01 year 
 
-reghdfe crp_div preff_crp_div srshock rrshock arshock wrshock stshock rtshock atshock wtshock Male age_hh hh_size  schll_hh lvstck lnfrm market road irrigation extension , vce(r) absorb(a01 year) res //first stage lsrshock rrshock arshock wrshock ln_sds ln_sdr ln_sda ln_sdw stshock rtshock atshock wtshock ln_sdst ln_sdrt ln_sdat ln_sdwt
+reghdfe crp_div preff_crp_div srshock rrshock arshock wrshock stshock rtshock atshock wtshock Male age_hh hh_size  schll_hh lvstck lnfrm market road irrigation extension, vce(r) absorb(a01 year) res //first stage lsrshock rrshock arshock wrshock ln_sds ln_sdr ln_sda ln_sdw stshock rtshock atshock wtshock ln_sdst ln_sdrt ln_sdat ln_sdwt
 predict double v2h_fec, r
 xtpoisson hdds crp_div v2h_fec srshock rrshock arshock wrshock stshock rtshock atshock wtshock Male age_hh hh_size schll_hh lvstck lnfrm market road irrigation extension  year2012 year2015, fe vce(r) //second stage   ln_sds ln_sdr ln_sda ln_sdw  ln_sdst ln_sdrt ln_sdat ln_sdwt
 drop v2h_fec
@@ -141,7 +141,7 @@ drop v2h_fei
 
 **2SRI fixed effect household food consumption expenditure
 
-ivreghdfe lnexp srshock rrshock arshock wrshock  stshock rtshock atshock wtshock  Male age_hh hh_size schll_hh lvstck lnfrm market road irrigation extension (crp_div=preff_crp_div), absorb(a01 year) vce(r) first
+ivreghdfe lnexp srshock rrshock arshock wrshock  stshock rtshock atshock wtshock  Male age_hh hh_size schll_hh lvstck lnfrm market road irrigation extension (crp_div=preff_crp_div), absorb(a01 year) vce(r)
 reghdfe crp_div preff_crp_div srshock rrshock arshock wrshock  stshock rtshock atshock wtshock  Male age_hh hh_size schll_hh lvstck lnfrm market road irrigation extension , absorb(a01 year) vce(r) //first stage
 
 ivreghdfe lnexp srshock rrshock arshock wrshock  stshock rtshock atshock wtshock  Male age_hh hh_size schll_hh lvstck lnfrm market road irrigation extension (crp_div=preff_crp_div), absorb(a01 year) vce(r) //second stage
@@ -256,8 +256,8 @@ by year: summarize hdds pc_foodxm_d crp_div inc_div preff_crp_div preff_incdiv h
 
 **histgram of diversification index
 twoway (kdensity inc_div if year==2012, color("blue%50") lp(solid))(kdensity inc_div if year==2015, color("purple%50") lp(dash))(kdensity inc_div if year==2018, color("red%50") lp(longdash)), title(Income diversificatioin index ) xtitle(Income diversification index) ytitle(Density)note(Source: "BIHS2011/12, 2015, and 2018/19 calculated by author") legend(ring(0) pos(2) col(1) order(1 "2012" 2 "2015" 3 "2018")) saving(income) //hist of inc diversification index
-twoway (kdensity frm_div if year==2012 & frm_div<1, color("blue%50") lp(solid))(kdensity frm_div if year==2015 & frm_div<1, color("purple%50") lp(dash))(kdensity frm_div if year==2018 & frm_div<1, color("red%50") lp(longdash)), title(Farm diversificatioin index) xtitle(Farm diversification) ytitle(Density)note(Source: "BIHS2011/12, 2015, and 2018/19 calculated by author") legend(ring(0) pos(2) col(1) order(1 "2012" 2 "2015" 3 "2018")) saving(farm)  //hist of farm diversification index
-gr combine income.gph farm.gph
+twoway (kdensity crp_div if year==2012 , color("blue%50") lp(solid))(kdensity crp_div if year==2015 , color("purple%50") lp(dash))(kdensity crp_div if year==2018 , color("red%50") lp(longdash)), title(Crop diversificatioin index) xtitle(Crop diversification) ytitle(Density)note(Source: "BIHS2011/12, 2015, and 2018/19 calculated by author") legend(ring(0) pos(2) col(1) order(1 "2012" 2 "2015" 3 "2018")) saving(crop)  //hist of crop diversification index
+gr combine income.gph crop.gph
 graph display, scheme(s1mono) 
 graph export $figure\div.png, replace
 
@@ -283,48 +283,48 @@ quietly estadd local fe Yes, replace
 quietly estadd local year Yes, replace 
 quietly estadd local control Yes, replace*/
 
-eststo: reghdfe crp_div preff_crp_div srshock rrshock arshock wrshock ln_sds ln_sdr ln_sda ln_sdw stshock rtshock atshock wtshock ln_sdst ln_sdrt ln_sdat ln_sdwt Male age_hh hh_size schll_hh lvstck lnfrm market road extension irrigation year2012 year2015, absorb(a01) vce(robust)  
+eststo: reghdfe crp_div preff_crp_div srshock rrshock arshock wrshock  stshock rtshock atshock wtshock Male age_hh hh_size schll_hh lvstck lnfrm market road extension irrigation, absorb(a01 year) vce(robust)  
 
 quietly estadd local fe Yes, replace
 quietly estadd local year Yes, replace 
 quietly estadd local control Yes, replace
 
-eststo: reghdfe inc_div preff_incdiv srshock rrshock arshock wrshock ln_sds ln_sdr ln_sda ln_sdw stshock rtshock atshock wtshock ln_sdst ln_sdrt ln_sdat ln_sdwt Male age_hh hh_size schll_hh lvstck lnfrm market road irrigation  extension  year2012 year2015 , vce(r) absorb(a01)  //first stage
+eststo: reghdfe inc_div preff_incdiv srshock rrshock arshock wrshock  stshock rtshock atshock wtshock Male age_hh hh_size schll_hh lvstck lnfrm market road irrigation  extension , vce(r) absorb(a01 year)  //first stage
 quietly estadd local fe Yes, replace
 quietly estadd local year Yes, replace 
 quietly estadd local control Yes, replace
 
-esttab using $table\ffe_manu.rtf,  b(%4.3f) se replace nogaps starlevels(* 0.1 ** 0.05 *** 0.01) label nocons order("\textbf{Peer effect}"  preff_crp_div preff_incdiv "\textbf{Climate variables}" srshock rrshock arshock wrshock ln_sds ln_sdr ln_sda ln_sdw stshock rtshock atshock wtshock ln_sdst ln_sdrt ln_sdat ln_sdwt"\textbf{Control variables}" Male age_hh hh_size schll_hh lnfrm lvstck irrigation market road extension year2012 year2015) mtitles("Farm diversification" "Income diversification") r2 
+esttab using $table\ffe_manu.rtf,  b(%4.3f) se replace nogaps starlevels(* 0.1 ** 0.05 *** 0.01) label nocons order("\textbf{Peer effect}"  preff_crp_div preff_incdiv "\textbf{Climate variables}" srshock rrshock arshock wrshock  stshock rtshock atshock wtshock "\textbf{Control variables}" Male age_hh hh_size schll_hh lnfrm lvstck irrigation market road extension) mtitles("Crop diversification" "Income diversification") s(fe year N, label("Individual FE" "Year FE" "Observations")) 
 
-esttab using $table\ffe.tex,  b(%4.3f) se replace wide nogaps starlevels(* 0.1 ** 0.05 *** 0.01) label nocons keep("\textbf{Peer Effect}" preff_crp_div preff_incdiv "\textbf{Climate variables}" srshock rrshock arshock wrshock ln_sds ln_sdr ln_sda ln_sdw stshock rtshock atshock wtshock ln_sdst ln_sdrt ln_sdat ln_sdwt ) order("\textbf{Peer Effect}"  preff_frm_div preff_incdiv "\textbf{Climate variables}"ln_ra ln_rr ln_rs ln_rw ln_ta ln_tr ln_ts ln_tw)  s(fe year control F N, label("HH FE" "Year dummy" "Control Variables" "F statistic" "Observations")) mtitles("Farm diversification " "Income diversification ")
+esttab using $table\ffe.tex,  b(%4.3f) se replace wide nogaps starlevels(* 0.1 ** 0.05 *** 0.01) label nocons keep("\textbf{Peer Effect}" preff_crp_div preff_incdiv "\textbf{Climate variables}" srshock rrshock arshock wrshock ln_sds ln_sdr ln_sda ln_sdw stshock rtshock atshock wtshock ln_sdst ln_sdrt ln_sdat ln_sdwt ) order("\textbf{Peer Effect}"  preff_frm_div preff_incdiv "\textbf{Climate variables}"ln_ra ln_rr ln_rs ln_rw ln_ta ln_tr ln_ts ln_tw)  s(fe year control F N, label("HH FE" "Year dummy" "Control Variables" "F statistic" "Observations")) mtitles("Crop diversification " "Income diversification ")
 
 *second stage analysis*
 eststo clear
 xtset a01 year
 
-reghdfe crp_div preff_crp_div srshock rrshock arshock wrshock ln_sds ln_sdr ln_sda ln_sdw stshock rtshock atshock wtshock ln_sdst ln_sdrt ln_sdat ln_sdwt Male age_hh hh_size schll_hh lvstck lnfrm market road extension irrigation year2012 year2015 , vce(r) absorb(a01) res //first stage
+reghdfe crp_div preff_crp_div srshock rrshock arshock wrshock stshock rtshock atshock wtshock Male age_hh hh_size schll_hh lvstck lnfrm market road extension irrigation, vce(r) absorb(a01 year) res //first stage
 predict double v2h_fec, r
-eststo: xtpoisson hdds crp_div v2h_fec srshock rrshock arshock wrshock ln_sds ln_sdr ln_sda ln_sdw stshock rtshock atshock wtshock ln_sdst ln_sdrt ln_sdat ln_sdwt Male age_hh hh_size schll_hh lvstck lnfrm market road extension irrigation year2012 year2015 , fe vce(r) //second stage  
+eststo: xtpoisson hdds crp_div v2h_fec srshock rrshock arshock wrshock stshock rtshock atshock wtshock Male age_hh hh_size schll_hh lvstck lnfrm market road extension irrigation year2012 year2015 , fe vce(r) //second stage  
 quietly estadd local fe Yes, replace
 quietly estadd local year Yes, replace
 quietly estadd local control Yes, replace
-label var v2h_fec "Residual-farm"
+label var v2h_fec "Residual-crop"
 
-eststo: reghdfe lnfexp crp_div v2h_fec srshock rrshock arshock wrshock ln_sds ln_sdr ln_sda ln_sdw stshock rtshock atshock wtshock ln_sdst ln_sdrt ln_sdat ln_sdwt Male age_hh hh_size schll_hh lvstck lnfrm market road extension  irrigation year2012 year2015, absorb(a01) vce(r) //second stage 
+eststo: ivreghdfe lnexp srshock rrshock arshock wrshock  stshock rtshock atshock wtshock  Male age_hh hh_size schll_hh lvstck lnfrm market road irrigation extension (crp_div=preff_crp_div), absorb(a01 year) vce(r)  //second stage 
 quietly estadd local fe Yes, replace
 quietly estadd local year Yes, replace 
 quietly estadd local control Yes, replace
 
-reghdfe inc_div preff_incdiv srshock rrshock arshock wrshock ln_sds ln_sdr ln_sda ln_sdw stshock rtshock atshock wtshock ln_sdst ln_sdrt ln_sdat ln_sdwt Male age_hh hh_size schll_hh lvstck lnfrm market road irrigation extension  extension year2012 year2015 , vce(r) absorb(a01) res //first stage
+reghdfe inc_div preff_incdiv srshock rrshock arshock wrshock stshock rtshock atshock wtshock Male age_hh hh_size schll_hh lvstck lnfrm market road irrigation extension  extension , vce(r) absorb(a01 year) res //first stage
 predict double v2h_fei, r
-eststo: xtpoisson hdds inc_div  v2h_fei srshock rrshock arshock wrshock ln_sds ln_sdr ln_sda ln_sdw stshock rtshock atshock wtshock ln_sdst ln_sdrt ln_sdat ln_sdwt Male age_hh hh_size schll_hh lvstck lnfrm market road irrigation extension year2012 year2015, fe vce(r) //second stage 
+eststo: xtpoisson hdds inc_div v2h_fei srshock rrshock arshock wrshock stshock rtshock atshock wtshock Male age_hh hh_size schll_hh lvstck lnfrm market road irrigation extension year2012 year2015, fe vce(r) //second stage 
 quietly estadd local fe Yes, replace //add the raw of fe, year dummy, and control variables
 quietly estadd local year Yes, replace 
 quietly estadd local control Yes, replace
 label var v2h_fei "Residual-income"
 
 
-eststo: reghdfe lnfexp inc_div v2h_fei srshock rrshock arshock wrshock ln_sds ln_sdr ln_sda ln_sdw stshock rtshock atshock wtshock ln_sdst ln_sdrt ln_sdat ln_sdwt Male age_hh hh_size schll_hh lvstck lnfrm market road  irrigation extension  year2012 year2015, absorb(a01) vce(r) //second stage  idcrp idliv idi_crp_liv, food expenditure
+eststo: ivreghdfe lnfexp srshock rrshock arshock wrshock  stshock rtshock atshock wtshock Male age_hh hh_size schll_hh lvstck lnfrm market road extension irrigation (inc_div=preff_incdiv), absorb(a01 year) vce(r) //second stage  idcrp idliv idi_crp_liv, food expenditure
 quietly estadd local fe Yes, replace //add the raw of fe, year dummy, and control variables
 quietly estadd local year Yes, replace 
 quietly estadd local control Yes, replace
@@ -333,8 +333,8 @@ quietly estadd local control Yes, replace
 esttab using $table\scnd.tex,  b(%4.3f) se replace nodepvar nogaps wide starlevels(* 0.1 ** 0.05 *** 0.01) label nocons keep( "\textbf{Diversification}"  frm_div inc_div  "\textbf{Climate variables}" srshock rrshock arshock wrshock ln_sds ln_sdr ln_sda ln_sdw stshock rtshock atshock wtshock ln_sdst ln_sdrt ln_sdat ln_sdwt) order("\textbf{Diversification}"  crp_div inc_div   "\textbf{Climate variables}" lsrshock rrshock arshock wrshock ln_sds ln_sdr ln_sda ln_sdw stshock rtshock atshock wtshock ln_sdst ln_sdrt ln_sdat ln_sdwt) s(fe year control N, label("HH FE" "Year dummy" "Control Variables" "Observations")) addnote("Instrumental variables (\% of diversification within unions)")  mgroups("HDDS" "Per capita food expenditure (log)" , pattern(1 0 1 0 ))
 
 
-esttab using $table\scnd_manu.rtf,  b(%4.3f) se replace nodepvar nogaps starlevels(* 0.1 ** 0.05 *** 0.01) label nocons order( "\textbf{Diversification}" crp_div inc_div  "\textbf{Climate variables}" srshock rrshock arshock wrshock ln_sds ln_sdr ln_sda ln_sdw stshock rtshock atshock wtshock ln_sdst ln_sdrt ln_sdat ln_sdwt "\textbf{Control variables}" Male age_hh hh_size schll_hh lvstck lnfrm market road extension irrigation year2012 year2015 v2_fef v2h_fei ) addnote("Instrumental variables  (\% of diversification household within unions)") n mtitles("HDDS" "Per capita food expenditure (log)" "HDDS" "Per capita food expenditure (log)")
-drop v2h_fef v2h_fei 
+esttab using $table\scnd_manu.rtf,  b(%4.3f) se replace nodepvar nogaps starlevels(* 0.1 ** 0.05 *** 0.01) label nocons order( "\textbf{Diversification}" crp_div inc_div  "\textbf{Climate variables}" srshock rrshock arshock wrshock stshock rtshock atshock wtshock "\textbf{Control variables}" Male age_hh hh_size schll_hh lvstck lnfrm market road extension irrigation v2_fef v2h_fei ) s(fe year N, label("Individual FE" "Year FE" "Observations")) addnote("Instrumental variables (\% of households adopting diversification within a union)") mtitles("HDDS" "Per capita food expenditure (log)" "HDDS" "Per capita food expenditure (log)")
+drop v2h_fec v2h_fei 
 
 **Heterogeneous visualization
 label var lnfexp "Per capita food consumption expenditure(log)"
@@ -462,45 +462,46 @@ eststo clear
 xtset a01 year
 
 ** quantile fe-ols
-reghdfe crp_div preff_crp_div srshock rrshock arshock wrshock ln_sds ln_sdr ln_sda ln_sdw stshock rtshock atshock wtshock ln_sdst ln_sdrt ln_sdat ln_sdwt Male age_hh hh_size schll_hh lvstck lnfrm market road extension irrigation year2012 year2015, vce(r) absorb(a01) res //first stage
-predict double v2h_fec, r
-eststo: xtqreg lnfexp crp_div v2h_fec srshock rrshock arshock wrshock ln_sds ln_sdr ln_sda ln_sdw stshock rtshock atshock wtshock ln_sdst ln_sdrt ln_sdat ln_sdwt  Male age_hh hh_size schll_hh lvstck lnfrm market road extension irrigation year2012 year2015, i(a01) quantile( .25 ) //second stage  idcrp idliv idi_crp_liv, food expenditure
+reghdfe crp_div preff_crp_div srshock rrshock arshock wrshock  stshock rtshock atshock wtshock  Male age_hh hh_size schll_hh lvstck lnfrm market road irrigation extension, vce(r) absorb(a01 year) res //first stage
+predict double crp_div_hat
+eststo: xtqreg lnfexp crp_div_hat srshock rrshock arshock wrshock stshock rtshock atshock wtshock  Male age_hh hh_size schll_hh lvstck lnfrm market road irrigation extension year2012 year2015 if _reghdfe_resid!=. ,quantile( .25 )  //second stage food expenditure
 quietly estadd local fe Yes, replace //add the raw of fe, year dummy, and control variables
 quietly estadd local year Yes, replace 
 quietly estadd local control Yes, replace
 
-eststo: xtqreg lnfexp crp_div v2h_fec srshock rrshock arshock wrshock ln_sds ln_sdr ln_sda ln_sdw stshock rtshock atshock wtshock ln_sdst ln_sdrt ln_sdat ln_sdwt  Male age_hh hh_size schll_hh lvstck lnfrm market road extension irrigation year2012 year2015, i(a01) quantile(  .5  ) //second stage  idcrp idliv idi_crp_liv, food expenditure
+eststo: xtqreg lnfexp crp_div_hat srshock rrshock arshock wrshock stshock rtshock atshock wtshock  Male age_hh hh_size schll_hh lvstck lnfrm market road extension irrigation year2012 year2015 if _reghdfe_resid!=., quantile(  .5  ) //second stage food expenditure
 quietly estadd local fe Yes, replace //add the raw of fe, year dummy, and control variables
 quietly estadd local year Yes, replace 
 quietly estadd local control Yes, replace
 
-eststo: xtqreg lnfexp crp_div v2h_fec srshock rrshock arshock wrshock ln_sds ln_sdr ln_sda ln_sdw stshock rtshock atshock wtshock ln_sdst ln_sdrt ln_sdat ln_sdwt Male age_hh hh_size schll_hh lvstck lnfrm market road extension irrigation year2012 year2015, i(a01) quantile( .75 ) //second stage  idcrp idliv idi_crp_liv, food expenditure
+eststo: xtqreg lnfexp crp_div_hat srshock rrshock arshock wrshock stshock rtshock atshock wtshock Male age_hh hh_size schll_hh lvstck lnfrm market road extension irrigation year2012 year2015 if _reghdfe_resid!=., quantile( .80) //second stage food expenditure
 quietly estadd local fe Yes, replace //add the raw of fe, year dummy, and control variables
 quietly estadd local year Yes, replace 
 quietly estadd local control Yes, replace
-label var v2h_fec "Residual-farm"
-drop v2h_fec
+label var crp_div_hat "Crop diversification"
+ 
 
 **quantile inc
-reghdfe inc_div preff_incdiv srshock rrshock arshock wrshock ln_sds ln_sdr ln_sda ln_sdw stshock rtshock atshock wtshock ln_sdst ln_sdrt ln_sdat ln_sdwt  Male age_hh hh_size schll_hh lvstck lnfrm market road irrigation extension  year2012 year2015 , vce(r) absorb(a01) res //first stage
-predict double v2h_fei, r
+reghdfe inc_div preff_incdiv srshock rrshock arshock wrshock stshock rtshock atshock wtshock  Male age_hh hh_size schll_hh lvstck lnfrm market road irrigation extension, vce(r) absorb(a01 year) res //first stage
+predict double inc_div_hat
 
-eststo: xtqreg lnfexp inc_div v2h_fei srshock rrshock arshock wrshock ln_sds ln_sdr ln_sda ln_sdw stshock rtshock atshock wtshock ln_sdst ln_sdrt ln_sdat ln_sdwt Male age_hh hh_size schll_hh lvstck lnfrm market road irrigation  extension year2012 year2015, i(a01) quantile(.25)  //second stage  idcrp idliv idi_crp_liv, food expenditure
+eststo: xtqreg lnfexp inc_div_hat srshock rrshock arshock wrshock stshock rtshock atshock wtshock Male age_hh hh_size schll_hh lvstck lnfrm market road irrigation  extension year2012 year2015 if _reghdfe_resid!=., i(a01) quantile(.25) //second stage  idcrp idliv idi_crp_liv, food expenditure
 quietly estadd local fe Yes, replace //add the raw of fe, year dummy, and control variables
 quietly estadd local year Yes, replace 
 quietly estadd local control Yes, replace
-eststo: xtqreg lnfexp inc_div v2h_fei srshock rrshock arshock wrshock ln_sds ln_sdr ln_sda ln_sdw stshock rtshock atshock wtshock ln_sdst ln_sdrt ln_sdat ln_sdwt Male age_hh hh_size schll_hh lvstck lnfrm market road irrigation extension  year2012 year2015, i(a01) quantile(  .5 )  //second stage  idcrp idliv idi_crp_liv, food expenditure
+
+eststo: xtqreg lnfexp inc_div_hat srshock rrshock arshock wrshock stshock rtshock atshock wtshock Male age_hh hh_size schll_hh lvstck lnfrm market road irrigation extension  year2012 year2015 if _reghdfe_resid!=., i(a01) quantile(  .5 )  //second stage  idcrp idliv idi_crp_liv, food expenditure
 quietly estadd local fe Yes, replace //add the raw of fe, year dummy, and control variables
 quietly estadd local year Yes, replace 
 quietly estadd local control Yes, replace
-eststo: xtqreg lnfexp inc_div v2h_fei srshock rrshock arshock wrshock ln_sds ln_sdr ln_sda ln_sdw stshock rtshock atshock wtshock ln_sdst ln_sdrt ln_sdat ln_sdwt Male age_hh hh_size schll_hh lvstck lnfrm market road irrigation extension  year2012 year2015, i(a01) quantile(  .75)  //second stage  idcrp idliv idi_crp_liv, food expenditure
+eststo: xtqreg lnfexp inc_div_hat srshock rrshock arshock wrshock stshock rtshock atshock wtshock Male age_hh hh_size schll_hh lvstck lnfrm market road irrigation extension year2012 year2015 if _reghdfe_resid!=., quantile(  .90)  //second stage  idcrp idliv idi_crp_liv, food expenditure
 quietly estadd local fe Yes, replace //add the raw of fe, year dummy, and control variables
 quietly estadd local year Yes, replace 
 quietly estadd local control Yes, replace
-label var v2h_fei "Residual-income"
-drop v2h_fei 
+label var inc_div_hat "Income diversification"
+drop inc_div_hat
+drop crp_div_hat
 
+esttab using $table\quantile.rtf,  b(%4.3f) se replace nogaps nodepvar starlevels(* 0.1 ** 0.05 *** 0.01) label nocons keep(   crp_div_hat inc_div_hat ) order(crp_div inc_div) s(fe year control N, label("Individual FE" "Year FE" "Control Variables" "Observations")) addnote("Instrumental variables (\% of household adopting diversification within a union)")  mtitles("\nth{25} quantile" "\nth{50} quantile" "\nth{75} quantile" "\nth{25} quantile" "\nth{50} quantile" "\nth{75} quantile") 
 
-esttab using $table\quantile.tex,  b(%4.3f) se replace nogaps nodepvar wide starlevels(* 0.1 ** 0.05 *** 0.01) label nocons keep( "\textbf{Diversification}"  frm_div inc_div ) order("\textbf{Diversification}" frm_div inc_div) s(fe year control N, label("FE" "Year dummy" "Control Variables" "Observations")) addnote("Instrumental variables (\% of diversification within unions)")  mtitles("\nth{25} quantile" "\nth{50} quantile" "\nth{75} quantile" "\nth{25} quantile" "\nth{50} quantile" "\nth{75} quantile")
-
-esttab using $table\quantile_full.tex,  b(%4.3f) se replace nodepvar nogaps starlevels(* 0.1 ** 0.05 *** 0.01) label nocons order("\textbf{Diversification}" crp_div inc_div  "\textbf{Climate variables}" srshock rrshock arshock wrshock ln_sds ln_sdr ln_sda ln_sdw stshock rtshock atshock wtshock ln_sdst ln_sdrt ln_sdat ln_sdwt "\textbf{Control variables}" Male age_hh hh_size schll_hh lvstck market road extension irrigation) mtitles("\nth{25} quantile" "\nth{50} quantile" "\nth{75} quantile" "\nth{25} quantile" "\nth{50} quantile" "\nth{75} quantile")
+esttab using $table\quantile_full.rtf,  b(%4.3f) se replace nodepvar nogaps starlevels(* 0.1 ** 0.05 *** 0.01) label nocons order( crp_div_hat inc_div_hat srshock rrshock arshock wrshock stshock rtshock atshock wtshock  Male age_hh hh_size schll_hh lvstck market road extension irrigation) mtitles("\nth{25} quantile" "\nth{50} quantile" "\nth{75} quantile" "\nth{25} quantile" "\nth{50} quantile" "\nth{75} quantile") s(fe year N, label("Individual FE" "Year FE" "Observations")) 
