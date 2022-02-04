@@ -15,9 +15,22 @@ cd "C:\Users\user\Documents\Masterthesis\BIHS\Do"
 
 
 *install district data and cleaning 
+import delimited using $climate\districts.csv,  clear //import new district data which are comparable with BIHS
+save district.dta, replace
+
 import delimited District_n Division_n District district latitude longitude  url using $climate\districts.txt, stringcols(1/7) clear
 save districts.dta, replace
-drop district url //cleaning 
+drop district url //cleaning
+ 
+replace District="Bogra" if District=="Bogura"
+replace District="Chapai Nawabganj" if District== "Chapainawabganj"
+replace District="Chittagong" if District=="Chattogram"
+replace District="Cox's Bazar" if District=="Coxsbazar"
+replace District="Jessore" if District=="Jashore"
+replace District="Jhalokati" if District=="Jhalakathi"
+replace District="Maulvibazar" if District=="Moulvibazar"
+replace District="Netrakona" if District=="Netrokona"
+
 destring District_n, gen(district_n)
 destring Division_n, gen(division_n)
 replace latitude="." if (latitude=="NULL") 
@@ -58,9 +71,8 @@ replace lon=89.2500 if (district_n==55)
 save districts, replace //replace missing value with latitude and longitudes
 rename District dcode
 save districts.dta, replace 
-import delimited using $climate\districts.csv,  clear //import new district data which are comparable with BIHS
-save district.dta, replace
-merge 1:1 dcode using districts, nogen
+
+merge 1:1 dcode using district, nogen
 replace lat=24.8500 if (district==10)
 replace lon=89.3667 if (district==10) //replace missing value with true
 replace lat=24.6000 if (district==70)
@@ -100,15 +112,15 @@ save temp2.dta, replace
 
 
 *** rainfall
-use districts, clear
-geonear district_n lat lon using rain1.dta, neighbors(nid lat lon) //match with rain and dcode
-geonear district_n lat lon using rain2.dta, neighbors(nid lat lon) //match with rain and 
+use district, clear
+geonear district lat lon using rain1.dta, neighbors(nid lat lon) //match with rain and dcode
+geonear district lat lon using rain2.dta, neighbors(nid lat lon) //match with rain and 
 save climate.dta, replace
 use climate, clear
 drop km_to_nid
 merge m:m nid using rain1.dta, nogen //merge dvcode data and  rain data
 merge m:m nid using rain2.dta, nogen //merge dvcode data and  rain data
-drop if district_n==.
+drop if district==.
 destring (hs1 hr1 ha1 hw1 hs2 hr2 ha2 hw2 hs3 hr3 ha3 hw3 s1 r1 a1 w1 s2 r2 a2 w2 s3 r3 a3 w3 sds1 sdr1 sda1 sdw1 sds2 sdr2 sda2 sdw2 sds3 sdr3 sda3 sdw3), replace
 label var sds1 "30-year summer rainfall SD"
 label var sds2 "30-year summer rainfall SD"
@@ -125,13 +137,13 @@ label var sdw3 "30-year winter rainfall SD"
 save climate, replace
 
 *** temperature
-geonear district_n lat lon using temp1.dta, neighbors(nid lat lon) //merge dvcode data and temperature data
-geonear district_n lat lon using temp2.dta, neighbors(nid lat lon) //merge dvcode data and temperature data
+geonear district lat lon using temp1.dta, neighbors(nid lat lon) //merge dvcode data and temperature data
+geonear district lat lon using temp2.dta, neighbors(nid lat lon) //merge dvcode data and temperature data
 drop km_to_nid
 merge m:m nid using temp1.dta, nogen //merge
 merge m:m nid using temp2.dta, nogen //merge
 
-drop if district_n==.
+drop if district==.
 save qgis_climate.dta, replace
 drop nid nid lat lon 
 label var sdst1 "30-year summer temperature SD"
