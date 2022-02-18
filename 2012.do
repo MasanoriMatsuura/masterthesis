@@ -15,6 +15,71 @@ cd "C:\Users\user\Documents\Masterthesis\BIHS\Do"
 **keep geographical code
 use $BIHS12\001_mod_a_male, clear
 keep a01 div dcode District_Name uzcode uncode vcode_n
+/*replace dcode=1 if District_Name=="Dhaka"
+replace dcode=2 if District_Name=="Gazipur"
+replace dcode=3 if District_Name=="Manikganj"
+replace dcode=4 if District_Name=="Munshiganj"
+replace dcode=5 if District_Name=="Narayanganj"
+replace dcode=6 if District_Name=="Narsingdi"
+replace dcode=7 if District_Name=="Faridpur"
+replace dcode=8 if District_Name=="Gopalganj"
+replace dcode=9 if District_Name=="Madaripur"
+replace dcode=10 if District_Name=="Rajbari"
+replace dcode=11 if District_Name=="Shariatpur"
+replace dcode=12 if District_Name=="Jamalpur"
+replace dcode=13 if District_Name=="Sherpur"
+replace dcode=14 if District_Name=="Kishorgonj"
+replace dcode=15 if District_Name=="Mymensingh"
+replace dcode=16 if District_Name=="Netrakona"
+replace dcode=17 if District_Name=="Tangail"
+replace dcode=18 if District_Name=="Chittagong"
+replace dcode=19 if District_Name=="Cox'S Bazar"
+replace dcode=20 if District_Name=="Bandarban"
+replace dcode=21 if District_Name=="Khagrachhari"
+replace dcode=22 if District_Name=="Rangamati"
+replace dcode=23 if District_Name=="Brahmanbaria"
+replace dcode=24 if District_Name=="Chandpur"
+replace dcode=25 if District_Name=="Comilla"
+replace dcode=26 if District_Name=="Feni"
+replace dcode=27 if District_Name=="Lakshmipur"
+replace dcode=28 if District_Name=="Noakhali"
+replace dcode=29 if District_Name=="Khulna"
+replace dcode=30 if District_Name=="Jessore"
+replace dcode=31 if District_Name=="Jhenaidah"
+replace dcode=32 if District_Name=="Magura"
+replace dcode=33 if District_Name=="Narail"
+replace dcode=34 if District_Name=="Bagerhat"
+replace dcode=35 if District_Name=="Satkhira"
+replace dcode=36 if District_Name=="Chuadanga"
+replace dcode=37 if District_Name=="Kushtia"
+replace dcode=38 if District_Name=="Meherpur"
+replace dcode=39 if District_Name=="Rajshahi"
+replace dcode=40 if District_Name=="Naogaon"
+replace dcode=41 if District_Name=="Nawabganj"
+replace dcode=42 if District_Name=="Natore"
+replace dcode=43 if District_Name=="Pabna"
+replace dcode=44 if District_Name=="Sirajganj"
+replace dcode=45 if District_Name=="Bogra"
+replace dcode=46 if District_Name=="Joypurhat"
+replace dcode=47 if District_Name=="Gaibandha"
+replace dcode=48 if District_Name=="Kurigram"
+replace dcode=49 if District_Name=="Lalmonirhat"
+replace dcode=50 if District_Name=="Nilphamari"
+replace dcode=51 if District_Name=="Rangpur"
+replace dcode=52 if District_Name=="Dinajpur"
+replace dcode=53 if District_Name=="Thakurgaon" 
+replace dcode=54 if District_Name=="Panchagarh"
+replace dcode=55 if District_Name=="Sylhet"
+replace dcode=56 if District_Name=="Habiganj"
+replace dcode=57 if District_Name=="Maulvibazar"
+replace dcode=58 if District_Name=="Sunamganj"
+replace dcode=59 if District_Name=="Barisal"
+replace dcode=60 if District_Name=="Bhola"
+replace dcode=61 if District_Name=="Jhalokati"
+replace dcode=62 if District_Name=="Pirojpur"
+replace dcode=63 if District_Name=="Barguna"
+replace dcode=64 if District_Name=="Patuakhali"*/
+
 rename (div vcode_n)(dvcode Village)
 save 2012, replace
 
@@ -423,7 +488,7 @@ save incdiv12.dta, replace
 **climate variables 
 use climate, clear
 /*rename (district dcode) (dcode District_Name) //renaming*/
-keep dvcode division hs1 hr1 ha1 hw1 sds1 sdr1 sda1 sdw1 s1 r1 w1 a1 hst1 hrt1 hat1 hwt1 sdst1 sdrt1 sdat1 sdwt1 ts1 tr1 ta1 tw1 
+keep dcode District hs1 hr1 ha1 hw1 sds1 sdr1 sda1 sdw1 s1 r1 w1 a1 hst1 hrt1 hat1 hwt1 sdst1 sdrt1 sdat1 sdwt1 ts1 tr1 ta1 tw1 
 rename (hs1 hr1 ha1 hw1 sds1 sdr1 sda1 sdw1 s1 r1 w1 a1 hst1 hrt1 hat1 hwt1 sdst1 sdrt1 sdat1 sdwt1 ts1 tr1 ta1 tw1)(hs hr ha hw sds sdr sda sdw s r w a hst hrt hat hwt sdst sdrt sdat sdwt ts tr ta tw)
 
 gen srshock=log(s)-log(hs)
@@ -446,26 +511,26 @@ label var s "Summer rainfall(mm)"
 label var r "Rainy season rainfall(mm)"
 label var a "Autumn rainfall(mm)"
 label var w "Winter rainfall(mm)"
-label var hs "30-year summer rainfall"
-label var hr "30-year rainy season rainfall"
-label var ha "30-year autumn rainfall"
-label var hw "30-year winter rainfall"
+label var hs "20-year summer rainfall"
+label var hr "20-year rainy season rainfall"
+label var ha "20-year autumn rainfall"
+label var hw "20-year winter rainfall"
 label var ts "Summer average temperature(\textdegree{}C)"
 label var tr "Rainy season average temperature(\textdegree{}C)"
 label var ta "Autumn season average temperature(\textdegree{}C)"
 label var tw "Winter average temperature(\textdegree{}C)"
-label var hst "30-year summer average temperature(\textdegree{}C)"
-label var hrt "30-year rainy season average temperature(\textdegree{}C)"
-label var hat "30-year autumn average temperature(\textdegree{}C)"
-label var hwt "30-year winter average temperature(\textdegree{}C)"
-label var ln_sds "30-year summer rainfall SD(log)"
-label var ln_sdr  "30-year rainy season rainfall SD(log)"
-label var ln_sda  "30-year autumn rainfall SD(log)"
-label var ln_sdw  "30-year winter rainfall SD(log)"
-label var ln_sdst "30-year summer temperature SD(log)"
-label var ln_sdrt "30-year rainy season temperature SD(log)"
-label var ln_sdat "30-year autumn temperature SD(log)"
-label var ln_sdwt "30-year winter temperature SD(log)"
+label var hst "20-year summer average temperature(\textdegree{}C)"
+label var hrt "20-year rainy season average temperature(\textdegree{}C)"
+label var hat "20-year autumn average temperature(\textdegree{}C)"
+label var hwt "20-year winter average temperature(\textdegree{}C)"
+label var ln_sds "20-year summer rainfall SD(log)"
+label var ln_sdr  "20-year rainy season rainfall SD(log)"
+label var ln_sda  "20-year autumn rainfall SD(log)"
+label var ln_sdw  "20-year winter rainfall SD(log)"
+label var ln_sdst "20-year summer temperature SD(log)"
+label var ln_sdrt "20-year rainy season temperature SD(log)"
+label var ln_sdat "20-year autumn temperature SD(log)"
+label var ln_sdwt "20-year winter temperature SD(log)"
 label var srshock "Rainfall shock in summer"
 label var rrshock "Rainfall shock in rainy season"
 label var arshock "Rainfall shock in autumn"
@@ -479,7 +544,7 @@ save climate12, replace
 
 **merge all 2012 dataset
 use 2012.dta,clear
-merge m:1 dvcode using climate12, nogen
+merge m:1 dcode using climate12, nogen
 merge 1:1 a01 using sciec12, nogen
 merge 1:1 a01 using agrnmic12, nogen
 merge 1:1 a01 using nnrn12, nogen
