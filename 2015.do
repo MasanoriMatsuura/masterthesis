@@ -3,84 +3,41 @@
 clear all
 set more off
 *set the pathes
-global climate = "C:\Users\user\Documents\Masterthesis\climatebang"
-global BIHS18Community = "C:\Users\user\Documents\Masterthesis\BIHS\BIHS2018\BIHSRound3\Community"
-global BIHS18Female = "C:\Users\user\Documents\Masterthesis\BIHS\BIHS2018\BIHSRound3\Female"
-global BIHS18Male = "C:\Users\user\Documents\Masterthesis\BIHS\BIHS2018\BIHSRound3\Male"
-global BIHS15 = "C:\Users\user\Documents\Masterthesis\BIHS\BIHS2015"
-global BIHS12 = "C:\Users\user\Documents\Masterthesis\BIHS\BIHS2012"
-cd "C:\Users\user\Documents\Masterthesis\BIHS\Do"
-
-
+global climate = "C:\Users\user\Documents\Masterthesis\BIHS\Do"
+global BIHS18Community = "C:\Users\user\Documents\research\saiful\mobile_phone\BIHS\BIHS2018\BIHSRound3\Community"
+global BIHS18Female = "C:\Users\user\Documents\research\saiful\mobile_phone\BIHS\BIHS2018\BIHSRound3\Female"
+global BIHS18Male = "C:\Users\user\Documents\research\saiful\mobile_phone\BIHS\BIHS2018\BIHSRound3\Male"
+global BIHS15 = "C:\Users\user\Documents\research\saiful\mobile_phone\BIHS\BIHS2015"
+global BIHS12 = "C:\Users\user\Documents\research\saiful\mobile_phone\BIHS\BIHS2012"
+cd "C:\Users\user\Documents\research\saiful\mobile_phone\BIHS\Do"
 *BIHS2015 data cleaning 
 **keep geographical code
 use $BIHS15\001_r2_mod_a_male, clear
 keep a01 dvcode dcode District_Name uzcode uncode mzcode Village
-/*replace dcode=1 if District_Name=="Dhaka"
-replace dcode=2 if District_Name=="Gazipur"
-replace dcode=3 if District_Name=="Manikganj"
-replace dcode=4 if District_Name=="Munshiganj"
-replace dcode=5 if District_Name=="Narayanganj"
-replace dcode=6 if District_Name=="Narsingdi"
-replace dcode=7 if District_Name=="Faridpur"
-replace dcode=8 if District_Name=="Gopalganj"
-replace dcode=9 if District_Name=="Madaripur"
-replace dcode=10 if District_Name=="Rajbari"
-replace dcode=11 if District_Name=="Shariatpur"
-replace dcode=12 if District_Name=="Jamalpur"
-replace dcode=13 if District_Name=="Sherpur"
-replace dcode=14 if District_Name=="Kishoreganj"
-replace dcode=15 if District_Name=="Mymensingh"
-replace dcode=16 if District_Name=="Netrakona"
-replace dcode=17 if District_Name=="Tangail"
-replace dcode=18 if District_Name=="Chittagong"
-replace dcode=19 if District_Name=="Cox's Bazar"
-replace dcode=20 if District_Name=="Bandarban"
-replace dcode=21 if District_Name=="Khagrachhari"
-replace dcode=22 if District_Name=="Rangamati"
-replace dcode=23 if District_Name=="Brahmanbaria"
-replace dcode=24 if District_Name=="Chandpur"
-replace dcode=25 if District_Name=="Comilla"
-replace dcode=26 if District_Name=="Feni"
-replace dcode=27 if District_Name=="Lakshmipur"
-replace dcode=28 if District_Name=="Noakhali"
-replace dcode=29 if District_Name=="Khulna"
-replace dcode=30 if District_Name=="Jessore"
-replace dcode=31 if District_Name=="Jhenaidah Zila T"
-replace dcode=32 if District_Name=="Magura"
-replace dcode=33 if District_Name=="Narail"
-replace dcode=34 if District_Name=="Bagerhat"
-replace dcode=35 if District_Name=="Satkhira"
-replace dcode=36 if District_Name=="Chuadanga"
-replace dcode=37 if District_Name=="Kushtia"
-replace dcode=38 if District_Name=="Meherpur"
-replace dcode=39 if District_Name=="Rajshahi"
-replace dcode=40 if District_Name=="Naogaon"
-replace dcode=41 if District_Name=="Chapai Nawabganj"
-replace dcode=42 if District_Name=="Natore"
-replace dcode=43 if District_Name=="Pabna"
-replace dcode=44 if District_Name=="Sirajganj"
-replace dcode=45 if District_Name=="Bogra"
-replace dcode=46 if District_Name=="Joypurhat"
-replace dcode=47 if District_Name=="Gaibandha"
-replace dcode=48 if District_Name=="Kurigram"
-replace dcode=49 if District_Name=="Lalmonirhat"
-replace dcode=50 if District_Name=="Nilphamari"
-replace dcode=51 if District_Name=="Rangpur"
-replace dcode=52 if District_Name=="Dinajpur"
-replace dcode=53 if District_Name=="Thakurgaon" 
-replace dcode=54 if District_Name=="Panchagarh"
-replace dcode=55 if District_Name=="Sylhet"
-replace dcode=56 if District_Name=="Habiganj"
-replace dcode=57 if District_Name=="Maulvibazar"
-replace dcode=58 if District_Name=="Sunamganj"
-replace dcode=59 if District_Name=="Barisal"
-replace dcode=60 if District_Name=="Bhola"
-replace dcode=61 if District_Name=="Jhalokati"
-replace dcode=62 if District_Name=="Pirojpur"
-replace dcode=63 if District_Name=="Barguna"
-replace dcode=64 if District_Name=="Patuakhali"*/
 save 2015, replace
+
+**mobile phone ownership
+use $BIHS15\010_r2_mod_d1_male, clear //household ownership
+keep if d1_02==24
+recode d1_03 (1=1 "yes")(nonm=0 "no"), gen(mobile)
+rename d1_04 mobile_q
+label var mobile_q "Mobile phone ownership (quantity)"
+keep a01 mobile mobile_q
+save mobile15, replace
+
+** migrant status
+use $BIHS15\053_r2_mod_v1_male, clear //if any members are migrants
+recode v1_01 (1=1 "Yes")(2=0 "No"), gen(migrant)
+keep a01 migrant
+label var migrant "Member migration (1/0)"
+duplicates drop a01, force
+save migrant15, replace
+
+**poverty indicators
+use $BIHS15\hhexpenditure_R2, clear // poverty status and depth (gap)
+merge 1:1 a01 using $BIHS15\mpi_R2, nogen //multidimentional poverty index
+keep a01 pcexp_da p190hcgcpi p190hcfcpi p320hcgcpi p320hcfcpi pov190gapgcpi deppov190gcpi pov190gapfcpi deppov190fcpi pov320gapgcpi pov320gapfcpi deppov320fcpi deppov320gcpi hc_mpi mpiscore
+save poverty15.dta, replace
 
 ** keep age gender education occupation of HH
 use $BIHS15\003_r2_male_mod_b1.dta, clear
@@ -181,15 +138,9 @@ label var dstnc_sll_ "distance to selling place"
 label var trnsctn "transaction time"
 save crpincm15.dta, replace
 
-/*use $BIHS15\039_r2_mod_m1_male, clear //crop income diversification 
-keep a01 m1_10
-bysort a01: egen ttl_frminc=sum(m1_10) 
-label var ttl_frminc "total farm income"
-gen es=(m1_10/ttl_frminc)^2
-label var es "enterprise share (farm income)"
-bysort a01: egen es1=sum(es)
-drop if m1_10==.
-hist es1 */
+** asset index
+use $BIHS15/, clear
+egen asset= by(a01)
 
 **market access 
 use $BIHS15\039_r2_mod_m1_male, clear //Marketing of Paddy, Rice, Banana, Mango, and Potato
@@ -240,6 +191,22 @@ tempfile town
 save `town'
 use $BIHS15\049_r2_mod_s_male.dta, clear
 keep a01 s_01 s_06
+keep if s_01==6
+drop s_01
+rename s_06 bazaar
+label var bazaar "Periodic bazaar access (minute)"
+tempfile bazaar
+save `bazaar'
+use $BIHS15\049_r2_mod_s_male.dta, clear
+keep a01 s_01 s_06
+keep if s_01==5
+drop s_01
+rename s_06 shop
+label var shop "Local shop access (minute)"
+tempfile shop
+save `shop'
+use $BIHS15\049_r2_mod_s_male.dta, clear
+keep a01 s_01 s_06
 keep if s_01==6 
 drop s_01
 rename s_06 market
@@ -247,6 +214,8 @@ label var market "Market access (minute)"
 merge 1:1 a01 using `cal', nogen
 merge 1:1 a01 using `aes', nogen
 merge 1:1 a01 using `town', nogen
+merge 1:1 a01 using `bazaar', nogen
+merge 1:1 a01 using `shop', nogen
 save facility15, replace
 
 *** financial market
@@ -313,64 +282,50 @@ keep a01 fshdiv fshinc
 label var fshdiv "fish diversification"
 label var fshinc "fishery income"
 duplicates drop a01, force
-save fsh15.dta, replace
+save fsh15.dta, replace 
 
-** non-farm wage labor
+**keep Non-farm self employment
 use $BIHS15\008_r2_mod_c_male.dta, clear
-drop if c05== 1 
-keep a01 c14
-replace c14=0 if c14==.
-bysort a01: egen nnfrminc=sum(c14) 
-keep a01 nnfrminc
-label var nnfrminc "non-farm wage"
+keep a01 c05 c09 c14
+keep if c09 == 3 //keep self employed
+bysort a01: egen offsel=sum(c14)
+gen offself=12*offsel
+keep a01 offself
+label var offself "Non-farm self employment"
 duplicates drop a01, force
 save nnfrminc15.dta, replace
 
-** farm wage labor
+**Non-farm employment 
 use $BIHS15\008_r2_mod_c_male.dta, clear
-keep if c05== 1 
+keep a01 c05 c09 c14
+keep if c09 != 3 //keep salary and wage
+drop if c05== 1 //drop farm wage
+gen yc14=12*c14
+bysort a01: egen offrminc=sum(yc14)
+label var offrminc "Non-farm wage and salary"
+keep a01 offrminc
+duplicates drop a01, force
+save offfrm15.dta, replace
+
+**farm wage
+use $BIHS15\008_r2_mod_c_male.dta, clear
+keep if c05== 1
 keep a01 c14
 replace c14=0 if c14==.
-bysort a01: egen frmwage=sum(c14) 
+bysort a01: egen frmwag=sum(c14) 
+gen frmwage=12*frmwag
 keep a01 frmwage
-label var frmwage "farm wage"
+label var frmwage "Farm wage"
 duplicates drop a01, force
 save frmwage15.dta, replace
 
-/*Non-agricultural enterprise*/
+*Non-agricultural enterprise
 use $BIHS15\041_r2_mod_n_male.dta, clear
 bysort a01: egen nnagent=sum(n05)
 label var nnagent "non-agricultural enterprise"
 keep a01 nnagent
 duplicates drop a01, force
 save nnagent15.dta, replace
-
-**off-farm but related to agriculture
-use $BIHS15\009_r2_mod_c1_male.dta, clear
-keep a01 c1_05 c1_09 c1_13
-replace c1_05=0 if c1_05==.
-replace c1_09=0 if c1_09==.
-replace c1_13=0 if c1_13==.
-gen nnfrm=c1_05+c1_09+c1_13
-bysort a01: egen offrmagr=sum(nnfrm)
-label var offrmagr "Off-farm income related with agriculture"
-keep a01 offrmagr
-duplicates drop a01, force
-save offfrmagr15.dta, replace
-
-**off-farm income
-use $BIHS15\008_r2_mod_c_male.dta, clear
-gen yc14=12*c14
-bysort a01: egen offrm=sum(yc14)
-label var offrm "Off-farm income "
-keep a01 offrm
-duplicates drop a01, force
-save offfrm15.dta, replace
-merge 1:1 a01 using offfrmagr18, nogen
-gen offrminc=offrm+offrmagr
-label var offrminc "Off-farm income"
-keep a01 offrminc
-save offfrm15.dta, replace 
 
 *HDDS
 use $BIHS15\042_r2_mod_o1_female.dta, clear //create Household dietary diversity score (HDDS)
@@ -383,9 +338,6 @@ drop hdds_i
 label var hdds "Household Dietary Diversity"
 duplicates drop a01, force
 save fd15.dta, replace
-/*foreach var of varlist x1_07_01 x1_07_02 x1_07_03 x1_07_04 x1_07_05 x1_07_06 x1_07_07 x1_07_08 x1_07_09 x1_07_10 x1_07_11 x1_07_12 x1_07_13 x1_07_14 x1_07_15{
-recode `var' (1/16=1 "Cereals")(2 "White roots and tubers")(3 "Vitamin a rich vegetables and tubers")(4 "Dark grenn leafy vegetables")(5 "Other vegetables")(6 "Vitamin a rich fruits")(7"Other fruits")(8 "Organ meat")(9 "Fresh meat")(10 "Eggs")(11 "Fish and seafood")(21/28=12 "Leagumes, nuts and seeds")(31/32=12 "Leagumes, nuts and seeds")(13 "Milk and milk products")(14 "Oils and fats")(15 "Sweets")(16 "Spices, condiments, and beverages"), gen(hdds_`var')
-}*/
 
 
 use $BIHS15\065_r2_mod_x1_2_female.dta //create Woman Dietary Diversity Score (WDDS)
@@ -469,9 +421,9 @@ merge 1:1 a01 using offfrm15.dta, nogen
 merge 1:1 a01 using fsh15.dta, nogen
 merge 1:1 a01 using nnagent15.dta, nogen
 merge 1:1 a01 using rem15.dta, nogen
-merge 1:1 a01 using offfrmagr15.dta, nogen
 merge 1:1 a01 using frmwage15.dta, nogen
-drop dstnc_sll_ trnsctn lvstck fshdiv
+merge 1:1 a01 using nnfrminc15.dta, nogen
+drop dstnc_sll_ trnsctn lvstck fshdiv v2_06
 replace crp_vl=0 if crp_vl==.
 replace offrminc=0 if offrminc==.
 replace nnearn=0 if nnearn==.
@@ -480,11 +432,11 @@ replace ttllvstck=0 if ttllvstck==.
 replace remi=0 if remi==.
 replace nnagent=0 if nnagent==.
 replace frmwage=0 if frmwage==.
-replace offrmagr=0 if offrmagr==.
-gen ttinc= crp_vl+nnearn+trsfr+ttllvstck+offrminc+fshinc+nnagent+remi+frmwage+offrmagr //total income
+replace offself=0 if offself==.
+gen ttinc= crp_vl+nnearn+trsfr+ttllvstck+offrminc+fshinc+nnagent+remi+frmwage+offself //total income
 gen aginc=ttllvstck+crp_vl+fshinc
-gen nonself=nnagent //non-farm self
-gen nonwage=offrminc+offrmagr //non-farm wage
+gen nonself=offself+nnagent //off-farm self
+gen nonwage=offrminc //off-farm wage
 gen nonearn=remi+trsfr+nnearn //non-earned 
 gen i1=(aginc/ttinc)^2
 gen i2=(frmwage/ttinc)^2
@@ -511,22 +463,12 @@ gen shn4=p4*lnp4
 gen shn5=p5*lnp5
 egen shnni = rowtotal(shn1 shn2 shn3 shn4 shn5)
 gen shni=-1*(shnni) //shannon
-keep a01 inc_div aginc frmwage nonself nonwage nonearn shni //ttinc ttinc crp_vl nnearn trsfr ttllvstck offrminc fshinc nnagent
+keep a01 aginc frmwage nonself nonwage nonearn inc_div shni ttinc // ttinc crp_vl nnearn trsfr ttllvstck offrminc fshinc nnagent
 save incdiv15.dta, replace
-/*gen es=(typ_plntd/ttl_frm)^2
-label var es "enterprise share (planted area)"
-bysort a01: egen es_crp=sum(es) 
-label var es_crp "Herfindahl-Hirschman index (crop)"
-drop if crop_a==.
-gen crp_div=1-es_crp
-label var crp_div "Crop Diversification Index"
-keep a01 crp_div
-duplicates drop a01, force
-hist crp_div
-save crp_div15.dta, replace*/
+
 
 **climate variables 
-use climate, clear
+use $climate\climate, clear
 /*rename (district dcode) (dcode District_Name) //renaming*/
 keep dcode District hs2 hr2 ha2 hw2 sds2 sdr2 sda2 sdw2 s2 r2 w2 a2 hst2 hrt2 hat2 hwt2 sdst2 sdrt2 sdat2 sdwt2 ts2 tr2 ta2 tw2 
 rename (hs2 hr2 ha2 hw2 sds2 sdr2 sda2 sdw2 s2 r2 w2 a2 hst2 hrt2 hat2 hwt2 sdst2 sdrt2 sdat2 sdwt2 ts2 tr2 ta2 tw2)(hs hr ha hw sds sdr sda sdw s r w a hst hrt hat hwt sdst sdrt sdat sdwt ts tr ta tw)
@@ -604,6 +546,9 @@ merge 1:1 a01 using frm_div15, nogen
 merge 1:1 a01 using mrkt15, nogen
 merge 1:1 a01 using facility15, nogen
 merge 1:1 a01 using extension15, nogen
+merge 1:1 a01 using mobile15, nogen
+merge 1:1 a01 using poverty15, nogen
+merge 1:1 a01 using migrant15, nogen
 label var farmsize "Farm Size(decimal)"
 label var ln_farm "Farm size(log)"
 gen year=2015
