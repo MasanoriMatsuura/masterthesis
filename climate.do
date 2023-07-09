@@ -104,58 +104,71 @@ rename v1 nid
 save temp1.dta, replace
 
 import delimited using $climate\rain2.csv, clear
-rename (v1 var1 var2)(nid lon lat)
+rename v1 nid
 save rain2.dta, replace
 import delimited using $climate\temp2.csv, clear
 rename v1 nid
 save temp2.dta, replace
 
+import delimited using $climate\rain3.csv, clear
+rename v1 nid
+save rain3.dta, replace
+import delimited using $climate\temp3.csv, clear
+rename v1 nid
+save temp3.dta, replace
+
+import delimited using $climate\rain4.csv, clear
+rename v1 nid
+save rain4.dta, replace
+import delimited using $climate\temp4.csv, clear
+rename v1 nid
+save temp4.dta, replace
 
 *** rainfall
 use district, clear
 geonear district lat lon using rain1.dta, neighbors(nid lat lon) //match with rain and dcode
-geonear district lat lon using rain2.dta, neighbors(nid lat lon) //match with rain and 
+geonear district lat lon using rain2.dta, neighbors(nid lat lon) //match with rain and
+geonear district lat lon using rain3.dta, neighbors(nid lat lon) //match with rain and  
+geonear district lat lon using rain4.dta, neighbors(nid lat lon) //match with rain and  
 save climate.dta, replace
 use climate, clear
 drop km_to_nid
 merge m:m nid using rain1.dta, nogen //merge dvcode data and  rain data
 merge m:m nid using rain2.dta, nogen //merge dvcode data and  rain data
+merge m:m nid using rain3.dta, nogen //merge dvcode data and  rain data
+merge m:m nid using rain4.dta, nogen //merge dvcode data and  rain data
 drop if district==.
-destring (hs1 hr1 ha1 hw1 hs2 hr2 ha2 hw2 hs3 hr3 ha3 hw3 s1 r1 a1 w1 s2 r2 a2 w2 s3 r3 a3 w3 sds1 sdr1 sda1 sdw1 sds2 sdr2 sda2 sdw2 sds3 sdr3 sda3 sdw3), replace
-label var sds1 "30-year summer rainfall SD"
-label var sds2 "30-year summer rainfall SD"
-label var sds3 "30-year summer rainfall SD"
-label var sdr1 "30-year rainy season rainfall SD"
-label var sdr2 "30-year rainy season rainfall SD"
-label var sdr3 "30-year rainy season rainfall SD"
-label var sda1 "30-year autumn rainfall SD"
-label var sda2 "30-year autumn rainfall SD"
-label var sda3 "30-year autumn rainfall SD"
-label var sdw1 "30-year winter rainfall SD"
-label var sdw2 "30-year winter rainfall SD"
-label var sdw3 "30-year winter rainfall SD"
+destring (hs1 hr1 hs2 hr2 hs3 hr3  s1 r1 s2 r2 s3 r3 ls1 lr1 ls2 lr2 ls3 lr3 tls1 tlr1 tls2 tlr2 tls3 tlr3  sds1 sdr1 sds2 sdr2 sds3 sdr3), replace
+label var sds1 "20-year Kharif rainfall SD"
+label var sds2 "20-year Kharif rainfall SD"
+label var sds3 "20-year Kharif rainfall SD"
+label var sdr1 "20-year Rabi season rainfall SD"
+label var sdr2 "20-year Rabi season rainfall SD"
+label var sdr3 "20-year Rabi season rainfall SD"
 save climate, replace
 
 *** temperature
 geonear district lat lon using temp1.dta, neighbors(nid lat lon) //merge dvcode data and temperature data
 geonear district lat lon using temp2.dta, neighbors(nid lat lon) //merge dvcode data and temperature data
+geonear district lat lon using temp3.dta, neighbors(nid lat lon) //merge dvcode data and temperature data
+geonear district lat lon using temp4.dta, neighbors(nid lat lon) //merge dvcode data and temperature data
+
 drop km_to_nid
 merge m:m nid using temp1.dta, nogen //merge
 merge m:m nid using temp2.dta, nogen //merge
+merge m:m nid using temp3.dta, nogen //merge
+merge m:m nid using temp4.dta, nogen //merge
 
 drop if district==.
 save qgis_climate.dta, replace
 drop nid nid lat lon 
-label var sdst1 "30-year summer temperature SD"
-label var sdst2 "30-year summer temperature SD"
-label var sdst3 "30-year summer temperature SD"
-label var sdrt1 "30-year rainy season temperature SD"
-label var sdrt2 "30-year rainy season temperature SD"
-label var sdrt3 "30-year rainy season temperature SD"
-label var sdat1 "30-year autumn temperature SD"
-label var sdat2 "30-year autumn temperature SD"
-label var sdat3 "30-year autumn temperature SD"
-label var sdwt1 "30-year winter temperature SD"
-label var sdwt2 "30-year winter temperature SD"
-label var sdwt3 "30-year winter temperature SD"
+label var sdst1 "20-year Kharif temperature SD"
+label var sdst2 "20-year Kharif temperature SD"
+label var sdst3 "20-year Kharif temperature SD"
+label var sdrt1 "20-year Rabi season temperature SD"
+label var sdrt2 "20-year Rabi season temperature SD"
+label var sdrt3 "20-year Rabi season temperature SD"
+
+***make the data compatible with BIHS
+rename (dcode district)(District dcode)
 save climate, replace
